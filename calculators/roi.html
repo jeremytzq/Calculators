@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ROI Calculator — Calculators</title>
+  <meta name="description" content="Calculate return on investment (ROI), net profit, and annualized (CAGR) return." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">C</span>
+        Calculators
+      </a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+
+    <div class="calc-page">
+      <h1>ROI Calculator</h1>
+      <p class="subtitle">Enter your investment and current (or final) value to calculate return on investment, net profit, and annualized return.</p>
+
+      <div class="panel">
+        <form id="roi-form" autocomplete="off">
+          <div class="field-grid">
+            <div class="field">
+              <label for="initial">Initial investment</label>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="number" id="initial" inputmode="decimal" placeholder="10,000" min="0" step="any" required />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="final">Final value</label>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="number" id="final" inputmode="decimal" placeholder="13,500" min="0" step="any" required />
+              </div>
+            </div>
+
+            <div class="field full">
+              <label for="years">Investment period <span style="font-weight:400; color:var(--text-muted);">(optional)</span></label>
+              <div class="input-wrap has-suffix">
+                <input type="number" id="years" inputmode="decimal" placeholder="3" min="0" step="any" />
+                <span class="suffix">years</span>
+              </div>
+              <div class="hint">Add a time period to also see your annualized return (CAGR).</div>
+            </div>
+          </div>
+        </form>
+
+        <div class="results" id="results" hidden>
+          <div class="result-tile primary">
+            <div class="label">ROI</div>
+            <div class="value" id="out-roi">—</div>
+          </div>
+          <div class="result-tile">
+            <div class="label">Net profit</div>
+            <div class="value" id="out-profit">—</div>
+          </div>
+          <div class="result-tile" id="tile-cagr" hidden>
+            <div class="label">Annualized return (CAGR)</div>
+            <div class="value" id="out-cagr">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer">
+        <h2>How it's calculated</h2>
+        <p><strong>ROI</strong> = <code>(Final Value − Initial Investment) / Initial Investment × 100</code></p>
+        <p><strong>Net Profit</strong> = <code>Final Value − Initial Investment</code></p>
+        <p><strong>Annualized Return (CAGR)</strong> = <code>((Final Value / Initial Investment) ^ (1 / Years) − 1) × 100</code>, shown when you provide an investment period.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  </footer>
+
+  <script src="../js/theme.js"></script>
+  <script src="../js/roi.js"></script>
+</body>
+</html>
