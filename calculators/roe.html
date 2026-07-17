@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real Estate ROE Calculator — Calculators</title>
+  <meta name="description" content="Calculate return on equity (ROE) for a rental property, and project how it changes over time as equity builds from appreciation and loan paydown." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">C</span>
+        Calculators
+      </a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+
+    <div class="calc-page">
+      <h1>Real Estate ROE Calculator</h1>
+      <p class="subtitle">See how efficiently a property is using the equity you have tied up in it — and how that return trends over time as the property appreciates and the loan pays down.</p>
+
+      <div class="panel">
+        <form id="roe-form" autocomplete="off">
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Current snapshot</h2>
+              <p>Where the property stands today.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="currentValue">Current market value</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="currentValue" inputmode="decimal" placeholder="450,000" min="0" step="any" required />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="currentLoanBalance">Current loan balance</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="currentLoanBalance" inputmode="decimal" placeholder="290,000" min="0" step="any" />
+                </div>
+                <div class="hint">Remaining mortgage principal owed today</div>
+              </div>
+
+              <div class="field full">
+                <label for="annualCashFlow">Current annual cash flow</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="annualCashFlow" inputmode="decimal" placeholder="4,200" step="any" required />
+                </div>
+                <div class="hint">Net income after all operating expenses and mortgage payments — can be negative</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Loan terms</h2>
+              <p>Used to project how the loan balance pays down going forward.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="loanRate">Interest rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="loanRate" inputmode="decimal" placeholder="6.5" min="0" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">Annual rate on the remaining balance</div>
+              </div>
+
+              <div class="field">
+                <label for="loanRemainingTerm">Years remaining on loan</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="loanRemainingTerm" inputmode="decimal" placeholder="27" min="0" step="any" />
+                  <span class="suffix">years</span>
+                </div>
+                <div class="hint">Leave at 0 if the property is paid off</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Growth assumptions</h2>
+              <p>How the property, and your cash flow, are expected to grow.</p>
+            </div>
+            <div class="field-grid cols-3">
+              <div class="field">
+                <label for="appreciationRate">Appreciation rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="appreciationRate" inputmode="decimal" placeholder="3" min="-100" step="any" />
+                  <span class="suffix">%/yr</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="cashFlowGrowthRate">Cash flow growth rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="cashFlowGrowthRate" inputmode="decimal" placeholder="2" min="-100" step="any" />
+                  <span class="suffix">%/yr</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="projectionYears">Project forward</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="projectionYears" inputmode="decimal" placeholder="10" min="1" max="40" step="1" required />
+                  <span class="suffix">years</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div id="results" hidden>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Today</h2>
+            </div>
+            <div class="results dense">
+              <div class="result-tile primary">
+                <div class="label">Current equity</div>
+                <div class="value small" id="out-equity">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Loan-to-value</div>
+                <div class="value small" id="out-ltv">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Cash-flow ROE</div>
+                <div class="value small" id="out-cashRoe">—</div>
+                <div class="sub">Cash flow ÷ equity</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Total ROE</div>
+                <div class="value small" id="out-totalRoe">—</div>
+                <div class="sub">Cash flow + appreciation ÷ equity</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Equity &amp; ROE over time</h2>
+              <span class="note" id="projection-note">Next 10 years</span>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Property value</th>
+                    <th>Loan balance</th>
+                    <th>Equity</th>
+                    <th>Cash flow</th>
+                    <th>Cash-flow ROE</th>
+                    <th>Total ROE</th>
+                  </tr>
+                </thead>
+                <tbody id="projection-body"></tbody>
+              </table>
+            </div>
+            <div class="hint" style="margin-top: 8px;">Scroll horizontally to see all columns →</div>
+          </div>
+
+          <div class="callout">
+            <strong>Why ROE matters:</strong> as a property appreciates and the loan pays down, your equity grows — but cash flow usually doesn't keep pace. The same dollars of profit sitting on a larger pile of equity means a shrinking return. A falling ROE trend is often the signal that it's time to refinance, sell, or 1031 exchange into a new property so that equity keeps working as hard as it did on day one.
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer">
+        <h2>How it's calculated</h2>
+
+        <div class="formula-block">
+          <h3>Equity</h3>
+          <p><code>Equity = Property Value − Loan Balance</code></p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Cash-flow ROE</h3>
+          <p><code>Cash-Flow ROE = Annual Cash Flow / Beginning-of-Year Equity × 100</code></p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Total ROE</h3>
+          <p><code>Total ROE = (Annual Cash Flow + Appreciation Gain) / Beginning-of-Year Equity × 100</code>, where appreciation gain is the property's value increase during that year. This captures your full economic return — cash in hand plus equity growth — relative to the equity you have invested.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Projection</h3>
+          <p>Property value compounds at your appreciation rate. The loan balance is amortized forward from its current balance using the interest rate and years remaining — the same fixed monthly payment that would pay it off on schedule. Cash flow compounds at your cash flow growth rate. Each year's ROE divides that year's return by the equity you had at the <em>start</em> of the year, matching how return on capital is conventionally measured.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  </footer>
+
+  <script src="../js/theme.js"></script>
+  <script src="../js/roe.js"></script>
+</body>
+</html>

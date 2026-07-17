@@ -12,9 +12,10 @@ A fast, no-build calculator website. Plain HTML/CSS/JS, deployable anywhere (Git
 
 ## Calculators
 
-- **ROI Calculator** (`calculators/roi.html`) — return on investment, net profit, annualized (CAGR) return
+- **Real Estate ROI Calculator** (`calculators/roi.html`) — cap rate, cash-on-cash return, DSCR, and annualized IRR for a rental property purchase
+- **Real Estate ROE Calculator** (`calculators/roe.html`) — return on equity today, plus a year-by-year projection of how it trends as appreciation and loan paydown build equity
 
-More (ROE, capital appreciation simulator, compound interest) are planned — see the "Coming soon" cards on the home page.
+More (capital appreciation simulator, compound interest) are planned — see the "Coming soon" cards on the home page.
 
 ## Running locally
 
