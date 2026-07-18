@@ -15,8 +15,9 @@ A fast, no-build calculator website. Plain HTML/CSS/JS, deployable anywhere (Git
 - **Real Estate ROI Calculator** (`calculators/roi.html`) — cap rate, cash-on-cash return, DSCR, and annualized IRR for a rental property purchase
 - **Real Estate ROE Calculator** (`calculators/roe.html`) — return on equity today, plus a year-by-year projection of how it trends as appreciation and loan paydown build equity
 - **Investment Comparison Calculator** (`calculators/comparison.html`) — compares the same capital deployed into residential property, industrial property, financial vehicles, and crypto, with per-asset leverage, income, fees, and growth assumptions
+- **Compound Interest Calculator** (`calculators/compound-interest.html`) — principal plus regular contributions compounded at any frequency, with a year-by-year stacked chart of contributions vs. interest earned
 
-More (compound interest calculator) are planned — see the "Coming soon" cards on the home page.
+All planned calculators from the home page are now built.
 
 ## Running locally
 

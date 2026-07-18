@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compound Interest Calculator — Calculators</title>
+  <meta name="description" content="Calculate how a principal plus regular contributions grows with compound interest, with a year-by-year breakdown of contributions vs. interest earned." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">C</span>
+        Calculators
+      </a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+
+    <div class="calc-page">
+      <h1>Compound Interest Calculator</h1>
+      <p class="subtitle">See how a starting balance plus regular contributions grows over time, and how much of the final total is money you put in versus interest you earned.</p>
+
+      <div class="panel">
+        <form id="ci-form" autocomplete="off">
+          <div class="field-grid">
+            <div class="field">
+              <label for="principal">Initial principal</label>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="number" id="principal" inputmode="decimal" value="10000" min="0" step="any" required />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="monthlyContribution">Monthly contribution</label>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="number" id="monthlyContribution" inputmode="decimal" value="200" min="0" step="any" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="annualRate">Annual interest rate</label>
+              <div class="input-wrap has-suffix">
+                <input type="number" id="annualRate" inputmode="decimal" value="7" step="any" />
+                <span class="suffix">%</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="years">Time horizon</label>
+              <div class="input-wrap has-suffix">
+                <input type="number" id="years" inputmode="decimal" value="20" min="1" max="60" step="1" required />
+                <span class="suffix">years</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="compoundFrequency">Compounding frequency</label>
+              <select id="compoundFrequency">
+                <option value="1">Annually</option>
+                <option value="2">Semi-annually</option>
+                <option value="4">Quarterly</option>
+                <option value="12" selected>Monthly</option>
+                <option value="365">Daily</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="contributionTiming">Contribution timing</label>
+              <select id="contributionTiming">
+                <option value="beginning" selected>Start of each month</option>
+                <option value="end">End of each month</option>
+              </select>
+              <div class="hint">Contributing earlier earns slightly more interest</div>
+            </div>
+          </div>
+        </form>
+
+        <div id="results" hidden>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>After the full time horizon</h2>
+            </div>
+            <div class="results dense">
+              <div class="result-tile primary">
+                <div class="label">Final balance</div>
+                <div class="value small" id="out-finalBalance">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Total contributions</div>
+                <div class="value small" id="out-totalContributions">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Total interest earned</div>
+                <div class="value small" id="out-totalInterest">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Share of balance from interest</div>
+                <div class="value small" id="out-interestShare">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Growth over time</h2>
+              <span class="note">Contributions vs. interest, year by year</span>
+            </div>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="swatch" style="background: var(--stack-principal);"></span>Contributions</span>
+              <span class="legend-item"><span class="swatch" style="background: var(--stack-interest);"></span>Interest earned</span>
+            </div>
+            <div class="growth-chart-wrap" id="growth-chart-wrap">
+              <div class="growth-chart" id="growth-chart"></div>
+              <div class="growth-ticks" id="growth-ticks"></div>
+            </div>
+            <div class="hint" id="chart-scroll-hint" style="margin-top: 8px;" hidden>Scroll horizontally to see all years →</div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Year-by-year detail</h2>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Contributions to date</th>
+                    <th>Interest to date</th>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                <tbody id="ci-table-body"></tbody>
+              </table>
+            </div>
+            <div class="hint" id="ci-scroll-hint" style="margin-top: 8px;" hidden>Scroll horizontally to see all columns →</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer">
+        <h2>How it's calculated</h2>
+
+        <div class="formula-block">
+          <h3>Effective monthly rate</h3>
+          <p>Your nominal annual rate is converted to an effective monthly rate based on the compounding frequency you chose: <code>(1 + rate/n)^(n/12) − 1</code>, where <code>n</code> is the number of compounding periods per year. This lets contributions (always monthly) and compounding (any frequency) combine correctly.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Month-by-month growth</h3>
+          <p>Each month, your contribution is added (at the start or end of the month, per your setting), then the balance grows by the effective monthly rate. This is simulated one month at a time rather than using a single closed-form formula, so the year-by-year breakdown is exact.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Total interest earned</h3>
+          <p><code>Total Interest = Final Balance − Total Contributions</code>, where total contributions is your initial principal plus every monthly contribution made along the way (no growth assumed on the contributions themselves — the interest figure captures all of the growth).</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  </footer>
+
+  <script src="../js/theme.js"></script>
+  <script src="../js/compound-interest.js"></script>
+</body>
+</html>
