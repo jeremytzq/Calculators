@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Property Leverage Calculator (Singapore) — Calculators</title>
+  <meta name="description" content="Model a Singapore rental property purchase — costs, rental income, and stamp duty — then project how much equity you could extract at sale to leverage into your next property." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">C</span>
+        Calculators
+      </a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+
+    <div class="calc-page">
+      <h1>Property Leverage Calculator</h1>
+      <p class="subtitle">Model a Singapore rental property purchase — mortgage, costs, rental income, and stamp duty — then see how much equity you could pull out at sale to leverage into your next property.</p>
+
+      <div class="panel">
+        <form id="pl-form" autocomplete="off">
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Property &amp; financing</h2>
+            </div>
+            <div class="field-grid cols-3">
+              <div class="field">
+                <label for="purchasePrice">Purchase price</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="number" id="purchasePrice" inputmode="decimal" value="2600000" min="0" step="any" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="sizeSqft">Size</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="sizeSqft" inputmode="decimal" value="1625" min="1" step="any" required />
+                  <span class="suffix">sqft</span>
+                </div>
+                <div class="hint" id="size-sqm-note">—</div>
+              </div>
+              <div class="field">
+                <label for="downPaymentPct">Down payment</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="downPaymentPct" inputmode="decimal" value="25" min="1" max="100" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="interestRate">Interest rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="interestRate" inputmode="decimal" value="2.5" min="0" step="any" />
+                  <span class="suffix">%/yr</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="loanTerm">Loan term</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="loanTerm" inputmode="decimal" value="30" min="1" step="any" />
+                  <span class="suffix">years</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="holdingPeriod">Holding period</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="holdingPeriod" inputmode="decimal" value="10" min="1" max="40" step="1" />
+                  <span class="suffix">years</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Rental income</h2>
+            </div>
+            <div class="field-grid cols-3">
+              <div class="field">
+                <label for="rentalPsf">Rental rate</label>
+                <div class="input-wrap has-prefix has-suffix">
+                  <span class="prefix">S$</span>
+                  <input type="number" id="rentalPsf" inputmode="decimal" value="3.00" min="0" step="any" />
+                  <span class="suffix">psf/mo</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="vacancyRate">Vacancy rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="vacancyRate" inputmode="decimal" value="12" min="0" max="100" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+              </div>
+              <div class="field">
+                <label>Gross rental yield</label>
+                <div class="display-value" id="gross-yield-note">—</div>
+                <div class="hint">Derived from rental rate × size ÷ purchase price</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Monthly holding costs</h2>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="maintenanceMonthly">Maintenance</label>
+                <div class="input-wrap has-prefix has-suffix">
+                  <span class="prefix">S$</span>
+                  <input type="number" id="maintenanceMonthly" inputmode="decimal" value="812.50" min="0" step="any" />
+                  <span class="suffix">/mo</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="propertyTaxMonthly">Property tax</label>
+                <div class="input-wrap has-prefix has-suffix">
+                  <span class="prefix">S$</span>
+                  <input type="number" id="propertyTaxMonthly" inputmode="decimal" value="487.50" min="0" step="any" />
+                  <span class="suffix">/mo</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Purchase &amp; exit costs</h2>
+              <p>Buyer's Stamp Duty is computed automatically using Singapore's progressive residential rates.</p>
+            </div>
+            <div class="field-grid cols-3">
+              <div class="field">
+                <label for="absdPct">ABSD</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="absdPct" inputmode="decimal" value="0" min="0" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">Additional Buyer's Stamp Duty — 0% for most citizens' first property; can be 20%+ for additional properties or foreign buyers</div>
+              </div>
+              <div class="field">
+                <label for="conveyancing">Conveyancing</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="number" id="conveyancing" inputmode="decimal" value="6000" min="0" step="any" />
+                </div>
+                <div class="hint">Legal fees for the purchase</div>
+              </div>
+              <div class="field">
+                <label for="agentCommissionPct">Agent commission</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="agentCommissionPct" inputmode="decimal" value="2" min="0" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">Of purchase price, paid when you sell</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Leveraging into the next property</h2>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="capAppreciation">Capital appreciation</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="capAppreciation" inputmode="decimal" value="4" min="-100" step="any" />
+                  <span class="suffix">%/yr</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="nextPropertyDownPct">Next property down payment</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="nextPropertyDownPct" inputmode="decimal" value="20" min="1" max="100" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div id="results" hidden>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Key metrics</h2>
+            </div>
+            <div class="results dense">
+              <div class="result-tile">
+                <div class="label">Price PSF</div>
+                <div class="value small" id="out-psfPrice">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Loan amount</div>
+                <div class="value small" id="out-loanAmount">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Monthly instalment</div>
+                <div class="value small" id="out-monthlyInstalment">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Total cash outlay</div>
+                <div class="value small" id="out-totalCashOutlay">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Costs &amp; rental income</h2>
+              <span class="note" id="costs-note">Over the holding period</span>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table" id="costs-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Per month</th>
+                    <th>Per year</th>
+                    <th id="costs-holding-header">Over holding period</th>
+                  </tr>
+                </thead>
+                <tbody id="costs-table-body"></tbody>
+              </table>
+            </div>
+            <div class="hint" id="costs-scroll-hint" style="margin-top: 8px;" hidden>Scroll horizontally to see all columns →</div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Cash outlay breakdown</h2>
+            </div>
+            <div class="results dense">
+              <div class="result-tile">
+                <div class="label">Down payment</div>
+                <div class="value small" id="out-downPayment">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Buyer's stamp duty</div>
+                <div class="value small" id="out-stampDuty">—</div>
+              </div>
+              <div class="result-tile" id="tile-absd" hidden>
+                <div class="label">ABSD</div>
+                <div class="value small" id="out-absd">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Conveyancing</div>
+                <div class="value small" id="out-conveyancing">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Agent commission</div>
+                <div class="value small" id="out-agentCommission">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Outstanding mortgage at exit</div>
+                <div class="value small" id="out-outstandingMortgage">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Vacancy loss</div>
+                <div class="value small" id="out-vacancyLoss">—</div>
+                <div class="sub" id="out-vacancyRateNote">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Bonus: leverage into your next property</h2>
+              <span class="note">At the end of the holding period</span>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table" id="leverage-table">
+                <thead>
+                  <tr>
+                    <th>Scenario</th>
+                    <th>Sale price</th>
+                    <th>Capital profit</th>
+                    <th>Equity available</th>
+                    <th>Next property value</th>
+                    <th>Leverage</th>
+                  </tr>
+                </thead>
+                <tbody id="leverage-table-body"></tbody>
+              </table>
+            </div>
+            <div class="hint" id="leverage-scroll-hint" style="margin-top: 8px;" hidden>Scroll horizontally to see all columns →</div>
+          </div>
+
+          <div class="callout">
+            <strong>Read this before trusting the numbers:</strong> capital appreciation is your assumption, not a forecast — Singapore residential prices have had multi-year stretches both well above and well below 4% p.a. This model ignores income tax on rental income, seller's stamp duty (SSD, if you sell within the holding period that triggers it), CPF usage, and the fact that agent commission here is a flat % of the <em>original</em> purchase price rather than the eventual sale price. Treat "equity available" as a planning estimate, not a loan pre-approval.
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer">
+        <h2>How it's calculated</h2>
+
+        <div class="formula-block">
+          <h3>Buyer's Stamp Duty (BSD)</h3>
+          <p>Singapore's progressive residential BSD: 1% on the first S$180,000, 2% on the next S$180,000, 3% on the next S$640,000, 4% on the next S$500,000, 5% on the next S$1,500,000, and 6% on anything above S$3,000,000.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Monthly instalment &amp; outstanding mortgage</h3>
+          <p>Standard amortizing loan on <code>Purchase Price × (1 − Down Payment %)</code>. The outstanding balance at exit is the remaining principal after your holding period's worth of payments.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Equity available as next down payment</h3>
+          <p><code>Sale Price + Net Cashflow Over Holding − Outstanding Mortgage − Stamp Duty − ABSD − Conveyancing − Agent Commission − Vacancy Loss</code>. This is the cash you'd walk away with after selling and settling every cost tracked above — the pool you could redeploy as a down payment on your next purchase.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Next property value &amp; leverage</h3>
+          <p><code>Next Property Value = Equity Available / Next Property Down Payment %</code>. <strong>Leverage</strong> expresses that as a percentage of your original purchase price, showing how much bigger a property the extracted equity could control.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  </footer>
+
+  <script src="../js/theme.js"></script>
+  <script src="../js/property-leverage.js"></script>
+</body>
+</html>
