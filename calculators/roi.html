@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real Estate ROI Calculator — Calculators</title>
+  <meta name="description" content="Calculate real estate investment ROI: cap rate, cash-on-cash return, cash flow, DSCR, and annualized IRR including financing, vacancy, expenses, appreciation, and selling costs." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">C</span>
+        Calculators
+      </a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+
+    <div class="calc-page">
+      <h1>Real Estate ROI Calculator</h1>
+      <p class="subtitle">Model a rental property purchase end-to-end — financing, income, operating expenses, vacancy, appreciation, and the eventual sale — to see cap rate, cash-on-cash return, and annualized IRR.</p>
+
+      <div class="panel">
+        <form id="roi-form" autocomplete="off">
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Purchase &amp; financing</h2>
+              <p>What it costs to acquire the property and how it's financed.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="purchasePrice">Purchase price</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="purchasePrice" inputmode="decimal" placeholder="400,000" min="0" step="any" required />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="closingCosts">Closing costs</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="closingCosts" inputmode="decimal" placeholder="8,000" min="0" step="any" />
+                </div>
+                <div class="hint">Typically 2–5% of purchase price</div>
+              </div>
+
+              <div class="field">
+                <label for="rehabCosts">Renovation / rehab costs</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="rehabCosts" inputmode="decimal" placeholder="0" min="0" step="any" />
+                </div>
+                <div class="hint">Upfront repairs before renting</div>
+              </div>
+
+              <div class="field">
+                <label for="downPaymentPct">Down payment</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="downPaymentPct" inputmode="decimal" placeholder="20" min="0" max="100" step="any" required />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="computed-note" id="note-downpayment">—</div>
+              </div>
+
+              <div class="field">
+                <label for="interestRate">Mortgage interest rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="interestRate" inputmode="decimal" placeholder="6.5" min="0" step="any" required />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">Annual rate</div>
+              </div>
+
+              <div class="field">
+                <label for="loanTerm">Loan term</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="loanTerm" inputmode="decimal" placeholder="30" min="1" step="any" required />
+                  <span class="suffix">years</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Rental income</h2>
+              <p>Expected income once the property is rented.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="monthlyRent">Monthly rent</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="monthlyRent" inputmode="decimal" placeholder="2,800" min="0" step="any" required />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="otherIncome">Other monthly income</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="otherIncome" inputmode="decimal" placeholder="0" min="0" step="any" />
+                </div>
+                <div class="hint">Parking, laundry, storage, etc.</div>
+              </div>
+
+              <div class="field">
+                <label for="vacancyRate">Vacancy rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="vacancyRate" inputmode="decimal" placeholder="5" min="0" max="100" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">% of income lost to vacancy</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Operating expenses</h2>
+              <p>Recurring costs of owning and running the property (excludes the mortgage).</p>
+            </div>
+            <div class="field-grid cols-3">
+              <div class="field">
+                <label for="propertyTax">Property tax</label>
+                <div class="input-wrap has-prefix has-suffix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="propertyTax" inputmode="decimal" placeholder="4,200" min="0" step="any" />
+                  <span class="suffix">/yr</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="insurance">Insurance</label>
+                <div class="input-wrap has-prefix has-suffix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="insurance" inputmode="decimal" placeholder="1,400" min="0" step="any" />
+                  <span class="suffix">/yr</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="hoa">HOA fees</label>
+                <div class="input-wrap has-prefix has-suffix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="hoa" inputmode="decimal" placeholder="0" min="0" step="any" />
+                  <span class="suffix">/mo</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="maintenancePct">Maintenance &amp; repairs</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="maintenancePct" inputmode="decimal" placeholder="8" min="0" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">% of gross rent</div>
+              </div>
+
+              <div class="field">
+                <label for="managementPct">Property management</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="managementPct" inputmode="decimal" placeholder="8" min="0" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">% of gross rent</div>
+              </div>
+
+              <div class="field">
+                <label for="otherExpenses">Other expenses</label>
+                <div class="input-wrap has-prefix has-suffix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="otherExpenses" inputmode="decimal" placeholder="0" min="0" step="any" />
+                  <span class="suffix">/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Growth &amp; exit assumptions</h2>
+              <p>How the property and rent grow, and what it costs to eventually sell.</p>
+            </div>
+            <div class="field-grid cols-3">
+              <div class="field">
+                <label for="appreciationRate">Appreciation rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="appreciationRate" inputmode="decimal" placeholder="3" min="-100" step="any" />
+                  <span class="suffix">%/yr</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="rentGrowthRate">Rent growth rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="rentGrowthRate" inputmode="decimal" placeholder="2" min="-100" step="any" />
+                  <span class="suffix">%/yr</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="expenseGrowthRate">Expense growth rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="expenseGrowthRate" inputmode="decimal" placeholder="2" min="-100" step="any" />
+                  <span class="suffix">%/yr</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="holdingPeriod">Holding period</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="holdingPeriod" inputmode="decimal" placeholder="5" min="1" step="any" required />
+                  <span class="suffix">years</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="sellingCostsPct">Selling costs</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="sellingCostsPct" inputmode="decimal" placeholder="7" min="0" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">% of sale price — agent commission + closing costs</div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div id="results" hidden>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Financing</h2>
+            </div>
+            <div class="results dense">
+              <div class="result-tile">
+                <div class="label">Loan amount</div>
+                <div class="value small" id="out-loanAmount">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Down payment</div>
+                <div class="value small" id="out-downPayment">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Monthly mortgage (P&amp;I)</div>
+                <div class="value small" id="out-monthlyPayment">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Total cash invested</div>
+                <div class="value small" id="out-cashInvested">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Year 1 performance</h2>
+              <span class="note">Based on rent, vacancy, and expenses in year one</span>
+            </div>
+            <div class="results dense">
+              <div class="result-tile">
+                <div class="label">Effective gross income</div>
+                <div class="value small" id="out-egi">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Operating expenses</div>
+                <div class="value small" id="out-opex">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Net operating income</div>
+                <div class="value small" id="out-noi">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Cap rate</div>
+                <div class="value small" id="out-capRate">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Annual cash flow</div>
+                <div class="value small" id="out-cashFlow">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Cash-on-cash return</div>
+                <div class="value small" id="out-coc">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">DSCR</div>
+                <div class="value small" id="out-dscr">—</div>
+                <div class="sub">Debt service coverage ratio</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Gross rent multiplier</div>
+                <div class="value small" id="out-grm">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>At sale</h2>
+              <span class="note" id="sale-note">After N years</span>
+            </div>
+            <div class="results dense">
+              <div class="result-tile">
+                <div class="label">Projected sale price</div>
+                <div class="value small" id="out-salePrice">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Remaining loan balance</div>
+                <div class="value small" id="out-remainingBalance">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Selling costs</div>
+                <div class="value small" id="out-sellingCosts">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Net sale proceeds</div>
+                <div class="value small" id="out-netProceeds">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Cumulative cash flow</div>
+                <div class="value small" id="out-cumCashFlow">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Total profit</div>
+                <div class="value small" id="out-totalProfit">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Total ROI</div>
+                <div class="value" id="out-totalRoi">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Annualized return (IRR)</div>
+                <div class="value" id="out-irr">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <strong>Note:</strong> This model does not account for income taxes, depreciation deductions, capital gains tax on sale, or 1031 exchanges — those can meaningfully change your after-tax return. Treat results as a pre-tax operating estimate.
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer">
+        <h2>How it's calculated</h2>
+
+        <div class="formula-block">
+          <h3>Mortgage payment</h3>
+          <p><code>M = L × r × (1+r)ⁿ / ((1+r)ⁿ − 1)</code>, where <code>L</code> is the loan amount, <code>r</code> is the monthly interest rate, and <code>n</code> is the number of monthly payments.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Net operating income (NOI)</h3>
+          <p><code>NOI = Effective Gross Income − Operating Expenses</code>, excluding mortgage payments and capital expenditures.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Cap rate</h3>
+          <p><code>Cap Rate = NOI / Purchase Price × 100</code></p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Cash-on-cash return</h3>
+          <p><code>Cash-on-Cash = Annual Cash Flow / Total Cash Invested × 100</code>, where cash flow is NOI minus annual mortgage payments.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>DSCR (debt service coverage ratio)</h3>
+          <p><code>DSCR = NOI / Annual Mortgage Payments</code> — lenders typically want this above 1.20–1.25.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Total ROI &amp; annualized return (IRR)</h3>
+          <p>At sale, the property's value grows by the appreciation rate, the loan balance is paid down via amortization, and selling costs are deducted to get <strong>net sale proceeds</strong>. Rent and expenses grow each year by their own growth rates to produce a year-by-year cash flow. <strong>Total ROI</strong> compares total profit (net sale proceeds + cumulative cash flow − cash invested) to cash invested. <strong>Annualized return</strong> is the true IRR of the full cash flow stream — the initial outlay, each year's cash flow, and the final sale proceeds — solved numerically, so it reflects the actual timing of your money rather than a simple average.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  </footer>
+
+  <script src="../js/theme.js"></script>
+  <script src="../js/roi.js"></script>
+</body>
+</html>

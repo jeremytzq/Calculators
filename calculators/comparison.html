@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investment Comparison Calculator — Calculators</title>
+  <meta name="description" content="Compare projected returns across residential property, industrial property, financial vehicles, and crypto for the same amount of capital." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">C</span>
+        Calculators
+      </a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+
+    <div class="calc-page">
+      <h1>Investment Comparison Calculator</h1>
+      <p class="subtitle">Put the same amount of capital into residential property, industrial property, financial vehicles, and crypto — and see how the leverage, income, fees, and growth assumptions of each play out over time.</p>
+
+      <div class="panel">
+        <form id="compare-form" autocomplete="off">
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Comparison basis</h2>
+              <p>The same starting capital and time horizon is applied to all four.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="investmentAmount">Capital to invest</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">$</span>
+                  <input type="number" id="investmentAmount" inputmode="decimal" value="50000" min="0" step="any" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="horizonYears">Time horizon</label>
+                <div class="input-wrap has-suffix">
+                  <input type="number" id="horizonYears" inputmode="decimal" value="10" min="1" max="40" step="1" required />
+                  <span class="suffix">years</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <details class="asset-details" open style="margin-top: 22px;">
+            <summary>
+              <span class="swatch residential"></span>
+              Residential property
+              <span class="blurb">Leveraged, rented out for income</span>
+              <span class="chevron">▶</span>
+            </summary>
+            <div class="details-body">
+              <div class="field-grid cols-3">
+                <div class="field">
+                  <label for="resDownPct">Down payment</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="resDownPct" inputmode="decimal" value="20" min="1" max="100" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="resRate">Mortgage rate</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="resRate" inputmode="decimal" value="6.5" min="0" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="resTerm">Loan term</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="resTerm" inputmode="decimal" value="30" min="1" step="any" />
+                    <span class="suffix">years</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="resAppreciation">Appreciation</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="resAppreciation" inputmode="decimal" value="3.5" min="-100" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="resNetYield">Net rental yield</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="resNetYield" inputmode="decimal" value="3" min="-100" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                  <div class="hint">Net income as % of property value, before the mortgage</div>
+                </div>
+                <div class="field">
+                  <label for="resSellingCosts">Selling costs</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="resSellingCosts" inputmode="decimal" value="7" min="0" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <details class="asset-details" open>
+            <summary>
+              <span class="swatch industrial"></span>
+              Industrial property
+              <span class="blurb">Leveraged, commercial lease income</span>
+              <span class="chevron">▶</span>
+            </summary>
+            <div class="details-body">
+              <div class="field-grid cols-3">
+                <div class="field">
+                  <label for="indDownPct">Down payment</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="indDownPct" inputmode="decimal" value="30" min="1" max="100" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                  <div class="hint">Commercial loans usually need more down</div>
+                </div>
+                <div class="field">
+                  <label for="indRate">Loan rate</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="indRate" inputmode="decimal" value="7" min="0" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="indTerm">Loan term</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="indTerm" inputmode="decimal" value="20" min="1" step="any" />
+                    <span class="suffix">years</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="indAppreciation">Appreciation</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="indAppreciation" inputmode="decimal" value="2.5" min="-100" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="indNetYield">Net lease yield</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="indNetYield" inputmode="decimal" value="7" min="-100" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                  <div class="hint">Net income as % of property value, before the loan</div>
+                </div>
+                <div class="field">
+                  <label for="indSellingCosts">Selling costs</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="indSellingCosts" inputmode="decimal" value="6" min="0" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <details class="asset-details" open>
+            <summary>
+              <span class="swatch financial"></span>
+              Financial vehicles
+              <span class="blurb">Stocks, bonds, index funds — unleveraged</span>
+              <span class="chevron">▶</span>
+            </summary>
+            <div class="details-body">
+              <div class="field-grid cols-3">
+                <div class="field">
+                  <label for="finReturn">Price return</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="finReturn" inputmode="decimal" value="8" min="-100" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                  <div class="hint">S&amp;P 500 has averaged ~7–10%/yr nominal</div>
+                </div>
+                <div class="field">
+                  <label for="finYield">Dividend yield</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="finYield" inputmode="decimal" value="1.5" min="0" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                  <div class="hint">Assumed reinvested</div>
+                </div>
+                <div class="field">
+                  <label for="finFees">Fund fees</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="finFees" inputmode="decimal" value="0.3" min="0" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                  <div class="hint">Expense ratio drag</div>
+                </div>
+                <div class="field">
+                  <label for="finExitFees">Exit costs</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="finExitFees" inputmode="decimal" value="0" min="0" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <details class="asset-details" open>
+            <summary>
+              <span class="swatch crypto"></span>
+              Crypto
+              <span class="blurb">Unleveraged, highly speculative</span>
+              <span class="chevron">▶</span>
+            </summary>
+            <div class="details-body">
+              <div class="field-grid cols-3">
+                <div class="field">
+                  <label for="cryReturn">Price return</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="cryReturn" inputmode="decimal" value="15" min="-100" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                  <div class="hint">Extremely volatile — this is a guess, not a forecast</div>
+                </div>
+                <div class="field">
+                  <label for="cryYield">Staking yield</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="cryYield" inputmode="decimal" value="0" min="0" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                  <div class="hint">Assumed reinvested</div>
+                </div>
+                <div class="field">
+                  <label for="cryFees">Platform fees</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="cryFees" inputmode="decimal" value="0.5" min="0" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="cryExitFees">Exit costs</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="cryExitFees" inputmode="decimal" value="1.5" min="0" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                  <div class="hint">Trading / withdrawal fees</div>
+                </div>
+              </div>
+            </div>
+          </details>
+        </form>
+
+        <div id="results" hidden>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Annualized return by asset class</h2>
+              <span class="note">IRR for leveraged property, CAGR for the rest</span>
+            </div>
+            <div class="bar-chart" id="bar-chart" role="img" aria-label="Annualized return comparison across asset classes"></div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Full comparison</h2>
+              <span class="note">Over the full time horizon</span>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table" id="compare-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th><span class="swatch residential"></span> Residential</th>
+                    <th><span class="swatch industrial"></span> Industrial</th>
+                    <th><span class="swatch financial"></span> Financial</th>
+                    <th><span class="swatch crypto"></span> Crypto</th>
+                  </tr>
+                </thead>
+                <tbody id="compare-body"></tbody>
+              </table>
+            </div>
+            <div class="hint" id="table-scroll-hint" style="margin-top: 8px;" hidden>Scroll horizontally to see all columns →</div>
+          </div>
+
+          <div class="callout">
+            <strong>Read this before trusting the numbers:</strong> every asset class here is driven entirely by the growth rate <em>you</em> typed in — none of it is a prediction. Crypto and equities can swing wildly from year to year even when their long-run average matches your input; property leverage cuts both ways and can amplify losses if values fall. This model also ignores income tax, capital gains tax, and (for property) maintenance surprises or refinancing. Treat it as a way to compare assumptions consistently, not as investment advice.
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer">
+        <h2>How it's calculated</h2>
+
+        <div class="formula-block">
+          <h3>Residential &amp; industrial property (leveraged)</h3>
+          <p>Your capital is the down payment, so the property controlled is worth <code>Capital / Down Payment %</code>, financed with an amortizing loan for the rest. Each year's net income is <code>Property Value × Net Yield %</code>; subtract that year's mortgage payments to get cash flow. At the end of the horizon, the property is sold: <code>Sale Price − Selling Costs − Remaining Loan Balance</code> is added to the cash flow collected along the way.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Financial vehicles &amp; crypto (unleveraged)</h3>
+          <p>Price return, yield, and ongoing fees combine into one net annual growth rate, assumed to compound (yield reinvested rather than taken as cash — the common default for index funds and staking). Exit costs are deducted from the final value only.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Total ROI &amp; annualized return</h3>
+          <p><code>Total ROI = Total Profit / Capital Invested × 100</code> for all four. For leveraged property, <strong>annualized return</strong> is the true IRR of the full cash flow stream (capital out, yearly cash flow, sale proceeds) — it accounts for money coming back to you along the way. For financial vehicles and crypto, with no interim cash flow, annualized return is simply the compound annual growth rate (CAGR) of the investment.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  </footer>
+
+  <script src="../js/theme.js"></script>
+  <script src="../js/comparison.js"></script>
+</body>
+</html>
