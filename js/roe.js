@@ -40,7 +40,7 @@
   }
 
   function num(id, fallback = 0) {
-    const v = parseFloat(el[id].value);
+    const v = parseFloat(String(el[id].value).replace(/,/g, ""));
     return isFinite(v) ? v : fallback;
   }
 

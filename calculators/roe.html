@@ -39,7 +39,7 @@
                 <label for="currentValue">Current market value</label>
                 <div class="input-wrap has-prefix">
                   <span class="prefix">$</span>
-                  <input type="number" id="currentValue" inputmode="decimal" placeholder="450,000" min="0" step="any" required />
+                  <input type="text" id="currentValue" inputmode="decimal" placeholder="450,000" min="0" step="any" required />
                 </div>
               </div>
 
@@ -47,7 +47,7 @@
                 <label for="currentLoanBalance">Current loan balance</label>
                 <div class="input-wrap has-prefix">
                   <span class="prefix">$</span>
-                  <input type="number" id="currentLoanBalance" inputmode="decimal" placeholder="290,000" min="0" step="any" />
+                  <input type="text" id="currentLoanBalance" inputmode="decimal" placeholder="290,000" min="0" step="any" />
                 </div>
                 <div class="hint">Remaining mortgage principal owed today</div>
               </div>
@@ -56,7 +56,7 @@
                 <label for="annualCashFlow">Current annual cash flow</label>
                 <div class="input-wrap has-prefix">
                   <span class="prefix">$</span>
-                  <input type="number" id="annualCashFlow" inputmode="decimal" placeholder="4,200" step="any" required />
+                  <input type="text" id="annualCashFlow" inputmode="decimal" placeholder="4,200" step="any" required />
                 </div>
                 <div class="hint">Net income after all operating expenses and mortgage payments — can be negative</div>
               </div>
@@ -72,7 +72,7 @@
               <div class="field">
                 <label for="loanRate">Interest rate</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="loanRate" inputmode="decimal" placeholder="6.5" min="0" step="any" />
+                  <input type="text" id="loanRate" inputmode="decimal" placeholder="6.5" min="0" step="any" />
                   <span class="suffix">%</span>
                 </div>
                 <div class="hint">Annual rate on the remaining balance</div>
@@ -81,7 +81,7 @@
               <div class="field">
                 <label for="loanRemainingTerm">Years remaining on loan</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="loanRemainingTerm" inputmode="decimal" placeholder="27" min="0" step="any" />
+                  <input type="text" id="loanRemainingTerm" inputmode="decimal" placeholder="27" min="0" step="any" />
                   <span class="suffix">years</span>
                 </div>
                 <div class="hint">Leave at 0 if the property is paid off</div>
@@ -98,7 +98,7 @@
               <div class="field">
                 <label for="appreciationRate">Appreciation rate</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="appreciationRate" inputmode="decimal" placeholder="3" min="-100" step="any" />
+                  <input type="text" id="appreciationRate" inputmode="decimal" placeholder="3" min="-100" step="any" />
                   <span class="suffix">%/yr</span>
                 </div>
               </div>
@@ -106,7 +106,7 @@
               <div class="field">
                 <label for="cashFlowGrowthRate">Cash flow growth rate</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="cashFlowGrowthRate" inputmode="decimal" placeholder="2" min="-100" step="any" />
+                  <input type="text" id="cashFlowGrowthRate" inputmode="decimal" placeholder="2" min="-100" step="any" />
                   <span class="suffix">%/yr</span>
                 </div>
               </div>
@@ -114,7 +114,7 @@
               <div class="field">
                 <label for="projectionYears">Project forward</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="projectionYears" inputmode="decimal" placeholder="10" min="1" max="40" step="1" required />
+                  <input type="text" id="projectionYears" inputmode="decimal" placeholder="10" min="1" max="40" step="1" required />
                   <span class="suffix">years</span>
                 </div>
               </div>
@@ -210,6 +210,7 @@
     Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
   </footer>
 
+  <script src="../js/number-format.js"></script>
   <script src="../js/theme.js"></script>
   <script src="../js/roe.js"></script>
 </body>

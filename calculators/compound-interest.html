@@ -33,7 +33,7 @@
               <label for="principal">Initial principal</label>
               <div class="input-wrap has-prefix">
                 <span class="prefix">$</span>
-                <input type="number" id="principal" inputmode="decimal" value="10000" min="0" step="any" required />
+                <input type="text" id="principal" inputmode="decimal" value="10000" min="0" step="any" required />
               </div>
             </div>
 
@@ -41,14 +41,14 @@
               <label for="monthlyContribution">Monthly contribution</label>
               <div class="input-wrap has-prefix">
                 <span class="prefix">$</span>
-                <input type="number" id="monthlyContribution" inputmode="decimal" value="200" min="0" step="any" />
+                <input type="text" id="monthlyContribution" inputmode="decimal" value="200" min="0" step="any" />
               </div>
             </div>
 
             <div class="field">
               <label for="annualRate">Annual interest rate</label>
               <div class="input-wrap has-suffix">
-                <input type="number" id="annualRate" inputmode="decimal" value="7" step="any" />
+                <input type="text" id="annualRate" inputmode="decimal" value="7" step="any" />
                 <span class="suffix">%</span>
               </div>
             </div>
@@ -56,7 +56,7 @@
             <div class="field">
               <label for="years">Time horizon</label>
               <div class="input-wrap has-suffix">
-                <input type="number" id="years" inputmode="decimal" value="20" min="1" max="60" step="1" required />
+                <input type="text" id="years" inputmode="decimal" value="20" min="1" max="60" step="1" required />
                 <span class="suffix">years</span>
               </div>
             </div>
@@ -172,6 +172,7 @@
     Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
   </footer>
 
+  <script src="../js/number-format.js"></script>
   <script src="../js/theme.js"></script>
   <script src="../js/compound-interest.js"></script>
 </body>
