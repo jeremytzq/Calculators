@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Property Leverage Calculator (Singapore) — Calculators</title>
-  <meta name="description" content="Model a Singapore rental property purchase — costs, rental income, and stamp duty — then project how much equity you could extract at sale to leverage into your next property." />
+  <meta name="description" content="Model a Singapore rental property purchase — costs, rental income, stamp duty, BUC vs resale timing — then see a year-by-year equity, appreciation, and break-even breakdown." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
   <link rel="stylesheet" href="../css/styles.css" />
 </head>
@@ -24,7 +24,7 @@
 
     <div class="calc-page">
       <h1>Property Leverage Calculator</h1>
-      <p class="subtitle">Model a Singapore rental property purchase — mortgage, costs, rental income, and stamp duty — then see how much equity you could pull out at sale to leverage into your next property.</p>
+      <p class="subtitle">Model a Singapore rental property purchase — mortgage, costs, rental income, and stamp duty — then see a year-by-year equity and break-even picture, plus how much you could pull out at sale to leverage into your next property.</p>
 
       <div class="panel">
         <form id="pl-form" autocomplete="off">
@@ -33,7 +33,27 @@
             <div class="panel-section-header">
               <h2>Property &amp; financing</h2>
             </div>
-            <div class="field-grid cols-3">
+            <div class="field-grid">
+              <div class="field full">
+                <label for="purchaseType">Purchase type</label>
+                <select id="purchaseType">
+                  <option value="resale" selected>Resale — rents from year 1</option>
+                  <option value="buc">BUC (Building Under Construction)</option>
+                </select>
+                <div class="hint">BUC: no rental income until construction completes. The loan is still modeled as fully disbursed from year 1 — a real progressive payment scheme disburses (and charges interest on) the loan gradually, which this simplifies.</div>
+              </div>
+            </div>
+            <div class="field-grid cols-3" id="pl-buc-fields" hidden style="margin-top: 18px;">
+              <div class="field">
+                <label for="rentalStartYear">Rental starts in year</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="rentalStartYear" inputmode="decimal" value="4" min="1" step="1" />
+                  <span class="suffix">year</span>
+                </div>
+                <div class="hint">Typical construction period before TOP</div>
+              </div>
+            </div>
+            <div class="field-grid cols-3" style="margin-top: 18px;">
               <div class="field">
                 <label for="purchasePrice">Purchase price</label>
                 <div class="input-wrap has-prefix">
@@ -83,6 +103,7 @@
           <div class="panel-section">
             <div class="panel-section-header">
               <h2>Rental income</h2>
+              <p>Vacancy reduces rental income in every year it's collected — reflected consistently everywhere below, not just at exit.</p>
             </div>
             <div class="field-grid cols-3">
               <div class="field">
@@ -103,7 +124,7 @@
               <div class="field">
                 <label>Gross rental yield</label>
                 <div class="display-value" id="gross-yield-note">—</div>
-                <div class="hint">Derived from rental rate × size ÷ purchase price</div>
+                <div class="hint">Once rented: rate × size ÷ purchase price</div>
               </div>
             </div>
           </div>
@@ -160,7 +181,7 @@
                   <input type="text" id="agentCommissionPct" inputmode="decimal" value="2" min="0" step="any" />
                   <span class="suffix">%</span>
                 </div>
-                <div class="hint">Of purchase price, paid when you sell</div>
+                <div class="hint">Of the sale price, paid when you sell</div>
               </div>
             </div>
           </div>
@@ -208,8 +229,13 @@
                 <div class="value small" id="out-monthlyInstalment">—</div>
               </div>
               <div class="result-tile primary">
-                <div class="label">Total cash outlay</div>
+                <div class="label">Cash needed at purchase</div>
                 <div class="value small" id="out-totalCashOutlay">—</div>
+              </div>
+              <div class="result-tile" id="tile-breakeven">
+                <div class="label">Break-even</div>
+                <div class="value small" id="out-breakeven">—</div>
+                <div class="sub" id="out-breakeven-note">—</div>
               </div>
             </div>
           </div>
@@ -233,11 +259,12 @@
               </table>
             </div>
             <div class="hint" id="costs-scroll-hint" style="margin-top: 8px;" hidden>Scroll horizontally to see all columns →</div>
+            <div class="hint" id="costs-buc-note" style="margin-top: 8px;" hidden>Per month / per year figures are the steady state once rented; "over holding period" correctly reflects the BUC gap with no rental income.</div>
           </div>
 
           <div class="results-section">
             <div class="results-section-title">
-              <h2>Cash outlay breakdown</h2>
+              <h2>Cash outlay at purchase</h2>
             </div>
             <div class="results dense">
               <div class="result-tile">
@@ -257,10 +284,6 @@
                 <div class="value small" id="out-conveyancing">—</div>
               </div>
               <div class="result-tile">
-                <div class="label">Agent commission</div>
-                <div class="value small" id="out-agentCommission">—</div>
-              </div>
-              <div class="result-tile">
                 <div class="label">Outstanding mortgage at exit</div>
                 <div class="value small" id="out-outstandingMortgage">—</div>
               </div>
@@ -274,6 +297,35 @@
 
           <div class="results-section">
             <div class="results-section-title">
+              <h2>Year-by-year: equity, appreciation &amp; mortgage</h2>
+              <span class="note">At your assumed capital appreciation rate</span>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table" id="yearly-table">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Property value</th>
+                    <th>Appreciation</th>
+                    <th>Principal paid</th>
+                    <th>Interest paid</th>
+                    <th>Loan balance</th>
+                    <th>Equity</th>
+                    <th>Equity gain</th>
+                    <th>Rental income</th>
+                    <th>Net cash flow</th>
+                    <th>Cumulative cash flow</th>
+                    <th>Net position vs. cash invested</th>
+                  </tr>
+                </thead>
+                <tbody id="yearly-table-body"></tbody>
+              </table>
+            </div>
+            <div class="hint" id="yearly-scroll-hint" style="margin-top: 8px;" hidden>Scroll horizontally to see all columns →</div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
               <h2>Bonus: leverage into your next property</h2>
               <span class="note">At the end of the holding period</span>
             </div>
@@ -283,6 +335,7 @@
                   <tr>
                     <th>Scenario</th>
                     <th>Sale price</th>
+                    <th>Selling costs</th>
                     <th>Capital profit</th>
                     <th>Equity available</th>
                     <th>Next property value</th>
@@ -296,7 +349,7 @@
           </div>
 
           <div class="callout">
-            <strong>Read this before trusting the numbers:</strong> capital appreciation is your assumption, not a forecast — Singapore residential prices have had multi-year stretches both well above and well below 4% p.a. This model ignores income tax on rental income, seller's stamp duty (SSD, if you sell within the holding period that triggers it), CPF usage, and the fact that agent commission here is a flat % of the <em>original</em> purchase price rather than the eventual sale price. Treat "equity available" as a planning estimate, not a loan pre-approval.
+            <strong>Read this before trusting the numbers:</strong> capital appreciation is your assumption, not a forecast — Singapore residential prices have had multi-year stretches both well above and well below 4% p.a. Rent and holding costs are held flat in nominal terms (no growth rate). This model ignores income tax on rental income, Seller's Stamp Duty (SSD, which can apply if you sell within a few years of purchase), and CPF usage. Treat "equity available" and "break-even" as planning estimates, not a loan pre-approval.
           </div>
         </div>
       </div>
@@ -310,13 +363,28 @@
         </div>
 
         <div class="formula-block">
-          <h3>Monthly instalment &amp; outstanding mortgage</h3>
-          <p>Standard amortizing loan on <code>Purchase Price × (1 − Down Payment %)</code>. The outstanding balance at exit is the remaining principal after your holding period's worth of payments.</p>
+          <h3>BUC vs. resale</h3>
+          <p>Resale properties earn rent from year 1. A BUC (Building Under Construction) purchase earns no rent until the "rental starts in year" you set (typically the year construction completes, or TOP) — every year before that has mortgage and holding costs with zero rental income to offset them.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Monthly instalment, principal &amp; interest</h3>
+          <p>Standard amortizing loan on <code>Purchase Price × (1 − Down Payment %)</code>. Each year's payment splits into principal (which becomes equity immediately) and interest (a pure cost); the split shifts toward principal as the loan matures.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Vacancy &amp; net cash flow</h3>
+          <p>Vacancy reduces rental income in every year rent is being collected — <code>Net Rental = Gross Rental × (1 − Vacancy %)</code> — before it ever reaches the cash flow line, rather than being deducted once as a lump sum at the end.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Equity &amp; break-even</h3>
+          <p><code>Equity = Property Value − Loan Balance</code> each year. "Net position vs. cash invested" is what you'd walk away with if you sold that year — <code>Equity + Cumulative Cash Flow − Selling Costs (at that year's value) − Cash Invested at Purchase</code> — the first year this turns positive is your break-even point.</p>
         </div>
 
         <div class="formula-block">
           <h3>Equity available as next down payment</h3>
-          <p><code>Sale Price + Net Cashflow Over Holding − Outstanding Mortgage − Stamp Duty − ABSD − Conveyancing − Agent Commission − Vacancy Loss</code>. This is the cash you'd walk away with after selling and settling every cost tracked above — the pool you could redeploy as a down payment on your next purchase.</p>
+          <p><code>Sale Price − Selling Costs − Outstanding Mortgage + Cumulative Cash Flow − Stamp Duty − ABSD − Conveyancing</code>, where selling costs (agent commission) are computed on the actual projected sale price for that scenario, not the original purchase price.</p>
         </div>
 
         <div class="formula-block">
