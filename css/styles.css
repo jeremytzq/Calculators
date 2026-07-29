@@ -72,6 +72,13 @@
   box-sizing: border-box;
 }
 
+/* Author rules setting display:grid/flex on an element (e.g. .field-grid) otherwise
+   beat the browser's default [hidden] { display: none } — author styles always win
+   over the user-agent stylesheet regardless of specificity. */
+[hidden] {
+  display: none !important;
+}
+
 html, body {
   margin: 0;
   padding: 0;

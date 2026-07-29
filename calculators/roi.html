@@ -39,7 +39,7 @@
                 <label for="purchasePrice">Purchase price</label>
                 <div class="input-wrap has-prefix">
                   <span class="prefix">$</span>
-                  <input type="number" id="purchasePrice" inputmode="decimal" placeholder="400,000" min="0" step="any" required />
+                  <input type="text" id="purchasePrice" inputmode="decimal" placeholder="400,000" min="0" step="any" required />
                 </div>
               </div>
 
@@ -47,7 +47,7 @@
                 <label for="closingCosts">Closing costs</label>
                 <div class="input-wrap has-prefix">
                   <span class="prefix">$</span>
-                  <input type="number" id="closingCosts" inputmode="decimal" placeholder="8,000" min="0" step="any" />
+                  <input type="text" id="closingCosts" inputmode="decimal" placeholder="8,000" min="0" step="any" />
                 </div>
                 <div class="hint">Typically 2–5% of purchase price</div>
               </div>
@@ -56,7 +56,7 @@
                 <label for="rehabCosts">Renovation / rehab costs</label>
                 <div class="input-wrap has-prefix">
                   <span class="prefix">$</span>
-                  <input type="number" id="rehabCosts" inputmode="decimal" placeholder="0" min="0" step="any" />
+                  <input type="text" id="rehabCosts" inputmode="decimal" placeholder="0" min="0" step="any" />
                 </div>
                 <div class="hint">Upfront repairs before renting</div>
               </div>
@@ -64,7 +64,7 @@
               <div class="field">
                 <label for="downPaymentPct">Down payment</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="downPaymentPct" inputmode="decimal" placeholder="20" min="0" max="100" step="any" required />
+                  <input type="text" id="downPaymentPct" inputmode="decimal" placeholder="20" min="0" max="100" step="any" required />
                   <span class="suffix">%</span>
                 </div>
                 <div class="computed-note" id="note-downpayment">—</div>
@@ -73,7 +73,7 @@
               <div class="field">
                 <label for="interestRate">Mortgage interest rate</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="interestRate" inputmode="decimal" placeholder="6.5" min="0" step="any" required />
+                  <input type="text" id="interestRate" inputmode="decimal" placeholder="6.5" min="0" step="any" required />
                   <span class="suffix">%</span>
                 </div>
                 <div class="hint">Annual rate</div>
@@ -82,7 +82,7 @@
               <div class="field">
                 <label for="loanTerm">Loan term</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="loanTerm" inputmode="decimal" placeholder="30" min="1" step="any" required />
+                  <input type="text" id="loanTerm" inputmode="decimal" placeholder="30" min="1" step="any" required />
                   <span class="suffix">years</span>
                 </div>
               </div>
@@ -99,7 +99,7 @@
                 <label for="monthlyRent">Monthly rent</label>
                 <div class="input-wrap has-prefix">
                   <span class="prefix">$</span>
-                  <input type="number" id="monthlyRent" inputmode="decimal" placeholder="2,800" min="0" step="any" required />
+                  <input type="text" id="monthlyRent" inputmode="decimal" placeholder="2,800" min="0" step="any" required />
                 </div>
               </div>
 
@@ -107,7 +107,7 @@
                 <label for="otherIncome">Other monthly income</label>
                 <div class="input-wrap has-prefix">
                   <span class="prefix">$</span>
-                  <input type="number" id="otherIncome" inputmode="decimal" placeholder="0" min="0" step="any" />
+                  <input type="text" id="otherIncome" inputmode="decimal" placeholder="0" min="0" step="any" />
                 </div>
                 <div class="hint">Parking, laundry, storage, etc.</div>
               </div>
@@ -115,7 +115,7 @@
               <div class="field">
                 <label for="vacancyRate">Vacancy rate</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="vacancyRate" inputmode="decimal" placeholder="5" min="0" max="100" step="any" />
+                  <input type="text" id="vacancyRate" inputmode="decimal" placeholder="5" min="0" max="100" step="any" />
                   <span class="suffix">%</span>
                 </div>
                 <div class="hint">% of income lost to vacancy</div>
@@ -133,7 +133,7 @@
                 <label for="propertyTax">Property tax</label>
                 <div class="input-wrap has-prefix has-suffix">
                   <span class="prefix">$</span>
-                  <input type="number" id="propertyTax" inputmode="decimal" placeholder="4,200" min="0" step="any" />
+                  <input type="text" id="propertyTax" inputmode="decimal" placeholder="4,200" min="0" step="any" />
                   <span class="suffix">/yr</span>
                 </div>
               </div>
@@ -142,7 +142,7 @@
                 <label for="insurance">Insurance</label>
                 <div class="input-wrap has-prefix has-suffix">
                   <span class="prefix">$</span>
-                  <input type="number" id="insurance" inputmode="decimal" placeholder="1,400" min="0" step="any" />
+                  <input type="text" id="insurance" inputmode="decimal" placeholder="1,400" min="0" step="any" />
                   <span class="suffix">/yr</span>
                 </div>
               </div>
@@ -151,7 +151,7 @@
                 <label for="hoa">HOA fees</label>
                 <div class="input-wrap has-prefix has-suffix">
                   <span class="prefix">$</span>
-                  <input type="number" id="hoa" inputmode="decimal" placeholder="0" min="0" step="any" />
+                  <input type="text" id="hoa" inputmode="decimal" placeholder="0" min="0" step="any" />
                   <span class="suffix">/mo</span>
                 </div>
               </div>
@@ -159,7 +159,7 @@
               <div class="field">
                 <label for="maintenancePct">Maintenance &amp; repairs</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="maintenancePct" inputmode="decimal" placeholder="8" min="0" step="any" />
+                  <input type="text" id="maintenancePct" inputmode="decimal" placeholder="8" min="0" step="any" />
                   <span class="suffix">%</span>
                 </div>
                 <div class="hint">% of gross rent</div>
@@ -168,7 +168,7 @@
               <div class="field">
                 <label for="managementPct">Property management</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="managementPct" inputmode="decimal" placeholder="8" min="0" step="any" />
+                  <input type="text" id="managementPct" inputmode="decimal" placeholder="8" min="0" step="any" />
                   <span class="suffix">%</span>
                 </div>
                 <div class="hint">% of gross rent</div>
@@ -178,7 +178,7 @@
                 <label for="otherExpenses">Other expenses</label>
                 <div class="input-wrap has-prefix has-suffix">
                   <span class="prefix">$</span>
-                  <input type="number" id="otherExpenses" inputmode="decimal" placeholder="0" min="0" step="any" />
+                  <input type="text" id="otherExpenses" inputmode="decimal" placeholder="0" min="0" step="any" />
                   <span class="suffix">/yr</span>
                 </div>
               </div>
@@ -194,7 +194,7 @@
               <div class="field">
                 <label for="appreciationRate">Appreciation rate</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="appreciationRate" inputmode="decimal" placeholder="3" min="-100" step="any" />
+                  <input type="text" id="appreciationRate" inputmode="decimal" placeholder="3" min="-100" step="any" />
                   <span class="suffix">%/yr</span>
                 </div>
               </div>
@@ -202,7 +202,7 @@
               <div class="field">
                 <label for="rentGrowthRate">Rent growth rate</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="rentGrowthRate" inputmode="decimal" placeholder="2" min="-100" step="any" />
+                  <input type="text" id="rentGrowthRate" inputmode="decimal" placeholder="2" min="-100" step="any" />
                   <span class="suffix">%/yr</span>
                 </div>
               </div>
@@ -210,7 +210,7 @@
               <div class="field">
                 <label for="expenseGrowthRate">Expense growth rate</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="expenseGrowthRate" inputmode="decimal" placeholder="2" min="-100" step="any" />
+                  <input type="text" id="expenseGrowthRate" inputmode="decimal" placeholder="2" min="-100" step="any" />
                   <span class="suffix">%/yr</span>
                 </div>
               </div>
@@ -218,7 +218,7 @@
               <div class="field">
                 <label for="holdingPeriod">Holding period</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="holdingPeriod" inputmode="decimal" placeholder="5" min="1" step="any" required />
+                  <input type="text" id="holdingPeriod" inputmode="decimal" placeholder="5" min="1" step="any" required />
                   <span class="suffix">years</span>
                 </div>
               </div>
@@ -226,7 +226,7 @@
               <div class="field">
                 <label for="sellingCostsPct">Selling costs</label>
                 <div class="input-wrap has-suffix">
-                  <input type="number" id="sellingCostsPct" inputmode="decimal" placeholder="7" min="0" step="any" />
+                  <input type="text" id="sellingCostsPct" inputmode="decimal" placeholder="7" min="0" step="any" />
                   <span class="suffix">%</span>
                 </div>
                 <div class="hint">% of sale price — agent commission + closing costs</div>
@@ -390,6 +390,7 @@
     Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
   </footer>
 
+  <script src="../js/number-format.js"></script>
   <script src="../js/theme.js"></script>
   <script src="../js/roi.js"></script>
 </body>
