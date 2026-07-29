@@ -40,7 +40,7 @@
                   <option value="resale" selected>Resale — rents from year 1</option>
                   <option value="buc">BUC (Building Under Construction)</option>
                 </select>
-                <div class="hint">BUC: no rental income until construction completes. The loan is still modeled as fully disbursed from year 1 — a real progressive payment scheme disburses (and charges interest on) the loan gradually, which this simplifies.</div>
+                <div class="hint">BUC: no rental income until construction completes, and the loan disburses progressively across the standard construction stages (Foundation, framework, TOP, CSC…) rather than all at once — see the progressive payment schedule below once calculated.</div>
               </div>
             </div>
             <div class="field-grid cols-3" id="pl-buc-fields" hidden style="margin-top: 18px;">
@@ -227,6 +227,7 @@
               <div class="result-tile">
                 <div class="label">Monthly instalment</div>
                 <div class="value small" id="out-monthlyInstalment">—</div>
+                <div class="sub" id="out-monthlyInstalmentNote">—</div>
               </div>
               <div class="result-tile primary">
                 <div class="label">Cash needed at purchase</div>
@@ -238,6 +239,31 @@
                 <div class="sub" id="out-breakeven-note">—</div>
               </div>
             </div>
+          </div>
+
+          <div class="results-section" id="pl-buc-schedule-section" hidden>
+            <div class="results-section-title">
+              <h2>Progressive payment schedule</h2>
+              <span class="note">Standard Singapore BUC stages, scaled to your TOP year</span>
+            </div>
+            <p class="hint" style="margin: 0 0 10px;">Your down payment (<span id="buc-schedule-downpayment">—</span>) is paid upfront at booking/S&amp;P. Every stage below is disbursed entirely by the bank loan — the estimated instalment is what a fresh loan of that disbursed size, over your full loan term, would cost per month.</p>
+            <div class="table-wrap">
+              <table class="data-table" id="buc-schedule-table">
+                <thead>
+                  <tr>
+                    <th>Stage</th>
+                    <th>Approx. timing</th>
+                    <th>Cumulative % of loan</th>
+                    <th>Loan disbursed</th>
+                    <th>Est. monthly interest</th>
+                    <th>Est. monthly principal</th>
+                    <th>Est. monthly instalment</th>
+                  </tr>
+                </thead>
+                <tbody id="buc-schedule-table-body"></tbody>
+              </table>
+            </div>
+            <div class="hint" id="buc-schedule-scroll-hint" style="margin-top: 8px;" hidden>Scroll horizontally to see all columns →</div>
           </div>
 
           <div class="results-section">
@@ -259,7 +285,7 @@
               </table>
             </div>
             <div class="hint" id="costs-scroll-hint" style="margin-top: 8px;" hidden>Scroll horizontally to see all columns →</div>
-            <div class="hint" id="costs-buc-note" style="margin-top: 8px;" hidden>Per month / per year figures are the steady state once rented; "over holding period" correctly reflects the BUC gap with no rental income.</div>
+            <div class="hint" id="costs-buc-note" style="margin-top: 8px;" hidden>Per month / per year figures are the steady state once rented and the loan is fully disbursed — actual instalments start lower and ramp up during construction (see the progressive payment schedule above and the year-by-year table below). "Over holding period" totals correctly reflect both the ramping loan and the BUC rental gap.</div>
           </div>
 
           <div class="results-section">
@@ -349,7 +375,7 @@
           </div>
 
           <div class="callout">
-            <strong>Read this before trusting the numbers:</strong> capital appreciation is your assumption, not a forecast — Singapore residential prices have had multi-year stretches both well above and well below 4% p.a. Rent and holding costs are held flat in nominal terms (no growth rate). This model ignores income tax on rental income, Seller's Stamp Duty (SSD, which can apply if you sell within a few years of purchase), and CPF usage. Treat "equity available" and "break-even" as planning estimates, not a loan pre-approval.
+            <strong>Read this before trusting the numbers:</strong> capital appreciation is your assumption, not a forecast — Singapore residential prices have had multi-year stretches both well above and well below 4% p.a. Rent and holding costs are held flat in nominal terms (no growth rate). This model ignores income tax on rental income, Seller's Stamp Duty (SSD, which can apply if you sell within a few years of purchase), and CPF usage. Treat "equity available" and "break-even" as planning estimates, not a loan pre-approval. <span id="buc-callout-extra" hidden>For BUC in particular, "equity" can look unusually high in the first year or two — property value already assumes full appreciation from day one, while the loan is still mostly undisbursed and mortgage costs are mostly cheap interest-only-scale amounts. That gap is a paper artifact of the model's assumptions, not cash you could actually bank early.</span>
           </div>
         </div>
       </div>
@@ -364,12 +390,18 @@
 
         <div class="formula-block">
           <h3>BUC vs. resale</h3>
-          <p>Resale properties earn rent from year 1. A BUC (Building Under Construction) purchase earns no rent until the "rental starts in year" you set (typically the year construction completes, or TOP) — every year before that has mortgage and holding costs with zero rental income to offset them.</p>
+          <p>Resale properties earn rent from year 1, with the loan fully disbursed at purchase. A BUC (Building Under Construction) purchase earns no rent until the "rental starts in year" you set (typically the year construction reaches TOP) — every year before that has holding costs with zero rental income to offset them. The loan itself also disburses progressively, not all at once — see below.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Progressive payment schedule (BUC)</h3>
+          <p>Singapore BUC purchases follow a standard stage-by-stage disbursement set by the Housing Developers Rules: your down payment covers everything up to booking/S&amp;P (typically 20%), and the bank loan then disburses in stages as construction hits milestones — Foundation, framework, walls, roofing, TOP, and finally CSC. We scale the standard stage timing so TOP lands on your "rental starts in year," and each stage disburses its stated % of the <em>loan</em> (not the purchase price).</p>
         </div>
 
         <div class="formula-block">
           <h3>Monthly instalment, principal &amp; interest</h3>
-          <p>Standard amortizing loan on <code>Purchase Price × (1 − Down Payment %)</code>. Each year's payment splits into principal (which becomes equity immediately) and interest (a pure cost); the split shifts toward principal as the loan matures.</p>
+          <p>Standard amortizing loan on <code>Purchase Price × (1 − Down Payment %)</code>. For a resale purchase, the loan is fully disbursed from month 1 and this is a plain amortization schedule: each payment splits into principal (which becomes equity immediately) and interest (a pure cost), shifting toward principal as the loan matures.</p>
+          <p>For BUC, each month before full disbursement, interest is charged only on what's actually been disbursed so far, and the instalment is what a fresh loan of that disbursed amount would cost over your full loan term — the portion above interest is treated as a real paydown of what's owed, so less is actually left once the loan is fully disbursed at CSC than the nominal loan amount. From full disbursement onward, it's standard amortization on whatever balance remains, over the same original loan term.</p>
         </div>
 
         <div class="formula-block">
