@@ -27,11 +27,18 @@
   const leverageTableWrap = document.querySelector("#leverage-table").closest(".table-wrap");
   const leverageScrollHint = document.getElementById("leverage-scroll-hint");
   const tileAbsd = document.getElementById("tile-absd");
+  const bucScheduleSection = document.getElementById("pl-buc-schedule-section");
+  const bucScheduleDownpaymentNote = document.getElementById("buc-schedule-downpayment");
+  const bucScheduleTableBody = document.getElementById("buc-schedule-table-body");
+  const bucScheduleTableWrap = document.querySelector("#buc-schedule-table").closest(".table-wrap");
+  const bucScheduleScrollHint = document.getElementById("buc-schedule-scroll-hint");
+  const bucCalloutExtra = document.getElementById("buc-callout-extra");
 
   const out = {
     psfPrice: document.getElementById("out-psfPrice"),
     loanAmount: document.getElementById("out-loanAmount"),
     monthlyInstalment: document.getElementById("out-monthlyInstalment"),
+    monthlyInstalmentNote: document.getElementById("out-monthlyInstalmentNote"),
     totalCashOutlay: document.getElementById("out-totalCashOutlay"),
     breakeven: document.getElementById("out-breakeven"),
     breakevenNote: document.getElementById("out-breakeven-note"),
@@ -79,18 +86,122 @@
     return Math.max(bal, 0);
   }
 
-  // Principal/interest split for a single year (year 1 = months 1-12), capped at the loan term.
-  function amortizationForYear(principal, annualRatePct, termYears, year) {
-    const n = Math.round(termYears * 12);
-    const monthsStart = Math.min((year - 1) * 12, n);
-    const monthsEnd = Math.min(year * 12, n);
-    const beginBalance = remainingBalance(principal, annualRatePct, termYears, monthsStart);
-    const endBalance = remainingBalance(principal, annualRatePct, termYears, monthsEnd);
-    const M = monthlyPayment(principal, annualRatePct, termYears);
-    const paid = M * (monthsEnd - monthsStart);
-    const principalPaid = beginBalance - endBalance;
-    const interestPaid = paid - principalPaid;
+  // --- BUC progressive payment schedule ---
+  // Standard Singapore BUC stage-by-stage loan disbursement (Housing Developers Rules), expressed
+  // as % of the LOAN, not the purchase price — the down payment alone covers everything up to
+  // booking/S&P, so every stage from Foundation onward is 100% bank-financed. "month" is each
+  // stage's typical timing from booking at a representative pace; scaled per-calculator so the
+  // TOP stage lands on whichever "rental starts in year" the user sets (TOP is when a BUC unit
+  // can actually be occupied/rented).
+  const BUC_STAGES = [
+    { name: "Foundation", pct: 12.5, month: 9.5 },
+    { name: "Reinforced concrete framework", pct: 12.5, month: 17 },
+    { name: "Partition walls", pct: 6.25, month: 21.5 },
+    { name: "Roofing / ceiling", pct: 6.25, month: 26 },
+    { name: "Door & window frames", pct: 6.25, month: 30.5 },
+    { name: "Electrical wiring, plumbing & air-con", pct: 6.25, month: 35 },
+    { name: "Car park, roads & drains", pct: 6.25, month: 39.5 },
+    { name: "Temporary Occupation Permit (TOP)", pct: 31.25, month: 50 },
+    { name: "Certificate of Statutory Completion (CSC)", pct: 12.5, month: 62 },
+  ];
+  const BUC_TOP_INDEX = 7;
+  const RESALE_SCHEDULE = [{ name: "Disbursement", cumPct: 100, month: 1 }];
+
+  function bucSchedule(rentalStartYear) {
+    const userTopMonth = Math.max(1, (rentalStartYear - 1) * 12);
+    const scale = userTopMonth / BUC_STAGES[BUC_TOP_INDEX].month;
+    let cumPct = 0;
+    return BUC_STAGES.map((s) => {
+      cumPct += s.pct;
+      return { name: s.name, cumPct, month: Math.max(1, Math.round(s.month * scale)) };
+    });
+  }
+
+  // Fraction (0..1) of the loan disbursed by a given month, per the schedule. A single-stage
+  // schedule (100% at month 1) reduces this to the plain resale case.
+  function disbursedFraction(schedule, month) {
+    let frac = 0;
+    for (const s of schedule) {
+      if (month >= s.month) frac = s.cumPct / 100;
+    }
+    return frac;
+  }
+
+  // Month-by-month loan simulation covering both resale and BUC via the schedule passed in.
+  // During construction, each month's interest is charged only on the amount disbursed so far;
+  // the instalment is what a fresh loan of that disbursed amount would cost over the full loan
+  // term, and the portion above interest is treated as a real paydown of what's owed — so once
+  // the loan is fully disbursed, less is actually left than the nominal loan amount. From full
+  // disbursement onward it's a standard amortizing loan on whatever balance remained.
+  function simulateLoanMonthly(loanAmount, annualRatePct, termYears, totalMonths, schedule) {
+    const monthlyRate = annualRatePct / 100 / 12;
+    const termMonths = Math.round(termYears * 12);
+    const monthly = [];
+    let netBalance = 0;
+    let fullyDisbursed = false;
+    let completionMonth = 0;
+    let netBalanceAtCompletion = 0;
+    let remainingTermYears = termYears;
+
+    for (let m = 1; m <= totalMonths; m++) {
+      if (!fullyDisbursed) {
+        const grossDisbursed = loanAmount * disbursedFraction(schedule, m);
+        const prevGross = loanAmount * disbursedFraction(schedule, m - 1);
+        netBalance += grossDisbursed - prevGross;
+        const interest = grossDisbursed * monthlyRate;
+        const instalment = monthlyPayment(grossDisbursed, annualRatePct, termYears);
+        const principal = Math.max(instalment - interest, 0);
+        netBalance = Math.max(netBalance - principal, 0);
+        monthly.push({ interest, principal, instalment, balance: netBalance });
+        if (grossDisbursed >= loanAmount - 0.005) {
+          fullyDisbursed = true;
+          completionMonth = m;
+          netBalanceAtCompletion = netBalance;
+          // Continue the same tenure clock rather than resetting to a fresh full term — the
+          // loan's total tenure runs from month 1, so only what's left of it remains. (For the
+          // resale case, completionMonth is always 1, so this is ~termYears and the whole
+          // simulation reduces to plain single-shot amortization, matching it exactly.)
+          remainingTermYears = Math.max(termMonths - completionMonth, 1) / 12;
+        }
+      } else {
+        const k = m - completionMonth;
+        const beginBalance = remainingBalance(netBalanceAtCompletion, annualRatePct, remainingTermYears, k - 1);
+        const endBalance = remainingBalance(netBalanceAtCompletion, annualRatePct, remainingTermYears, k);
+        const instalment = monthlyPayment(netBalanceAtCompletion, annualRatePct, remainingTermYears);
+        const principal = beginBalance - endBalance;
+        const interest = instalment - principal;
+        monthly.push({ interest, principal, instalment, balance: endBalance });
+      }
+    }
+    return monthly;
+  }
+
+  // Sum a year's worth of months (year is 1-indexed; monthly[] is 0-indexed by month - 1).
+  function aggregateYear(monthly, year) {
+    const start = (year - 1) * 12;
+    const end = Math.min(year * 12, monthly.length);
+    let interestPaid = 0;
+    let principalPaid = 0;
+    let paid = 0;
+    for (let i = start; i < end; i++) {
+      interestPaid += monthly[i].interest;
+      principalPaid += monthly[i].principal;
+      paid += monthly[i].instalment;
+    }
+    const endBalance = end > 0 ? monthly[end - 1].balance : 0;
     return { paid, principalPaid, interestPaid, endBalance };
+  }
+
+  // Snapshot of what each stage's disbursement looks like in isolation — for the progressive
+  // payment schedule table. Independent of holding period, so it always shows the full schedule.
+  function bucStageDisplayRows(loanAmount, annualRatePct, termYears, schedule) {
+    return schedule.map((s) => {
+      const cumulativeLoan = loanAmount * (s.cumPct / 100);
+      const interest = cumulativeLoan * (annualRatePct / 100 / 12);
+      const instalment = monthlyPayment(cumulativeLoan, annualRatePct, termYears);
+      const principal = Math.max(instalment - interest, 0);
+      return { name: s.name, month: s.month, cumPct: s.cumPct, loanDisbursed: cumulativeLoan, interest, principal, instalment };
+    });
   }
 
   // Singapore Buyer's Stamp Duty (residential), progressive bands.
@@ -172,10 +283,30 @@
     });
   }
 
+  function buildBucScheduleTable(rows) {
+    bucScheduleTableBody.innerHTML = "";
+    rows.forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.name}</td>
+        <td>~Year ${Math.ceil(r.month / 12)}</td>
+        <td>${fmtPercent(r.cumPct, 2)}</td>
+        <td>${fmtCurrency(r.loanDisbursed)}</td>
+        <td>${fmtCurrency(r.interest)}</td>
+        <td>${fmtCurrency(r.principal)}</td>
+        <td>${fmtCurrency(r.instalment)}</td>
+      `;
+      bucScheduleTableBody.appendChild(tr);
+    });
+  }
+
   function updateScrollHints() {
     costsScrollHint.hidden = costsTableWrap.scrollWidth <= costsTableWrap.clientWidth;
     yearlyScrollHint.hidden = yearlyTableWrap.scrollWidth <= yearlyTableWrap.clientWidth;
     leverageScrollHint.hidden = leverageTableWrap.scrollWidth <= leverageTableWrap.clientWidth;
+    if (!bucScheduleSection.hidden) {
+      bucScheduleScrollHint.hidden = bucScheduleTableWrap.scrollWidth <= bucScheduleTableWrap.clientWidth;
+    }
   }
 
   function calculate() {
@@ -236,6 +367,13 @@
     // paid at exit, years later, against whatever the property sells for by then.
     const totalCashOutlay = downPayment + stampDuty + absdAmount + conveyancing;
 
+    // Loan disbursement schedule: progressive BUC stages, or a single "fully disbursed month 1"
+    // stage for resale (which reduces the simulation below to plain amortization).
+    const useProgressiveSchedule = isBuc && rentalStartYear > 1;
+    const loanSchedule = useProgressiveSchedule ? bucSchedule(rentalStartYear) : RESALE_SCHEDULE;
+    const totalMonths = holdingPeriod * 12;
+    const monthlySim = simulateLoanMonthly(loanAmount, interestRate, loanTerm, totalMonths, loanSchedule);
+
     // --- Year-by-year simulation (drives the costs table, break-even, and mortgage figures) ---
     const yearlyRows = [];
     let cumulativeCashFlow = 0;
@@ -252,7 +390,7 @@
       const propertyValue = purchasePrice * Math.pow(1 + capAppreciation / 100, y);
       const appreciationGain = propertyValue - prevPropertyValue;
 
-      const amort = amortizationForYear(loanAmount, interestRate, loanTerm, y);
+      const amort = aggregateYear(monthlySim, y);
       const loanBalance = amort.endBalance;
       const equity = propertyValue - loanBalance;
       const equityGain = equity - prevEquity;
@@ -298,12 +436,15 @@
     const netCashflowOverHolding = cumulativeCashFlow;
     const grossRentalOverHolding = cumulativeGrossRental;
     const vacancyLossOverHolding = cumulativeVacancyLoss;
-    const outstandingMortgage = remainingBalance(loanAmount, interestRate, loanTerm, holdingPeriod * 12);
+    const outstandingMortgage = monthlySim.length > 0 ? monthlySim[monthlySim.length - 1].balance : 0;
 
     // --- Key metrics & break-even ---
     out.psfPrice.textContent = fmtCurrency(psfPrice);
     out.loanAmount.textContent = fmtCurrency(loanAmount);
     out.monthlyInstalment.textContent = fmtCurrency(monthlyInstalment);
+    out.monthlyInstalmentNote.textContent = useProgressiveSchedule
+      ? "Steady-state once the loan is fully disbursed — starts lower during construction"
+      : "";
     out.totalCashOutlay.textContent = fmtCurrency(totalCashOutlay);
 
     if (breakEvenYear !== null) {
@@ -322,6 +463,14 @@
     out.outstandingMortgage.textContent = fmtCurrency(outstandingMortgage);
     out.vacancyLoss.textContent = fmtCurrency(vacancyLossOverHolding);
     out.vacancyRateNote.textContent = `${fmtPercent(vacancyRate, 1)} of gross rental, over the holding period`;
+
+    // --- Progressive payment schedule (BUC only) ---
+    bucScheduleSection.hidden = !useProgressiveSchedule;
+    bucCalloutExtra.hidden = !useProgressiveSchedule;
+    if (useProgressiveSchedule) {
+      bucScheduleDownpaymentNote.textContent = fmtCurrency(downPayment);
+      buildBucScheduleTable(bucStageDisplayRows(loanAmount, interestRate, loanTerm, loanSchedule));
+    }
 
     // --- Costs & rental table (steady-state per month/year, simulated total over holding) ---
     costsNote.textContent = `Over ${holdingPeriod} year${holdingPeriod === 1 ? "" : "s"}`;
