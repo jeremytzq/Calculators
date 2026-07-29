@@ -116,7 +116,27 @@
               <span class="chevron">▶</span>
             </summary>
             <div class="details-body">
-              <div class="field-grid cols-3">
+              <div class="field-grid">
+                <div class="field full">
+                  <label for="indPurchaseType">Purchase type</label>
+                  <select id="indPurchaseType">
+                    <option value="resale" selected>Resale — rents from year 1</option>
+                    <option value="buc">BUC (Building Under Construction)</option>
+                  </select>
+                  <div class="hint">BUC: no rental income until construction completes. The loan is still modeled as fully disbursed from year 1 — real progressive payment schemes disburse (and charge interest) gradually, which this simplifies.</div>
+                </div>
+              </div>
+              <div class="field-grid cols-3" id="ind-buc-fields" hidden style="margin-top: 18px;">
+                <div class="field">
+                  <label for="indRentalStartYear">Rental starts in year</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="number" id="indRentalStartYear" inputmode="decimal" value="4" min="1" step="1" />
+                    <span class="suffix">year</span>
+                  </div>
+                  <div class="hint">Typical construction period before TOP</div>
+                </div>
+              </div>
+              <div class="field-grid cols-3" style="margin-top: 18px;">
                 <div class="field">
                   <label for="indDownPct">Down payment</label>
                   <div class="input-wrap has-suffix">
@@ -298,6 +318,7 @@
         <div class="formula-block">
           <h3>Residential &amp; industrial property (leveraged)</h3>
           <p>Your capital is the down payment, so the property controlled is worth <code>Capital / Down Payment %</code>, financed with an amortizing loan for the rest. Each year's net income is <code>Property Value × Net Yield %</code>; subtract that year's mortgage payments to get cash flow. At the end of the horizon, the property is sold: <code>Sale Price − Selling Costs − Remaining Loan Balance</code> is added to the cash flow collected along the way.</p>
+          <p>For an industrial property bought <strong>BUC</strong>, net income is zero for every year before "rental starts in year" — the property still appreciates and the loan still amortizes during that stretch, but there's no rent to collect until construction completes.</p>
         </div>
 
         <div class="formula-block">

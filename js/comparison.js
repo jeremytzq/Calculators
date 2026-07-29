@@ -2,6 +2,7 @@
   const ids = [
     "investmentAmount", "horizonYears",
     "resDownPct", "resRate", "resTerm", "resAppreciation", "resNetYield", "resSellingCosts",
+    "indPurchaseType", "indRentalStartYear",
     "indDownPct", "indRate", "indTerm", "indAppreciation", "indNetYield", "indSellingCosts",
     "finReturn", "finYield", "finFees", "finExitFees",
     "cryReturn", "cryYield", "cryFees", "cryExitFees",
@@ -14,6 +15,7 @@
   const compareBody = document.getElementById("compare-body");
   const tableWrap = document.querySelector(".table-wrap");
   const scrollHint = document.getElementById("table-scroll-hint");
+  const indBucFields = document.getElementById("ind-buc-fields");
 
   const currencyFmt = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -81,8 +83,10 @@
     return (lo + hi) / 2;
   }
 
-  // Leveraged property (residential / industrial) model.
-  function computeProperty(capital, downPct, rate, term, appreciation, netYield, sellingCostsPct, years) {
+  // Leveraged property (residential / industrial) model. `rentalStartYear` lets a BUC
+  // (Building Under Construction) purchase skip rental income for its first N years,
+  // while appreciation and debt service still run from year 1.
+  function computeProperty(capital, downPct, rate, term, appreciation, netYield, sellingCostsPct, years, rentalStartYear = 1) {
     const assetValue0 = downPct > 0 ? capital / (downPct / 100) : capital;
     const loan0 = Math.max(assetValue0 - capital, 0);
     const M = monthlyPayment(loan0, rate, term);
@@ -92,7 +96,7 @@
 
     for (let y = 1; y <= years; y++) {
       const beginValue = assetValue0 * Math.pow(1 + appreciation / 100, y - 1);
-      const noi = beginValue * (netYield / 100);
+      const noi = y >= rentalStartYear ? beginValue * (netYield / 100) : 0;
       const monthsEnd = Math.min(y * 12, term * 12);
       const monthsStart = Math.min((y - 1) * 12, term * 12);
       const debtService = monthsEnd > monthsStart ? M * (monthsEnd - monthsStart) : 0;
@@ -268,6 +272,10 @@
       years
     );
 
+    const indIsBuc = el.indPurchaseType.value === "buc";
+    const indRentalStartYear = indIsBuc ? Math.max(1, Math.round(num("indRentalStartYear", 4))) : 1;
+    indBucFields.hidden = !indIsBuc;
+
     const industrial = computeProperty(
       capital,
       num("indDownPct", 30),
@@ -276,7 +284,8 @@
       num("indAppreciation"),
       num("indNetYield"),
       num("indSellingCosts"),
-      years
+      years,
+      indRentalStartYear
     );
 
     const financial = computeUnleveraged(
@@ -312,6 +321,7 @@
   }
 
   ids.forEach((id) => el[id].addEventListener("input", calculate));
+  el.indPurchaseType.addEventListener("change", calculate);
   document.getElementById("compare-form").addEventListener("submit", (e) => e.preventDefault());
   window.addEventListener("resize", () => {
     if (!results.hidden) scrollHint.hidden = tableWrap.scrollWidth <= tableWrap.clientWidth;
