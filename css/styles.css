@@ -415,34 +415,39 @@ main {
   font-weight: 600;
 }
 
+/* The prefix/suffix ("$", "S$", "%", "/mo"...) sit as normal flex siblings of the input,
+   taking whatever width their own text needs — rather than being absolutely positioned
+   with a hand-guessed padding reserved on the input, which silently breaks for any prefix
+   wider than a single "$" glyph (e.g. "S$") or at a larger base font size. */
 .input-wrap {
   position: relative;
   display: flex;
   align-items: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .input-wrap .prefix,
 .input-wrap .suffix {
-  position: absolute;
   color: var(--text-muted);
   font-size: 0.95rem;
-  pointer-events: none;
+  white-space: nowrap;
+  flex: none;
 }
 
 .input-wrap .prefix {
-  left: 14px;
+  padding-left: 14px;
 }
 
 .input-wrap .suffix {
-  right: 14px;
-}
-
-.input-wrap.has-prefix input {
-  padding-left: 28px;
-}
-
-.input-wrap.has-suffix input {
-  padding-right: 32px;
+  padding-right: 14px;
 }
 
 input[type="number"],
@@ -480,6 +485,28 @@ input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* Inside .input-wrap, the border/background/focus-ring live on the wrap itself (so the
+   prefix/suffix visually sit inside the same box) — the input becomes a plain flex child. */
+.input-wrap input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+}
+
+.input-wrap.has-prefix input {
+  padding-left: 4px;
+}
+
+.input-wrap.has-suffix input {
+  padding-right: 4px;
+}
+
+.input-wrap input:focus {
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .display-value {
