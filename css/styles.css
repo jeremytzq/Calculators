@@ -79,6 +79,12 @@
   display: none !important;
 }
 
+html {
+  /* Every font-size in this stylesheet is in rem, so bumping the root size scales the
+     whole site's type uniformly — 16px -> 18px, about 12.5% larger across the board. */
+  font-size: 112.5%;
+}
+
 html, body {
   margin: 0;
   padding: 0;
