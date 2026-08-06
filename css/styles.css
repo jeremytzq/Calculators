@@ -723,12 +723,56 @@ table.data-table {
   font-size: 0.74rem;
   white-space: normal;
   word-break: normal;
+  overflow-wrap: break-word;
   line-height: 1.25;
 }
 
 #buc-schedule-table th:first-child,
 #buc-schedule-table td:first-child {
   width: 15%;
+}
+
+/* Bonus leverage table: same narrowing treatment — only 7 columns, so this
+   comfortably fits without horizontal scroll. */
+#leverage-table {
+  table-layout: fixed;
+}
+
+#leverage-table th,
+#leverage-table td {
+  padding: 8px 6px;
+  font-size: 0.76rem;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-height: 1.25;
+}
+
+#leverage-table th:first-child,
+#leverage-table td:first-child {
+  width: 16%;
+}
+
+/* Year-by-year table: 12 columns is a lot for one screen — narrow columns
+   and wrapping headers get it much closer, though it may still need a
+   little horizontal scroll at typical widths. */
+#yearly-table {
+  table-layout: fixed;
+}
+
+#yearly-table th,
+#yearly-table td {
+  padding: 6px 4px;
+  font-size: 0.68rem;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-height: 1.2;
+}
+
+#yearly-table th:first-child,
+#yearly-table td:first-child {
+  width: 5%;
 }
 
 .site-footer {
