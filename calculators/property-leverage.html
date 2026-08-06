@@ -134,6 +134,14 @@
                 <div class="display-value" id="gross-yield-note">—</div>
                 <div class="hint">Once rented: rate × size ÷ purchase price</div>
               </div>
+              <div class="field">
+                <label for="corpTaxPct">Corporate tax</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="corpTaxPct" inputmode="decimal" value="17" min="0" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">Singapore's flat corporate tax rate, on net rental profit (rental income minus opex and mortgage interest — not principal). Assumes purchase via a company; set to 0 if buying personally instead.</div>
+              </div>
             </div>
           </div>
 
@@ -237,6 +245,11 @@
                 <div class="label">GST</div>
                 <div class="value small" id="out-gst">—</div>
                 <div class="sub">Paid in cash, not financed</div>
+              </div>
+              <div class="result-tile" id="tile-corp-tax" hidden>
+                <div class="label">Corporate tax</div>
+                <div class="value small" id="out-corpTax">—</div>
+                <div class="sub">Total over the holding period, on net rental profit</div>
               </div>
               <div class="result-tile">
                 <div class="label">Monthly instalment</div>
@@ -390,7 +403,7 @@
           </div>
 
           <div class="callout">
-            <strong>Read this before trusting the numbers:</strong> capital appreciation is your assumption, not a forecast — Singapore residential prices have had multi-year stretches both well above and well below 4% p.a. Rent and holding costs are held flat in nominal terms (no growth rate). This model ignores income tax on rental income, Seller's Stamp Duty (SSD, which can apply if you sell within a few years of purchase), and CPF usage. Treat "equity available" and "break-even" as planning estimates, not a loan pre-approval. <span id="buc-callout-extra" hidden>For BUC in particular, "equity" can look unusually high in the first year or two — property value already assumes full appreciation from day one, while the loan is still mostly undisbursed and mortgage costs are mostly cheap interest-only-scale amounts. That gap is a paper artifact of the model's assumptions, not cash you could actually bank early.</span>
+            <strong>Read this before trusting the numbers:</strong> capital appreciation is your assumption, not a forecast — Singapore residential prices have had multi-year stretches both well above and well below 4% p.a. Rent and holding costs are held flat in nominal terms (no growth rate). Corporate tax (default 17%) is applied to net rental profit only — capital gains on sale aren't taxed under Singapore law, so they're modeled untaxed here too; set the rate to 0% if you're buying personally rather than through a company (individual income tax isn't modeled). This model also ignores Seller's Stamp Duty (SSD, which can apply if you sell within a few years of purchase) and CPF usage. Treat "equity available" and "break-even" as planning estimates, not a loan pre-approval. <span id="buc-callout-extra" hidden>For BUC in particular, "equity" can look unusually high in the first year or two — property value already assumes full appreciation from day one, while the loan is still mostly undisbursed and mortgage costs are mostly cheap interest-only-scale amounts. That gap is a paper artifact of the model's assumptions, not cash you could actually bank early.</span>
           </div>
         </div>
       </div>
@@ -427,6 +440,11 @@
         <div class="formula-block">
           <h3>Vacancy &amp; net cash flow</h3>
           <p>Vacancy reduces rental income in every year rent is being collected — <code>Net Rental = Gross Rental × (1 − Vacancy %)</code> — before it ever reaches the cash flow line, rather than being deducted once as a lump sum at the end.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Corporate tax</h3>
+          <p>Applied to net rental <em>profit</em> each year, not gross rent — <code>Taxable Profit = max(0, Net Rental − Maintenance − Property Tax − Mortgage Interest)</code>, then <code>Corporate Tax = Taxable Profit × Corporate Tax %</code>. Only the interest portion of your mortgage payment is deductible, not principal (which builds equity, not an expense) — consistent with how it's actually assessed. This reduces net cash flow every year, so it pushes out break-even and reduces the equity available to leverage into your next property. Capital profit from selling isn't taxed (Singapore has no capital gains tax), so it's unaffected.</p>
         </div>
 
         <div class="formula-block">

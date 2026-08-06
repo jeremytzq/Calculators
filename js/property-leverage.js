@@ -2,7 +2,7 @@
   const ids = [
     "purchaseType", "rentalStartYear", "gstPct",
     "purchasePrice", "sizeSqft", "downPaymentPct", "interestRate", "loanTerm", "holdingPeriod",
-    "rentalPsf", "vacancyRate",
+    "rentalPsf", "vacancyRate", "corpTaxPct",
     "maintenanceMonthly", "propertyTaxMonthly",
     "absdPct", "conveyancing", "agentCommissionPct",
     "capAppreciation", "nextPropertyDownPct",
@@ -28,6 +28,7 @@
   const leverageScrollHint = document.getElementById("leverage-scroll-hint");
   const tileAbsd = document.getElementById("tile-absd");
   const tileGst = document.getElementById("tile-gst");
+  const tileCorpTax = document.getElementById("tile-corp-tax");
   const bucScheduleSection = document.getElementById("pl-buc-schedule-section");
   const bucScheduleGstNote = document.getElementById("buc-schedule-gstpct");
   const bucScheduleTableBody = document.getElementById("buc-schedule-table-body");
@@ -39,6 +40,7 @@
     psfPrice: document.getElementById("out-psfPrice"),
     loanAmount: document.getElementById("out-loanAmount"),
     gst: document.getElementById("out-gst"),
+    corpTax: document.getElementById("out-corpTax"),
     monthlyInstalment: document.getElementById("out-monthlyInstalment"),
     monthlyInstalmentNote: document.getElementById("out-monthlyInstalmentNote"),
     totalCashOutlay: document.getElementById("out-totalCashOutlay"),
@@ -356,6 +358,7 @@
 
     const rentalPsf = num("rentalPsf");
     const vacancyRate = num("vacancyRate");
+    const corpTaxPct = num("corpTaxPct");
 
     const maintenanceMonthly = num("maintenanceMonthly");
     const propertyTaxMonthly = num("propertyTaxMonthly");
@@ -390,8 +393,14 @@
     const maintenanceAnnual = maintenanceMonthly * 12;
     const propertyTaxAnnual = propertyTaxMonthly * 12;
     const opexAnnual = maintenanceAnnual + propertyTaxAnnual;
-    const subTotalMonthly = maintenanceMonthly + propertyTaxMonthly + monthlyInstalment;
-    const subTotalAnnual = opexAnnual + annualInstalment;
+    // Steady-state corporate tax estimate for the costs table — uses interest on a freshly
+    // disbursed loan (before any principal paydown) as a representative "Year 1 once fully
+    // disbursed" figure, consistent with how the other steady-state rows already approximate.
+    const steadyStateInterestAnnual = loanAmount * (interestRate / 100);
+    const corpTaxAnnualSteadyState =
+      Math.max(0, netRentalAnnualSteadyState - opexAnnual - steadyStateInterestAnnual) * (corpTaxPct / 100);
+    const subTotalMonthly = maintenanceMonthly + propertyTaxMonthly + monthlyInstalment + corpTaxAnnualSteadyState / 12;
+    const subTotalAnnual = opexAnnual + annualInstalment + corpTaxAnnualSteadyState;
     const netCashflowAnnualSteadyState = netRentalAnnualSteadyState - subTotalAnnual;
 
     const stampDuty = buyersStampDuty(purchasePrice);
@@ -418,6 +427,7 @@
     let cumulativeInstalment = 0;
     let cumulativeGrossRental = 0;
     let cumulativeVacancyLoss = 0;
+    let cumulativeCorpTax = 0;
     let breakEvenYear = null;
     let prevPropertyValue = purchasePrice;
     let prevEquity = downPayment;
@@ -436,13 +446,20 @@
       const vacancyLossThisYear = grossRentalThisYear * (vacancyRate / 100);
       const rentalIncome = grossRentalThisYear - vacancyLossThisYear;
 
-      const netCashFlow = rentalIncome - opexAnnual - amort.paid;
+      // Corporate tax on net rental PROFIT (rental minus opex minus mortgage interest — not
+      // principal, which builds equity rather than being an expense). Floored at 0: a loss year
+      // isn't taxed here (no loss carry-forward modeled either).
+      const taxableProfit = Math.max(0, rentalIncome - opexAnnual - amort.interestPaid);
+      const corpTax = taxableProfit * (corpTaxPct / 100);
+
+      const netCashFlow = rentalIncome - opexAnnual - amort.paid - corpTax;
       cumulativeCashFlow += netCashFlow;
       cumulativeMaintenance += maintenanceAnnual;
       cumulativePropertyTax += propertyTaxAnnual;
       cumulativeInstalment += amort.paid;
       cumulativeGrossRental += grossRentalThisYear;
       cumulativeVacancyLoss += vacancyLossThisYear;
+      cumulativeCorpTax += corpTax;
 
       const sellingCostsIfSoldNow = propertyValue * (agentCommissionPct / 100);
       const netPosition = equity + cumulativeCashFlow - sellingCostsIfSoldNow - totalCashOutlay;
@@ -479,6 +496,8 @@
     out.loanAmount.textContent = fmtCurrency(loanAmount);
     tileGst.hidden = !isBuc;
     out.gst.textContent = fmtCurrency(gstAmount);
+    tileCorpTax.hidden = corpTaxPct <= 0;
+    out.corpTax.textContent = fmtCurrency(cumulativeCorpTax);
     out.monthlyInstalment.textContent = fmtCurrency(monthlyInstalment);
     out.monthlyInstalmentNote.textContent = useProgressiveSchedule
       ? "Steady-state once the loan is fully disbursed — starts lower during construction"
@@ -519,10 +538,16 @@
       { label: "Property tax", month: propertyTaxMonthly, year: propertyTaxAnnual, holding: cumulativePropertyTax },
       { label: "Loan instalment", month: monthlyInstalment, year: annualInstalment, holding: cumulativeInstalment },
       {
+        label: "Corporate tax",
+        month: corpTaxAnnualSteadyState / 12,
+        year: corpTaxAnnualSteadyState,
+        holding: cumulativeCorpTax,
+      },
+      {
         label: "Sub-total costs",
         month: subTotalMonthly,
         year: subTotalAnnual,
-        holding: cumulativeMaintenance + cumulativePropertyTax + cumulativeInstalment,
+        holding: cumulativeMaintenance + cumulativePropertyTax + cumulativeInstalment + cumulativeCorpTax,
         emphasize: true,
       },
       { label: "Gross rental", month: grossRentalMonthly, year: grossRentalAnnual, holding: grossRentalOverHolding },
