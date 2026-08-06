@@ -526,11 +526,30 @@
     updateScrollHints();
   }
 
+  // Pre-fill fields from URL query params, e.g. linking here from a unit listing:
+  // property-leverage.html?purchasePrice=2538000&sizeSqft=1625&purchaseType=buc&capAppreciation=4
+  // Any field id above is accepted; unknown params and unmatched select values are ignored.
+  function applyUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    ids.forEach((id) => {
+      if (!params.has(id)) return;
+      const value = params.get(id);
+      const field = el[id];
+      if (field.tagName === "SELECT") {
+        const hasOption = Array.from(field.options).some((o) => o.value === value);
+        if (hasOption) field.value = value;
+      } else {
+        field.value = value;
+      }
+    });
+  }
+
   ids.forEach((id) => el[id].addEventListener("input", calculate));
   el.purchaseType.addEventListener("change", calculate);
   document.getElementById("pl-form").addEventListener("submit", (e) => e.preventDefault());
   window.addEventListener("resize", () => {
     if (!results.hidden) updateScrollHints();
   });
+  applyUrlParams();
   calculate();
 })();
