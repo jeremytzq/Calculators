@@ -314,13 +314,13 @@ main {
 
 @media (min-width: 1200px) {
   .calc-page {
-    max-width: 1060px;
+    max-width: 1200px;
   }
 }
 
 @media (min-width: 1600px) {
   .calc-page {
-    max-width: 1200px;
+    max-width: 1400px;
   }
 }
 
