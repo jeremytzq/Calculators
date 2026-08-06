@@ -52,6 +52,14 @@
                 </div>
                 <div class="hint">Typical construction period before TOP</div>
               </div>
+              <div class="field">
+                <label for="gstPct">GST</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="gstPct" inputmode="decimal" value="9" min="0" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">Charged on new-launch purchases from a GST-registered developer — not applicable to resale</div>
+              </div>
             </div>
             <div class="field-grid cols-3" style="margin-top: 18px;">
               <div class="field">
@@ -223,6 +231,12 @@
               <div class="result-tile">
                 <div class="label">Loan amount</div>
                 <div class="value small" id="out-loanAmount">—</div>
+                <div class="sub">Financed via mortgage</div>
+              </div>
+              <div class="result-tile" id="tile-gst" hidden>
+                <div class="label">GST</div>
+                <div class="value small" id="out-gst">—</div>
+                <div class="sub">Paid in cash, not financed</div>
               </div>
               <div class="result-tile">
                 <div class="label">Monthly instalment</div>
@@ -246,15 +260,16 @@
               <h2>Progressive payment schedule</h2>
               <span class="note">Standard Singapore BUC stages, scaled to your TOP year</span>
             </div>
-            <p class="hint" style="margin: 0 0 10px;">Your down payment (<span id="buc-schedule-downpayment">—</span>) is paid upfront at booking/S&amp;P. Every stage below is disbursed entirely by the bank loan — the estimated instalment is what a fresh loan of that disbursed size, over your full loan term, would cost per month.</p>
+            <p class="hint" style="margin: 0 0 10px;">Your down payment is paid upfront at booking/S&amp;P; every stage after that is disbursed entirely by the bank loan. GST (<span id="buc-schedule-gstpct">—</span>) applies to the amount paid at every stage, including the down payment, and is paid in cash — it's not financed by the loan. The estimated instalment is what a fresh loan of that disbursed size, over your full loan term, would cost per month.</p>
             <div class="table-wrap">
               <table class="data-table" id="buc-schedule-table">
                 <thead>
                   <tr>
                     <th>Stage</th>
                     <th>Approx. timing</th>
-                    <th>Cumulative % of loan</th>
-                    <th>Loan disbursed</th>
+                    <th>Amount paid</th>
+                    <th>GST</th>
+                    <th>Cumulative loan disbursed</th>
                     <th>Est. monthly interest</th>
                     <th>Est. monthly principal</th>
                     <th>Est. monthly instalment</th>
@@ -399,6 +414,11 @@
         </div>
 
         <div class="formula-block">
+          <h3>GST (BUC only)</h3>
+          <p>New-launch purchases from a GST-registered developer attract GST on top of the amount paid — <code>GST = Amount Paid × GST %</code> — charged at every stage, including your down payment, not just the loan-financed ones. It's paid in cash alongside that stage's payment, never financed by the mortgage, so total GST (<code>Purchase Price × GST %</code>) is added to "cash needed at purchase." Resale purchases from an individual owner aren't GST-registered supplies, so no GST applies.</p>
+        </div>
+
+        <div class="formula-block">
           <h3>Monthly instalment, principal &amp; interest</h3>
           <p>Standard amortizing loan on <code>Purchase Price × (1 − Down Payment %)</code>. For a resale purchase, the loan is fully disbursed from month 1 and this is a plain amortization schedule: each payment splits into principal (which becomes equity immediately) and interest (a pure cost), shifting toward principal as the loan matures.</p>
           <p>For BUC, each month before full disbursement, interest is charged only on what's actually been disbursed so far, and the instalment is what a fresh loan of that disbursed amount would cost over your full loan term — the portion above interest is treated as a real paydown of what's owed, so less is actually left once the loan is fully disbursed at CSC than the nominal loan amount. From full disbursement onward, it's standard amortization on whatever balance remains, over the same original loan term.</p>
@@ -416,7 +436,7 @@
 
         <div class="formula-block">
           <h3>Equity available as next down payment</h3>
-          <p><code>Sale Price − Selling Costs − Outstanding Mortgage + Cumulative Cash Flow − Stamp Duty − ABSD − Conveyancing</code>, where selling costs (agent commission) are computed on the actual projected sale price for that scenario, not the original purchase price.</p>
+          <p><code>Sale Price − Selling Costs − Outstanding Mortgage + Cumulative Cash Flow − Stamp Duty − ABSD − Conveyancing − GST</code>, where selling costs (agent commission) are computed on the actual projected sale price for that scenario, not the original purchase price.</p>
         </div>
 
         <div class="formula-block">
