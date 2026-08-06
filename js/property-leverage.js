@@ -1,6 +1,6 @@
 (function () {
   const ids = [
-    "purchaseType", "rentalStartYear",
+    "purchaseType", "rentalStartYear", "gstPct",
     "purchasePrice", "sizeSqft", "downPaymentPct", "interestRate", "loanTerm", "holdingPeriod",
     "rentalPsf", "vacancyRate",
     "maintenanceMonthly", "propertyTaxMonthly",
@@ -27,8 +27,9 @@
   const leverageTableWrap = document.querySelector("#leverage-table").closest(".table-wrap");
   const leverageScrollHint = document.getElementById("leverage-scroll-hint");
   const tileAbsd = document.getElementById("tile-absd");
+  const tileGst = document.getElementById("tile-gst");
   const bucScheduleSection = document.getElementById("pl-buc-schedule-section");
-  const bucScheduleDownpaymentNote = document.getElementById("buc-schedule-downpayment");
+  const bucScheduleGstNote = document.getElementById("buc-schedule-gstpct");
   const bucScheduleTableBody = document.getElementById("buc-schedule-table-body");
   const bucScheduleTableWrap = document.querySelector("#buc-schedule-table").closest(".table-wrap");
   const bucScheduleScrollHint = document.getElementById("buc-schedule-scroll-hint");
@@ -37,6 +38,7 @@
   const out = {
     psfPrice: document.getElementById("out-psfPrice"),
     loanAmount: document.getElementById("out-loanAmount"),
+    gst: document.getElementById("out-gst"),
     monthlyInstalment: document.getElementById("out-monthlyInstalment"),
     monthlyInstalmentNote: document.getElementById("out-monthlyInstalmentNote"),
     totalCashOutlay: document.getElementById("out-totalCashOutlay"),
@@ -194,14 +196,42 @@
 
   // Snapshot of what each stage's disbursement looks like in isolation — for the progressive
   // payment schedule table. Independent of holding period, so it always shows the full schedule.
-  function bucStageDisplayRows(loanAmount, annualRatePct, termYears, schedule) {
-    return schedule.map((s) => {
+  // Includes the down payment as its own row (month 1, no loan involved) since GST applies to
+  // it too — every stage's "amount paid" is what's newly due at that stage, and GST is a flat
+  // % of that, whether the stage happens to be cash-funded (down payment) or loan-funded.
+  function bucStageDisplayRows(downPayment, loanAmount, annualRatePct, termYears, schedule, gstPct) {
+    const rows = [
+      {
+        name: "Down payment (booking / S&P)",
+        month: 1,
+        amountPaid: downPayment,
+        gst: downPayment * (gstPct / 100),
+        loanDisbursed: 0,
+        interest: 0,
+        principal: 0,
+        instalment: 0,
+      },
+    ];
+    let prevCumulativeLoan = 0;
+    schedule.forEach((s) => {
       const cumulativeLoan = loanAmount * (s.cumPct / 100);
+      const amountPaid = cumulativeLoan - prevCumulativeLoan;
       const interest = cumulativeLoan * (annualRatePct / 100 / 12);
       const instalment = monthlyPayment(cumulativeLoan, annualRatePct, termYears);
       const principal = Math.max(instalment - interest, 0);
-      return { name: s.name, month: s.month, cumPct: s.cumPct, loanDisbursed: cumulativeLoan, interest, principal, instalment };
+      rows.push({
+        name: s.name,
+        month: s.month,
+        amountPaid,
+        gst: amountPaid * (gstPct / 100),
+        loanDisbursed: cumulativeLoan,
+        interest,
+        principal,
+        instalment,
+      });
+      prevCumulativeLoan = cumulativeLoan;
     });
+    return rows;
   }
 
   // Singapore Buyer's Stamp Duty (residential), progressive bands.
@@ -290,7 +320,8 @@
       tr.innerHTML = `
         <td>${r.name}</td>
         <td>~Year ${Math.ceil(r.month / 12)}</td>
-        <td>${fmtPercent(r.cumPct, 2)}</td>
+        <td>${fmtCurrency(r.amountPaid)}</td>
+        <td>${fmtCurrency(r.gst)}</td>
         <td>${fmtCurrency(r.loanDisbursed)}</td>
         <td>${fmtCurrency(r.interest)}</td>
         <td>${fmtCurrency(r.principal)}</td>
@@ -313,6 +344,8 @@
     const isBuc = el.purchaseType.value === "buc";
     plBucFields.hidden = !isBuc;
     const rentalStartYear = isBuc ? Math.max(1, Math.round(num("rentalStartYear", 4))) : 1;
+    // GST only applies to new-launch purchases from a GST-registered developer, never to resale.
+    const gstPct = isBuc ? num("gstPct", 9) : 0;
 
     const purchasePrice = num("purchasePrice");
     const sizeSqft = num("sizeSqft");
@@ -363,9 +396,12 @@
 
     const stampDuty = buyersStampDuty(purchasePrice);
     const absdAmount = purchasePrice * (absdPct / 100);
+    // GST is charged on the full purchase price (every stage, cash- or loan-funded alike), paid
+    // in cash — never financed by the mortgage — so it adds straight to cash needed at purchase.
+    const gstAmount = purchasePrice * (gstPct / 100);
     // Cash actually required at purchase — excludes agent commission, which is only
     // paid at exit, years later, against whatever the property sells for by then.
-    const totalCashOutlay = downPayment + stampDuty + absdAmount + conveyancing;
+    const totalCashOutlay = downPayment + stampDuty + absdAmount + conveyancing + gstAmount;
 
     // Loan disbursement schedule: progressive BUC stages, or a single "fully disbursed month 1"
     // stage for resale (which reduces the simulation below to plain amortization).
@@ -441,6 +477,8 @@
     // --- Key metrics & break-even ---
     out.psfPrice.textContent = fmtCurrency(psfPrice);
     out.loanAmount.textContent = fmtCurrency(loanAmount);
+    tileGst.hidden = !isBuc;
+    out.gst.textContent = fmtCurrency(gstAmount);
     out.monthlyInstalment.textContent = fmtCurrency(monthlyInstalment);
     out.monthlyInstalmentNote.textContent = useProgressiveSchedule
       ? "Steady-state once the loan is fully disbursed — starts lower during construction"
@@ -468,8 +506,8 @@
     bucScheduleSection.hidden = !useProgressiveSchedule;
     bucCalloutExtra.hidden = !useProgressiveSchedule;
     if (useProgressiveSchedule) {
-      bucScheduleDownpaymentNote.textContent = fmtCurrency(downPayment);
-      buildBucScheduleTable(bucStageDisplayRows(loanAmount, interestRate, loanTerm, loanSchedule));
+      bucScheduleGstNote.textContent = fmtPercent(gstPct, gstPct % 1 === 0 ? 0 : 2);
+      buildBucScheduleTable(bucStageDisplayRows(downPayment, loanAmount, interestRate, loanTerm, loanSchedule, gstPct));
     }
 
     // --- Costs & rental table (steady-state per month/year, simulated total over holding) ---
@@ -511,7 +549,8 @@
         netCashflowOverHolding -
         stampDuty -
         absdAmount -
-        conveyancing;
+        conveyancing -
+        gstAmount;
       const nextPropertyValue = equityAvailable / (nextPropertyDownPct / 100);
       const leveragePct = purchasePrice > 0 ? (nextPropertyValue / purchasePrice) * 100 : 0;
       return { label, salePrice, sellingCosts, capitalProfit, equityAvailable, nextPropertyValue, leveragePct };
