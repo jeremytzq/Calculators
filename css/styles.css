@@ -723,7 +723,7 @@ table.data-table {
   font-size: 0.74rem;
   white-space: normal;
   word-break: normal;
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
   line-height: 1.25;
 }
 
@@ -744,7 +744,7 @@ table.data-table {
   font-size: 0.76rem;
   white-space: normal;
   word-break: normal;
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
   line-height: 1.25;
 }
 
@@ -766,13 +766,60 @@ table.data-table {
   font-size: 0.68rem;
   white-space: normal;
   word-break: normal;
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
   line-height: 1.2;
 }
 
-#yearly-table th:first-child,
-#yearly-table td:first-child {
+/* Explicit per-column widths (table-layout: fixed uses these, not content) —
+   single-word headers like "Appreciation" and "Equity" can't break mid-word,
+   so they need enough width up front rather than relying on wrapping. */
+#yearly-table th:nth-child(1),
+#yearly-table td:nth-child(1) {
   width: 5%;
+}
+#yearly-table th:nth-child(2),
+#yearly-table td:nth-child(2) {
+  width: 9%;
+}
+#yearly-table th:nth-child(3),
+#yearly-table td:nth-child(3) {
+  width: 10%;
+}
+#yearly-table th:nth-child(4),
+#yearly-table td:nth-child(4) {
+  width: 8%;
+}
+#yearly-table th:nth-child(5),
+#yearly-table td:nth-child(5) {
+  width: 8%;
+}
+#yearly-table th:nth-child(6),
+#yearly-table td:nth-child(6) {
+  width: 8%;
+}
+#yearly-table th:nth-child(7),
+#yearly-table td:nth-child(7) {
+  width: 6%;
+}
+#yearly-table th:nth-child(8),
+#yearly-table td:nth-child(8) {
+  width: 8%;
+}
+#yearly-table th:nth-child(9),
+#yearly-table td:nth-child(9) {
+  width: 8%;
+}
+#yearly-table th:nth-child(10),
+#yearly-table td:nth-child(10) {
+  width: 8%;
+}
+#yearly-table th:nth-child(11),
+#yearly-table td:nth-child(11) {
+  width: 10%;
+}
+#yearly-table th:nth-child(12),
+#yearly-table td:nth-child(12) {
+  width: 12%;
 }
 
 .site-footer {
