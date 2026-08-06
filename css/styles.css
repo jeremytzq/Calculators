@@ -710,6 +710,27 @@ table.data-table {
   color: var(--negative);
 }
 
+/* Progressive payment schedule: narrower columns with wrapping headers (and
+   wrapping stage names) so the whole table fits without horizontal scroll,
+   unlike the other data tables here which stay single-line + scrollable. */
+#buc-schedule-table {
+  table-layout: fixed;
+}
+
+#buc-schedule-table th,
+#buc-schedule-table td {
+  padding: 8px 6px;
+  font-size: 0.74rem;
+  white-space: normal;
+  word-break: normal;
+  line-height: 1.25;
+}
+
+#buc-schedule-table th:first-child,
+#buc-schedule-table td:first-child {
+  width: 15%;
+}
+
 .site-footer {
   border-top: 1px solid var(--border);
   padding: 20px 24px;
