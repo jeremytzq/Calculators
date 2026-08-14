@@ -55,7 +55,10 @@
 
   // --- Dynamic seller cards ---
   // Appends one card at a time rather than re-rendering the whole list, so adding a seller
-  // never clobbers CPF values already typed into the existing ones.
+  // never clobbers values already typed into the existing ones. Each seller has a name (so a
+  // future Resale Purchase tab can match a buyer back to "the same person" as a seller here),
+  // plus CPF used and CPF accrued interest as separate figures — accrued interest is refunded
+  // on top of the principal withdrawn, not folded into a single lump sum.
   function makeSellerRenderer(containerId, addBtnId, maxSellers, onInput) {
     const container = document.getElementById(containerId);
     const addBtn = document.getElementById(addBtnId);
@@ -65,30 +68,55 @@
       count += 1;
       const card = document.createElement("div");
       card.className = "seller-card";
-      const inputId = `${containerId}-cpf-${count}`;
+      const nameId = `${containerId}-name-${count}`;
+      const usedId = `${containerId}-cpfused-${count}`;
+      const interestId = `${containerId}-cpfinterest-${count}`;
       card.innerHTML = `
         <div class="seller-card-title">Seller #${count}</div>
-        <div class="field">
-          <label for="${inputId}">CPF used with accrued interest</label>
+        <div class="field" style="margin-bottom: 10px;">
+          <label for="${nameId}">Name <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+          <input type="text" id="${nameId}" placeholder="e.g. John Tan" />
+        </div>
+        <div class="field" style="margin-bottom: 10px;">
+          <label for="${usedId}">CPF used</label>
           <div class="input-wrap has-prefix">
             <span class="prefix">S$</span>
-            <input type="text" id="${inputId}" inputmode="decimal" value="0" min="0" step="any" />
+            <input type="text" id="${usedId}" inputmode="decimal" value="0" min="0" step="any" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="${interestId}">CPF accrued interest</label>
+          <div class="input-wrap has-prefix">
+            <span class="prefix">S$</span>
+            <input type="text" id="${interestId}" inputmode="decimal" value="0" min="0" step="any" />
           </div>
         </div>
       `;
       container.appendChild(card);
-      const input = card.querySelector("input");
-      window.NumberFormat.attach(input);
-      input.addEventListener("input", onInput);
+      card.querySelectorAll('input[inputmode="decimal"]').forEach((input) => window.NumberFormat.attach(input));
+      card.querySelectorAll("input").forEach((input) => input.addEventListener("input", onInput));
       addBtn.disabled = count >= maxSellers;
     }
 
     function totalCpf() {
       let total = 0;
       for (let i = 1; i <= count; i++) {
-        total += num(document.getElementById(`${containerId}-cpf-${i}`));
+        total += num(document.getElementById(`${containerId}-cpfused-${i}`)) + num(document.getElementById(`${containerId}-cpfinterest-${i}`));
       }
       return total;
+    }
+
+    // Per-seller detail — for a future Resale Purchase tab to match a buyer's name back to
+    // a seller here and carry over that specific person's CPF used + accrued interest.
+    function sellerRows() {
+      const rows = [];
+      for (let i = 1; i <= count; i++) {
+        const nameEl = document.getElementById(`${containerId}-name-${i}`);
+        const cpfUsed = num(document.getElementById(`${containerId}-cpfused-${i}`));
+        const cpfAccruedInterest = num(document.getElementById(`${containerId}-cpfinterest-${i}`));
+        rows.push({ name: (nameEl && nameEl.value.trim()) || "", cpfUsed, cpfAccruedInterest });
+      }
+      return rows;
     }
 
     addBtn.addEventListener("click", () => {
@@ -99,14 +127,16 @@
 
     addCard();
     addCard();
-    return { totalCpf };
+    return { totalCpf, sellers: sellerRows };
   }
 
-  // Results exposed for the (future) Resale Purchase tab to read Net Cash Proceeds / CPF
-  // Refund from whichever property type the user last calculated a sale for.
+  // Results exposed for the (future) Resale Purchase tab: Net Cash Proceeds / CPF Refund
+  // totals, plus a per-seller breakdown (name, CPF used, CPF accrued interest) so a matching
+  // buyer name on the purchase side can carry over that specific seller's CPF figures instead
+  // of just the aggregate total.
   window.PropertyTransactionResults = {
-    hdb: { netCashProceeds: 0, cpfRefund: 0 },
-    private: { netCashProceeds: 0, cpfRefund: 0 },
+    hdb: { netCashProceeds: 0, cpfRefund: 0, sellers: [] },
+    private: { netCashProceeds: 0, cpfRefund: 0, sellers: [] },
   };
 
   // ==================== HDB Sale Proceeds ====================
@@ -195,7 +225,7 @@
       text("sph-tl-others", fmtCurrency(others));
       text("sph-tl-completionProceeds", fmtCurrency(completionProceeds));
 
-      window.PropertyTransactionResults.hdb = { netCashProceeds, cpfRefund };
+      window.PropertyTransactionResults.hdb = { netCashProceeds, cpfRefund, sellers: sellers.sellers() };
     }
 
     Object.values(el).forEach((input) => input && input.addEventListener("input", calculate));
@@ -291,7 +321,7 @@
       text("spp-tl-lessExpenses", fmtCurrency(totalExpenses));
       text("spp-tl-lessOption", fmtCurrency(optionAmount));
 
-      window.PropertyTransactionResults.private = { netCashProceeds, cpfRefund };
+      window.PropertyTransactionResults.private = { netCashProceeds, cpfRefund, sellers: sellers.sellers() };
     }
 
     Object.values(el).forEach((input) => input && input.addEventListener("input", calculate));
