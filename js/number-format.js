@@ -114,11 +114,19 @@
     lastValue.set(input, formatted);
   }
 
-  function init() {
-    document.querySelectorAll('input[inputmode="decimal"]').forEach((input) => {
-      formatInitial(input);
+  // Safe to call repeatedly on the same input (e.g. every time a caller re-sets its value
+  // programmatically) — the listener itself is only ever attached once.
+  const attachedInputs = new WeakSet();
+  function attach(input) {
+    formatInitial(input);
+    if (!attachedInputs.has(input)) {
+      attachedInputs.add(input);
       input.addEventListener("input", (event) => reformat(input, event));
-    });
+    }
+  }
+
+  function init() {
+    document.querySelectorAll('input[inputmode="decimal"]').forEach(attach);
   }
 
   if (document.readyState === "loading") {
@@ -126,4 +134,8 @@
   } else {
     init();
   }
+
+  // For inputs created after the initial page load (e.g. a dynamically added row) —
+  // init() only ever sees what existed at DOMContentLoaded.
+  window.NumberFormat = { attach };
 })();
