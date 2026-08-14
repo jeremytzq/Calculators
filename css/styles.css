@@ -1004,3 +1004,381 @@ table.data-table {
     gap: 4px;
   }
 }
+
+/* Page-level tabs (e.g. "Sale Proceeds" / "Resale Purchase") */
+
+.page-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.page-tab {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 10px 4px 12px;
+  margin-right: 22px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.page-tab:hover {
+  color: var(--text);
+}
+
+.page-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.page-tab:disabled {
+  color: var(--border);
+  cursor: default;
+}
+
+.page-tab:disabled:hover {
+  color: var(--border);
+}
+
+/* Segmented pill toggle — mutually exclusive choices (HDB/Private, loan type...) */
+
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.segmented button {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.segmented button:hover {
+  color: var(--text);
+}
+
+.segmented button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Colored full-width summary bars (gross proceeds, total expenses, net result...) */
+
+.summary-bar {
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin-top: 18px;
+}
+
+.summary-bar .summary-bar-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.summary-bar .label {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.summary-bar .formula {
+  font-size: 0.78rem;
+  font-style: italic;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.summary-bar .value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.summary-bar .sub-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-bar.tone-accent {
+  background: var(--accent);
+  color: #fff;
+}
+
+.summary-bar.tone-negative {
+  background: var(--negative);
+  color: #fff;
+}
+
+.summary-bar.tone-muted {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.summary-bar.tone-muted .formula {
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+/* Small on/off switch (e.g. "auto-calculate agent fee") */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 24px;
+  flex: none;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch .track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 999px;
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+
+.switch .track::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.switch input:checked + .track {
+  background: var(--positive);
+}
+
+.switch input:checked + .track::before {
+  transform: translateX(16px);
+}
+
+.switch input:focus-visible + .track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Seller cards (dynamic list) */
+
+.seller-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.seller-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.seller-card .seller-card-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  margin-bottom: 10px;
+  color: var(--accent);
+}
+
+.add-seller-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.add-seller-btn:disabled {
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: default;
+}
+
+/* Payment schedule timeline — a single continuous rail line (positioned on the outer
+   .timeline container) with dots/duration-badges layered on top of it per row, rather than
+   trying to stitch together a line from each row's own edge (which fights row-height
+   stretching in a grid). Rows are either a milestone (dot + card) or a duration gap
+   (vertical badge, no card). */
+
+.timeline {
+  position: relative;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 11px;
+  bottom: 11px;
+  width: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.timeline-item {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.timeline-item .timeline-rail {
+  display: flex;
+  justify-content: center;
+}
+
+.timeline-item .timeline-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  background: var(--surface);
+  flex: none;
+}
+
+.timeline-item.done .timeline-dot {
+  border-color: var(--positive);
+  background: var(--positive);
+}
+
+.timeline-item .timeline-gap {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--text);
+  border-radius: 6px;
+  padding: 8px 3px;
+  text-align: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  margin: 6px 0;
+}
+
+.timeline-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.timeline-card .timeline-card-title {
+  background: var(--accent-soft);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 10px 14px;
+}
+
+.timeline-card .timeline-card-body {
+  padding: 12px 14px;
+  font-size: 0.85rem;
+}
+
+.timeline-card .timeline-card-body:empty {
+  display: none;
+}
+
+.timeline-card .tl-cash-payment {
+  color: var(--negative);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.timeline-card .tl-note {
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.timeline-card .tl-note .tl-note-sub {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.timeline-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.timeline-card .tl-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+/* Two-column layout: calculation summary (left) + payment schedule (right) */
+
+.pt-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 1000px) {
+  .pt-grid {
+    grid-template-columns: 1.3fr 1fr;
+  }
+}
+
+.pt-side-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin: 0 0 16px;
+}

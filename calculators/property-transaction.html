@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sale Proceeds &amp; Purchase Calculator (Singapore) — Calculators</title>
+  <meta name="description" content="Calculate the net cash proceeds from selling an HDB flat or private property in Singapore — CPF refund, stamp duty, agent fees, and a stage-by-stage payment schedule." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">C</span>
+        Calculators
+      </a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+
+    <div class="calc-page">
+      <h1>Sale Proceeds &amp; Purchase Calculator</h1>
+      <p class="subtitle">Model a Singapore property sale — CPF refund, stamp duty, agent fees, and a stage-by-stage payment schedule — for either an HDB flat or private residential property.</p>
+
+      <div class="page-tabs" role="tablist">
+        <button type="button" class="page-tab active" id="pt-tab-sale" role="tab" aria-selected="true">Sale Proceeds</button>
+        <button type="button" class="page-tab" id="pt-tab-purchase" role="tab" aria-selected="false" disabled title="Coming soon">Resale Purchase <span class="badge soon" style="margin-left: 6px;">Soon</span></button>
+      </div>
+
+      <div id="pt-panel-sale">
+        <div class="field full" style="margin-bottom: 22px;">
+          <div class="segmented" id="sp-propertyType" role="group" aria-label="Property type">
+            <button type="button" data-value="hdb" class="active">HDB</button>
+            <button type="button" data-value="private">Private Residential</button>
+          </div>
+        </div>
+
+        <!-- ==================== HDB SALE PROCEEDS ==================== -->
+        <div id="sp-hdb">
+          <div class="pt-grid">
+            <div class="panel">
+              <form id="sph-form" autocomplete="off">
+                <div class="panel-section">
+                  <div class="panel-section-header">
+                    <h2>Calculation summary</h2>
+                  </div>
+                  <div class="field-grid">
+                    <div class="field">
+                      <label for="sph-sellingPrice">Selling price</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="sph-sellingPrice" inputmode="decimal" value="620000" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="sph-propertyAddress">Property address <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+                      <input type="text" id="sph-propertyAddress" placeholder="e.g. Blk 123 Example Ave" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-header">
+                    <h2>Loan &amp; CPF</h2>
+                  </div>
+                  <div class="field full" style="margin-bottom: 16px;">
+                    <label>Loan type</label>
+                    <div class="segmented" id="sph-loanType" role="group">
+                      <button type="button" data-value="bank" class="active">Bank Loan</button>
+                      <button type="button" data-value="hdb">HDB Loan</button>
+                      <button type="button" data-value="none">No Loan</button>
+                    </div>
+                  </div>
+                  <div class="field-grid" id="sph-loan-fields">
+                    <div class="field">
+                      <label for="sph-outstandingLoan">Outstanding loan</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="sph-outstandingLoan" inputmode="decimal" value="300000" min="0" step="any" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="summary-bar tone-accent" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                    <span class="label">Total CPF used: <span id="sph-out-totalCpf">S$0</span></span>
+                    <button type="button" class="add-seller-btn" id="sph-addSeller" style="color: #fff;">+ Add seller</button>
+                  </div>
+                  <div class="seller-grid" id="sph-sellers"></div>
+
+                  <div class="summary-bar tone-accent">
+                    <div class="summary-bar-row">
+                      <div>
+                        <div class="label">Gross sales proceeds</div>
+                        <div class="formula">(Selling Price − Outstanding Loan − Total CPF Used)</div>
+                      </div>
+                      <div class="value" id="sph-out-grossSalesProceeds">S$0</div>
+                    </div>
+                    <ul class="sub-list">
+                      <li>CPF refund: <span id="sph-out-cpfRefund">S$0</span></li>
+                      <li>Gross cash proceeds: <span id="sph-out-grossCashProceeds">S$0</span></li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="summary-bar tone-negative">
+                    <div class="summary-bar-row">
+                      <span class="label">Total expenses</span>
+                      <span class="value" id="sph-out-totalExpenses">S$0</span>
+                    </div>
+                  </div>
+
+                  <div class="field-grid" style="margin-top: 18px;">
+                    <div class="field">
+                      <label for="sph-ssdRate">Seller Stamp Duty</label>
+                      <select id="sph-ssdRate">
+                        <option value="0" selected>N/A — held more than 4 years</option>
+                        <option value="16">Sold within 1 year — 16%</option>
+                        <option value="12">Sold within 1–2 years — 12%</option>
+                        <option value="8">Sold within 2–3 years — 8%</option>
+                        <option value="4">Sold within 3–4 years — 4%</option>
+                      </select>
+                      <div class="hint">Computed: <span id="sph-out-ssd">S$0</span></div>
+                    </div>
+                    <div class="field">
+                      <label for="sph-resaleApplication">Resale application</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="sph-resaleApplication" inputmode="decimal" value="80" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="sph-legalFee">Legal fee</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="sph-legalFee" inputmode="decimal" value="2500" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="sph-townCouncilTax">Pro-rated town council &amp; property tax</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="sph-townCouncilTax" inputmode="decimal" value="200" min="0" step="any" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field full" style="margin-top: 16px;">
+                    <label for="sph-agentFee">Agent fee</label>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                      <div class="input-wrap has-prefix" style="flex: 1; min-width: 140px;">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="sph-agentFee" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                      <select id="sph-agentRate" style="width: auto; flex: none;">
+                        <option value="1">1%</option>
+                        <option value="1.5">1.5%</option>
+                        <option value="2">2%</option>
+                        <option value="2gst" selected>2% + GST</option>
+                      </select>
+                      <label class="switch" title="Auto-calculate from rate">
+                        <input type="checkbox" id="sph-agentAuto" checked />
+                        <span class="track"></span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="panel-section-header" style="margin-top: 22px;">
+                    <h2>Other expenses</h2>
+                  </div>
+                  <div class="field-grid">
+                    <div class="field">
+                      <label for="sph-bankPenalty">Bank's penalty</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="sph-bankPenalty" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="sph-resaleLevy">HDB resale levy</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="sph-resaleLevy" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="sph-outstandingHIP">Outstanding HIP (Home Improvement Programme)</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="sph-outstandingHIP" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="sph-others">Others</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="sph-others" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="summary-bar tone-accent">
+                  <div class="summary-bar-row">
+                    <div>
+                      <div class="label">Net cash proceeds</div>
+                      <div class="formula">(Gross Cash Proceeds − Total Expenses)</div>
+                    </div>
+                    <div class="value" id="sph-out-netCashProceeds">S$0</div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <h2 class="pt-side-title" style="margin: 0;">Payment schedule</h2>
+              </div>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Submit — Intent to Sell</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">1 WEEK</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Option to Purchase — Issued</div>
+                    <div class="timeline-card-body">
+                      <div class="field">
+                        <label for="sph-optionFee">Receive option fee</label>
+                        <div class="input-wrap has-prefix">
+                          <span class="prefix">S$</span>
+                          <input type="text" id="sph-optionFee" inputmode="decimal" value="1000" min="0" step="any" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">21 DAYS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Option to Purchase — Exercised</div>
+                    <div class="timeline-card-body">
+                      <div class="field">
+                        <label for="sph-exerciseFee">Receive exercise fee</label>
+                        <div class="input-wrap has-prefix">
+                          <span class="prefix">S$</span>
+                          <input type="text" id="sph-exerciseFee" inputmode="decimal" value="4000" min="0" step="any" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">7 DAYS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Submit — Resale Application</div>
+                    <div class="timeline-card-body">
+                      <ul>
+                        <li>Resale application: <span id="sph-tl-resaleApplication">S$80</span></li>
+                      </ul>
+                      <div class="tl-note">HDB approval of application <span class="tl-note-sub">(within 28 days)</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">2–4 WEEKS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Seller's Endorsement</div>
+                    <div class="timeline-card-body">
+                      <div class="tl-cash-payment">Cash payment: <span id="sph-tl-endorsementCash">S$0</span></div>
+                      <ul>
+                        <li>Seller Stamp Duty: <span id="sph-tl-ssd">S$0</span></li>
+                        <li>Legal fee: <span id="sph-tl-legalFee">S$0</span></li>
+                        <li>Town council &amp; property tax: <span id="sph-tl-townCouncilTax">S$0</span></li>
+                        <li>Bank's penalty: <span id="sph-tl-bankPenalty">S$0</span></li>
+                        <li>HDB resale levy: <span id="sph-tl-resaleLevy">S$0</span></li>
+                        <li>Outstanding HIP: <span id="sph-tl-outstandingHIP">S$0</span></li>
+                      </ul>
+                      <div class="tl-note">HDB approval of sale <span class="tl-note-sub">(est. 14 days)</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">8 WEEKS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Seller Move Out + Buyer's Final Inspection</div>
+                  </div>
+                </div>
+
+                <div class="timeline-item done">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Sales Completion</div>
+                    <div class="timeline-card-body">
+                      <div class="tl-cash-payment">Cash payment: <span id="sph-tl-completionCash">S$0</span></div>
+                      <ul>
+                        <li>Agent fee: <span id="sph-tl-agentFee">S$0</span></li>
+                        <li>Others: <span id="sph-tl-others">S$0</span></li>
+                      </ul>
+                      <div class="tl-note">Cash proceeds: <span id="sph-tl-completionProceeds">S$0</span><br /><span class="tl-note-sub">(Gross Cash Proceeds − Option &amp; Exercise Fee Received)</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PRIVATE SALE PROCEEDS ==================== -->
+        <div id="sp-private" hidden>
+          <div class="pt-grid">
+            <div class="panel">
+              <form id="spp-form" autocomplete="off">
+                <div class="panel-section">
+                  <div class="panel-section-header">
+                    <h2>Calculation summary</h2>
+                  </div>
+                  <div class="field-grid">
+                    <div class="field">
+                      <label for="spp-sellingPrice">Selling price</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="spp-sellingPrice" inputmode="decimal" value="1000000" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="spp-propertyAddress">Property address <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+                      <input type="text" id="spp-propertyAddress" placeholder="e.g. 12 Example Road, #10-01" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-header">
+                    <h2>Loan &amp; CPF</h2>
+                  </div>
+                  <div class="field full" style="margin-bottom: 16px;">
+                    <label>Loan type</label>
+                    <div class="segmented" id="spp-loanType" role="group">
+                      <button type="button" data-value="loan" class="active">Outstanding Loan</button>
+                      <button type="button" data-value="none">No Loan</button>
+                    </div>
+                  </div>
+                  <div class="field-grid" id="spp-loan-fields">
+                    <div class="field">
+                      <label for="spp-outstandingLoan">Outstanding loan</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="spp-outstandingLoan" inputmode="decimal" value="500000" min="0" step="any" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="summary-bar tone-accent" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                    <span class="label">Total CPF used: <span id="spp-out-totalCpf">S$0</span></span>
+                    <button type="button" class="add-seller-btn" id="spp-addSeller" style="color: #fff;">+ Add seller</button>
+                  </div>
+                  <div class="seller-grid" id="spp-sellers"></div>
+
+                  <div class="summary-bar tone-accent">
+                    <div class="summary-bar-row">
+                      <div>
+                        <div class="label">Gross sales proceeds</div>
+                        <div class="formula">(Selling Price − Outstanding Loan)</div>
+                      </div>
+                      <div class="value" id="spp-out-grossSalesProceeds">S$0</div>
+                    </div>
+                    <ul class="sub-list">
+                      <li>CPF refund: <span id="spp-out-cpfRefund">S$0</span></li>
+                      <li>Gross cash proceeds: <span id="spp-out-grossCashProceeds">S$0</span></li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="summary-bar tone-negative">
+                    <div class="summary-bar-row">
+                      <span class="label">Total expenses</span>
+                      <span class="value" id="spp-out-totalExpenses">S$0</span>
+                    </div>
+                  </div>
+
+                  <div class="field-grid" style="margin-top: 18px;">
+                    <div class="field">
+                      <label for="spp-ssdRate">Seller Stamp Duty</label>
+                      <select id="spp-ssdRate">
+                        <option value="0" selected>N/A — held more than 4 years</option>
+                        <option value="16">Sold within 1 year — 16%</option>
+                        <option value="12">Sold within 1–2 years — 12%</option>
+                        <option value="8">Sold within 2–3 years — 8%</option>
+                        <option value="4">Sold within 3–4 years — 4%</option>
+                      </select>
+                      <div class="hint">Computed: <span id="spp-out-ssd">S$0</span></div>
+                    </div>
+                    <div class="field">
+                      <label for="spp-bankPenalty">Bank's penalty</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="spp-bankPenalty" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="spp-legalFee">Legal fee</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="spp-legalFee" inputmode="decimal" value="3000" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="spp-others">Others</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="spp-others" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field full" style="margin-top: 16px;">
+                    <label for="spp-agentFee">Agent fee</label>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                      <div class="input-wrap has-prefix" style="flex: 1; min-width: 140px;">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="spp-agentFee" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                      <select id="spp-agentRate" style="width: auto; flex: none;">
+                        <option value="1">1%</option>
+                        <option value="1.5">1.5%</option>
+                        <option value="2">2%</option>
+                        <option value="2gst" selected>2% + GST</option>
+                      </select>
+                      <label class="switch" title="Auto-calculate from rate">
+                        <input type="checkbox" id="spp-agentAuto" checked />
+                        <span class="track"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="summary-bar tone-accent">
+                  <div class="summary-bar-row">
+                    <div>
+                      <div class="label">Net cash proceeds</div>
+                      <div class="formula">(Gross Cash Proceeds − Total Expenses)</div>
+                    </div>
+                    <div class="value" id="spp-out-netCashProceeds">S$0</div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <h2 class="pt-side-title" style="margin: 0;">Payment schedule</h2>
+              </div>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Option to Purchase</div>
+                    <div class="timeline-card-body">
+                      <div class="tl-fields">
+                        <div class="field">
+                          <label for="spp-optionFeePct">Option fee</label>
+                          <div class="input-wrap has-suffix">
+                            <input type="text" id="spp-optionFeePct" inputmode="decimal" value="1" min="0" step="any" />
+                            <span class="suffix">%</span>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label>Amount received</label>
+                          <div class="display-value" id="spp-out-optionAmount">S$0</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">2 WEEKS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Option to Purchase — Exercise</div>
+                    <div class="timeline-card-body">
+                      <div class="tl-fields">
+                        <div class="field">
+                          <label>Amount received</label>
+                          <div class="display-value" id="spp-out-exerciseAmount">S$0</div>
+                        </div>
+                        <div class="field">
+                          <label for="spp-exerciseFeePct">Exercise fee</label>
+                          <div class="input-wrap has-suffix">
+                            <input type="text" id="spp-exerciseFeePct" inputmode="decimal" value="4" min="0" step="any" />
+                            <span class="suffix">%</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div style="border-top: 1px solid var(--border); margin: 10px 0; padding-top: 10px;">
+                        <div style="font-weight: 700; margin-bottom: 6px;">Total expenses: <span style="color: var(--negative);" id="spp-tl-totalExpenses">S$0</span></div>
+                        <ul>
+                          <li>Seller Stamp Duty: <span id="spp-tl-ssd">S$0</span></li>
+                          <li>Bank's penalty: <span id="spp-tl-bankPenalty">S$0</span></li>
+                          <li>Legal fee: <span id="spp-tl-legalFee">S$0</span></li>
+                          <li>Agent fee: <span id="spp-tl-agentFee">S$0</span></li>
+                          <li>Others: <span id="spp-tl-others">S$0</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">12 WEEKS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item done">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Sales Completion</div>
+                    <div class="timeline-card-body">
+                      <ul>
+                        <li>CPF refund: <span id="spp-tl-cpfRefund">S$0</span></li>
+                      </ul>
+                      <div class="tl-note">Balance cash proceeds receivable: <span id="spp-tl-balanceReceivable">S$0</span></div>
+                      <ul style="margin-top: 6px; padding-left: 14px;">
+                        <li>Gross cash proceeds: <span id="spp-tl-grossCashProceeds">S$0</span></li>
+                        <li>Less total expenses: <span id="spp-tl-lessExpenses">S$0</span></li>
+                        <li>Less option fee received: <span id="spp-tl-lessOption">S$0</span></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="pt-panel-purchase" hidden>
+        <div class="panel" style="text-align: center; padding: 48px 24px; color: var(--text-muted);">
+          <p style="margin: 0;">The Resale Purchase calculator (HDB &amp; Private, with funds automatically carried over from Sale Proceeds) is coming soon.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Read this before trusting the numbers:</strong> Buyer's/Seller's Stamp Duty use current published rates, but ABSD, grants, and exact CPF accrued-interest refunds depend on your specific eligibility and CPF statement — always verify against your CPF/HDB statements before relying on this for a real transaction. Agent commission, legal fees, and other costs are negotiable and vary by firm.
+      </div>
+
+      <div class="explainer">
+        <h2>How it's calculated</h2>
+
+        <div class="formula-block">
+          <h3>Gross sales &amp; cash proceeds</h3>
+          <p>For HDB: <code>Gross Sales Proceeds = Selling Price − Outstanding Loan − Total CPF Used</code>, with Gross Cash Proceeds equal to that figure. For private property: <code>Gross Sales Proceeds = Selling Price − Outstanding Loan</code>, then <code>Gross Cash Proceeds = Gross Sales Proceeds − CPF Refund</code>. Either way, the CPF used (with accrued interest) by every seller is refunded back to their CPF account before any cash is released — it's the same total deduction either way, just grouped differently.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Seller Stamp Duty (SSD)</h3>
+          <p>Applies if you sell within a few years of purchase, on the selling price: 16% within 1 year, 12% within 1–2 years, 8% within 2–3 years, 4% within 3–4 years, and no SSD beyond 4 years — the current rates for residential property bought on or after 20 Feb 2010.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Agent fee</h3>
+          <p><code>Agent Fee = Selling Price × Rate</code>, optionally plus 9% GST on the commission. Turn off auto-calculate to enter a negotiated flat fee instead.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Net cash proceeds</h3>
+          <p><code>Net Cash Proceeds = Gross Cash Proceeds − Total Expenses</code> — the bottom-line amount you walk away with, across the whole transaction. The payment schedule on the right breaks that same total into what's actually received or paid out at each stage: for HDB, both the option fee and exercise fee are paid directly to the seller as they're received; for private property, only the option fee is — the exercise deposit is held by the buyer's lawyer and only released at completion, so it isn't treated as "already received" beforehand.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  </footer>
+
+  <script src="../js/number-format.js"></script>
+  <script src="../js/theme.js"></script>
+  <script src="../js/property-transaction.js"></script>
+</body>
+</html>
