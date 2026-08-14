@@ -1276,6 +1276,16 @@ table.data-table {
   justify-content: center;
 }
 
+/* A gap row's height otherwise just matches its own badge's natural size — which varies
+   with the label's text length ("7 DAYS" vs "2-4 WEEKS") — leaving whatever line space is
+   left over unevenly split above/below it. Giving the rail a fixed minimum height and
+   vertically centering within it keeps every badge centered on its own line segment
+   regardless of label length. */
+.timeline-item .timeline-rail:has(.timeline-gap) {
+  min-height: 90px;
+  align-items: center;
+}
+
 .timeline-item .timeline-dot {
   width: 22px;
   height: 22px;
