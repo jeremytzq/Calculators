@@ -1294,13 +1294,18 @@ table.data-table {
   font-size: 0.65rem;
   font-weight: 700;
   color: #fff;
-  background: var(--text);
+  /* Fixed dark slate rather than var(--text) — that variable flips to a light color in dark
+     mode, which left white text on a near-white pill (invisible) whenever dark mode was on. */
+  background: #23262f;
   border-radius: 6px;
   padding: 8px 3px;
   text-align: center;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   margin: 6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .timeline-card {
