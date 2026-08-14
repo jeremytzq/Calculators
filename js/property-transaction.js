@@ -118,17 +118,23 @@
     return (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
   }
 
-  // Matches a Resale Purchase buyer's name (case-insensitive, exact) against every seller
-  // recorded on the Sale Proceeds tab (HDB and Private both) and sums their CPF used + CPF
-  // accrued interest — that combined figure is what carries over automatically per the rule
-  // that CPF only follows the money when it's provably the same person.
-  function matchedCpfFromSale(name) {
-    const trimmed = (name || "").trim().toLowerCase();
-    if (!trimmed) return { amount: 0, matches: [] };
+  // Matches one or more Resale Purchase buyer names (case-insensitive, exact) against every
+  // seller recorded on the Sale Proceeds tab (HDB and Private both), and sums their CPF used
+  // and CPF accrued interest as separate figures — CPF only follows the money when it's
+  // provably the same person. A seller matched by more than one buyer field (e.g. both buyers
+  // typed the same name) is only counted once.
+  function matchedCpfFromNames(names) {
     const all = [...window.PropertyTransactionResults.hdb.sellers, ...window.PropertyTransactionResults.private.sellers];
-    const matches = all.filter((s) => s.name.trim().toLowerCase() === trimmed);
-    const amount = matches.reduce((sum, s) => sum + s.cpfUsed + s.cpfAccruedInterest, 0);
-    return { amount, matches };
+    const matchedSet = new Set();
+    names.forEach((name) => {
+      const trimmed = (name || "").trim().toLowerCase();
+      if (!trimmed) return;
+      all.filter((s) => s.name.trim().toLowerCase() === trimmed).forEach((s) => matchedSet.add(s));
+    });
+    const matches = Array.from(matchedSet);
+    const cpfUsed = matches.reduce((sum, s) => sum + s.cpfUsed, 0);
+    const cpfAccruedInterest = matches.reduce((sum, s) => sum + s.cpfAccruedInterest, 0);
+    return { amount: cpfUsed + cpfAccruedInterest, cpfUsed, cpfAccruedInterest, matches };
   }
 
   // Agent commission rate select stores values like "2" or "2gst" — parseFloat naturally
@@ -437,7 +443,8 @@
     const el = {
       purchasePrice: document.getElementById("rph-purchasePrice"),
       valuation: document.getElementById("rph-valuation"),
-      buyerName: document.getElementById("rph-buyerName"),
+      buyerName1: document.getElementById("rph-buyerName1"),
+      buyerName2: document.getElementById("rph-buyerName2"),
       cpfAvailable: document.getElementById("rph-cpfAvailable"),
       housingGrant: document.getElementById("rph-housingGrant"),
       proximityGrant: document.getElementById("rph-proximityGrant"),
@@ -472,11 +479,11 @@
       const valuation = num(el.valuation);
       const whicheverLower = Math.min(purchasePrice, valuation);
 
-      const matched = matchedCpfFromSale(el.buyerName.value);
+      const matched = matchedCpfFromNames([el.buyerName1.value, el.buyerName2.value]);
       const noteEl = document.getElementById("rph-cpfFromSaleNote");
-      if (matched.amount > 0) {
+      if (matched.matches.length > 0) {
         noteEl.hidden = false;
-        noteEl.textContent = `Matched ${matched.matches.map((m) => m.name).join(", ")} as seller — ${fmtCurrency(matched.amount)} CPF (used + accrued interest) carried over automatically.`;
+        noteEl.textContent = `Matched ${matched.matches.map((m) => m.name).join(", ")} as seller(s) — CPF used: ${fmtCurrency(matched.cpfUsed)}, CPF accrued interest: ${fmtCurrency(matched.cpfAccruedInterest)} (${fmtCurrency(matched.amount)} total) carried over automatically.`;
       } else {
         noteEl.hidden = true;
       }
@@ -601,7 +608,8 @@
   (function () {
     const el = {
       purchasePrice: document.getElementById("rpp-purchasePrice"),
-      buyerName: document.getElementById("rpp-buyerName"),
+      buyerName1: document.getElementById("rpp-buyerName1"),
+      buyerName2: document.getElementById("rpp-buyerName2"),
       ltv: document.getElementById("rpp-ltv"),
       interestRate: document.getElementById("rpp-interestRate"),
       buyerAge: document.getElementById("rpp-buyerAge"),
@@ -647,11 +655,11 @@
       const cashPct = cfg.cashPct;
       const cashMin = purchasePrice * (cashPct / 100);
 
-      const matched = matchedCpfFromSale(el.buyerName.value);
+      const matched = matchedCpfFromNames([el.buyerName1.value, el.buyerName2.value]);
       const noteEl = document.getElementById("rpp-cpfFromSaleNote");
-      if (matched.amount > 0) {
+      if (matched.matches.length > 0) {
         noteEl.hidden = false;
-        noteEl.textContent = `Matched ${matched.matches.map((m) => m.name).join(", ")} as seller — ${fmtCurrency(matched.amount)} CPF (used + accrued interest) available to add to your own CPF savings above.`;
+        noteEl.textContent = `Matched ${matched.matches.map((m) => m.name).join(", ")} as seller(s) — CPF used: ${fmtCurrency(matched.cpfUsed)}, CPF accrued interest: ${fmtCurrency(matched.cpfAccruedInterest)} (${fmtCurrency(matched.amount)} total) available to add to your own CPF savings above.`;
       } else {
         noteEl.hidden = true;
       }
