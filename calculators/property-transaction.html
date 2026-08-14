@@ -28,7 +28,7 @@
 
       <div class="page-tabs" role="tablist">
         <button type="button" class="page-tab active" id="pt-tab-sale" role="tab" aria-selected="true">Sale Proceeds</button>
-        <button type="button" class="page-tab" id="pt-tab-purchase" role="tab" aria-selected="false" disabled title="Coming soon">Resale Purchase <span class="badge soon" style="margin-left: 6px;">Soon</span></button>
+        <button type="button" class="page-tab" id="pt-tab-purchase" role="tab" aria-selected="false">Resale Purchase</button>
       </div>
 
       <div id="pt-panel-sale">
@@ -571,8 +571,692 @@
       </div>
 
       <div id="pt-panel-purchase" hidden>
-        <div class="panel" style="text-align: center; padding: 48px 24px; color: var(--text-muted);">
-          <p style="margin: 0;">The Resale Purchase calculator (HDB &amp; Private, with funds automatically carried over from Sale Proceeds) is coming soon.</p>
+        <div class="field full" style="margin-bottom: 22px;">
+          <div class="segmented" id="rp-propertyType" role="group" aria-label="Property type">
+            <button type="button" data-value="hdb" class="active">HDB</button>
+            <button type="button" data-value="private">Private Residential</button>
+          </div>
+        </div>
+
+        <!-- ==================== HDB RESALE PURCHASE ==================== -->
+        <div id="rp-hdb">
+          <div class="pt-grid">
+            <div class="panel">
+              <form id="rph-form" autocomplete="off">
+                <div class="panel-section">
+                  <div class="panel-section-header">
+                    <h2>Calculation summary</h2>
+                  </div>
+                  <div class="field-grid">
+                    <div class="field">
+                      <label for="rph-purchasePrice">Purchase price</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-purchasePrice" inputmode="decimal" value="620000" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-valuation">Valuation</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-valuation" inputmode="decimal" value="600000" min="0" step="any" />
+                      </div>
+                      <div class="hint">Cash Above Valuation applies if purchase price exceeds this — it can't be paid via loan or CPF</div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-propertyAddress">Property address <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+                      <input type="text" id="rph-propertyAddress" placeholder="e.g. Blk 123 Example Ave" />
+                    </div>
+                    <div class="field">
+                      <label for="rph-buyerName">Your name <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+                      <input type="text" id="rph-buyerName" placeholder="e.g. John Tan" />
+                      <div class="hint">Matches a seller on the Sale Proceeds tab — their CPF used + accrued interest carries over automatically</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-header">
+                    <h2>Loan type</h2>
+                  </div>
+                  <div class="segmented" id="rph-loanType" role="group">
+                    <button type="button" data-value="bank" class="active">Bank Loan</button>
+                    <button type="button" data-value="hdb">HDB Loan</button>
+                    <button type="button" data-value="none">No Loan</button>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-header">
+                    <h2>CPF &amp; grants</h2>
+                  </div>
+                  <div class="field-grid cols-3">
+                    <div class="field">
+                      <label for="rph-cpfAvailable">Total CPF (OA) available</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-cpfAvailable" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-housingGrant">Housing grant</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-housingGrant" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-proximityGrant">Proximity grant</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-proximityGrant" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="hint" id="rph-cpfFromSaleNote" style="margin-top: 10px;" hidden></div>
+
+                  <div class="summary-bar tone-accent">
+                    <div class="summary-bar-row">
+                      <div>
+                        <div class="label">Total CPF &amp; grants</div>
+                        <div class="formula">(Total CPF + Housing Grant + Proximity Grant + matched CPF from sale)</div>
+                      </div>
+                      <div class="value" id="rph-out-totalCpfGrants">S$0</div>
+                    </div>
+                  </div>
+
+                  <div class="summary-bar tone-negative">
+                    <div class="summary-bar-row">
+                      <span class="label">(–) CPF deductibles</span>
+                      <span class="value" id="rph-out-cpfDeductibles">S$0</span>
+                    </div>
+                  </div>
+                  <div class="field-grid" style="margin-top: 16px;">
+                    <div class="field">
+                      <label for="rph-bsdMethod">Buyer Stamp Duty <span id="rph-out-bsdInline" style="font-weight: 400; color: var(--text-muted);">— S$0</span></label>
+                      <div class="segmented" id="rph-bsdMethod" role="group">
+                        <button type="button" data-value="cash" class="active">Cash</button>
+                        <button type="button" data-value="cpf">CPF</button>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-legalFee">Legal fee</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-legalFee" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                      <div class="segmented" id="rph-legalFeeMethod" role="group" style="margin-top: 8px;">
+                        <button type="button" data-value="cash" class="active">Cash</button>
+                        <button type="button" data-value="cpf">CPF</button>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-hpsPremium">HPS premium</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-hpsPremium" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                      <div class="segmented" id="rph-hpsPremiumMethod" role="group" style="margin-top: 8px;">
+                        <button type="button" data-value="cash" class="active">Cash</button>
+                        <button type="button" data-value="cpf">CPF</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="panel-section-header" style="margin-top: 20px;">
+                    <h2>Additional Buyer's Stamp Duty (ABSD)</h2>
+                  </div>
+                  <div class="field-grid">
+                    <div class="field">
+                      <label>Residency status</label>
+                      <div class="segmented" id="rph-residency" role="group">
+                        <button type="button" data-value="citizen" class="active">SG Citizen</button>
+                        <button type="button" data-value="pr">SG PR</button>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Property count (including this one)</label>
+                      <div class="segmented" id="rph-propertyCount" role="group">
+                        <button type="button" data-value="1" class="active">1st</button>
+                        <button type="button" data-value="2">2nd</button>
+                        <button type="button" data-value="3">3rd</button>
+                        <button type="button" data-value="4">4th+</button>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>ABSD <span id="rph-out-absdRate" style="font-weight: 400; color: var(--text-muted);">(0%)</span></label>
+                      <div class="display-value" id="rph-out-absd">S$0</div>
+                      <div class="segmented" id="rph-absdMethod" role="group" style="margin-top: 8px;">
+                        <button type="button" data-value="cash" class="active">Cash</button>
+                        <button type="button" data-value="cpf">CPF</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="summary-bar tone-accent">
+                    <div class="summary-bar-row">
+                      <span class="label">Balance CPF &amp; grants</span>
+                      <span class="value" id="rph-out-balanceCpfGrants">S$0</span>
+                    </div>
+                    <div class="formula" style="margin-top: 4px;">(Total CPF &amp; Grants − CPF Deductibles)</div>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-header">
+                    <h2>Loan &amp; downpayment</h2>
+                  </div>
+                  <div class="hint" style="margin-bottom: 12px;">Based on whichever is lower: <strong id="rph-out-whicheverLower">S$0</strong></div>
+                  <div class="field-grid cols-3">
+                    <div class="field">
+                      <label for="rph-ltv">Loan-to-value</label>
+                      <div class="input-wrap has-suffix">
+                        <input type="text" id="rph-ltv" inputmode="decimal" value="75" min="0" max="100" step="any" />
+                        <span class="suffix">%</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-buyerAge">Buyer's age (IWAA)</label>
+                      <div class="input-wrap">
+                        <input type="text" id="rph-buyerAge" inputmode="decimal" value="35" min="18" step="any" />
+                      </div>
+                      <div class="hint">Max loan tenure: <span id="rph-out-maxTenure">—</span></div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-loanTenure">Loan tenure</label>
+                      <div class="input-wrap has-suffix">
+                        <input type="text" id="rph-loanTenure" inputmode="decimal" value="25" min="1" step="any" />
+                        <span class="suffix">years</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-interestRate">Interest rate</label>
+                      <div class="input-wrap has-suffix">
+                        <input type="text" id="rph-interestRate" inputmode="decimal" value="2.6" min="0" step="any" />
+                        <span class="suffix">%/yr</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Loan amount</label>
+                      <div class="display-value" id="rph-out-loanAmount">S$0</div>
+                    </div>
+                    <div class="field">
+                      <label>Monthly instalment</label>
+                      <div class="display-value" id="rph-out-monthlyInstalment">S$0</div>
+                    </div>
+                  </div>
+
+                  <div class="summary-bar tone-accent">
+                    <div class="summary-bar-row">
+                      <span class="label">Downpayment</span>
+                      <span class="value" id="rph-out-downPayment">S$0</span>
+                    </div>
+                  </div>
+
+                  <div class="field-grid cols-3" style="margin-top: 16px;">
+                    <div class="field">
+                      <label>5% cash <span style="font-weight: 400; color: var(--text-muted);">(incl. option + exercise fee)</span></label>
+                      <div class="display-value" id="rph-out-fivePctCash">S$0</div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-cpfGrantsUsed">CPF &amp; grants used</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-cpfGrantsUsed" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Cash top-up</label>
+                      <div class="display-value" id="rph-out-cashTopUp">S$0</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="summary-bar tone-negative">
+                    <div class="summary-bar-row">
+                      <span class="label">Total expenses</span>
+                      <span class="value" id="rph-out-totalExpenses">S$0</span>
+                    </div>
+                  </div>
+                  <div class="field-grid" style="margin-top: 16px;">
+                    <div class="field">
+                      <label for="rph-valuationFee">Valuation fee</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-valuationFee" inputmode="decimal" value="120" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-resaleApplication">Resale application</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-resaleApplication" inputmode="decimal" value="80" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rph-others">Others</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-others" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="field full" style="margin-top: 16px;">
+                    <label for="rph-agentFee">Agent fee</label>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                      <div class="input-wrap has-prefix" style="flex: 1; min-width: 140px;">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rph-agentFee" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                      <select id="rph-agentRate" style="width: auto; flex: none;">
+                        <option value="1" selected>1%</option>
+                        <option value="1.5">1.5%</option>
+                        <option value="2">2%</option>
+                        <option value="2gst">2% + GST</option>
+                      </select>
+                      <label class="switch" title="Auto-calculate from rate">
+                        <input type="checkbox" id="rph-agentAuto" checked />
+                        <span class="track"></span>
+                      </label>
+                    </div>
+                    <div class="hint">Buyer's agent commission, if any — many resale purchases have none</div>
+                  </div>
+                </div>
+
+                <div class="summary-bar tone-accent">
+                  <div class="summary-bar-row">
+                    <div>
+                      <div class="label">Total purchase outlay</div>
+                      <div class="formula">(Downpayment + Total Expenses)</div>
+                    </div>
+                    <div class="value" id="rph-out-totalOutlay">S$0</div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <h2 class="pt-side-title" style="margin: 0;">Payment schedule</h2>
+              </div>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Buyer Obtains HDB Flat Eligibility (HFE) Letter</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">21 DAYS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Option to Purchase — Issued</div>
+                    <div class="timeline-card-body">
+                      <div class="field">
+                        <label for="rph-optionFee">Option fee</label>
+                        <div class="input-wrap has-prefix">
+                          <span class="prefix">S$</span>
+                          <input type="text" id="rph-optionFee" inputmode="decimal" value="1000" min="0" step="any" />
+                        </div>
+                      </div>
+                      <div class="tl-note" style="margin-top: 10px;">Submit — request for valuation</div>
+                      <div class="tl-note" style="font-weight: 400;">Secure bank loan — Letter of Offer</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">7 DAYS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Option to Purchase — Exercised</div>
+                    <div class="timeline-card-body">
+                      <div class="field">
+                        <label for="rph-exerciseFee">Exercise fee</label>
+                        <div class="input-wrap has-prefix">
+                          <span class="prefix">S$</span>
+                          <input type="text" id="rph-exerciseFee" inputmode="decimal" value="4000" min="0" step="any" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">2–4 WEEKS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Submit — Resale Application</div>
+                    <div class="timeline-card-body">
+                      <ul>
+                        <li>Resale application: <span id="rph-tl-resaleApplication">S$80</span></li>
+                      </ul>
+                      <div class="tl-note">HDB acceptance of application <span class="tl-note-sub">(within 28 days)</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">8 WEEKS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Buyer's Endorsement</div>
+                    <div class="timeline-card-body">
+                      <div class="tl-fields">
+                        <div>
+                          <div class="tl-cash-payment">Cash payment: <span id="rph-tl-endorsementCash">S$0</span></div>
+                        </div>
+                        <div>
+                          <div style="color: var(--negative); font-weight: 700;">CPF deductible: <span id="rph-tl-endorsementCpf">S$0</span></div>
+                        </div>
+                      </div>
+                      <ul>
+                        <li>Buyer Stamp Duty: <span id="rph-tl-bsd">S$0</span></li>
+                        <li>ABSD: <span id="rph-tl-absd">S$0</span></li>
+                        <li>Legal fee: <span id="rph-tl-legalFee">S$0</span></li>
+                        <li>HPS premium: <span id="rph-tl-hpsPremium">S$0</span></li>
+                        <li>Agent fee: <span id="rph-tl-agentFee">S$0</span></li>
+                        <li>CPF &amp; grants used: <span id="rph-tl-cpfGrantsUsed">S$0</span></li>
+                      </ul>
+                      <div class="tl-note">HDB approval of sale <span class="tl-note-sub">(est. 14 days)</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="timeline-item done">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Sales Completion</div>
+                    <div class="timeline-card-body">
+                      <div class="tl-cash-payment">Cash payment: <span id="rph-tl-completionCash">S$0</span></div>
+                      <ul>
+                        <li>Balance of 5% cash: <span id="rph-tl-balance5pct">S$0</span> <span class="tl-note-sub">(5% cash − option fee − exercise fee)</span></li>
+                        <li>Cash above valuation: <span id="rph-tl-cashAboveValuation">S$0</span></li>
+                        <li>Cash top-up: <span id="rph-tl-cashTopUp">S$0</span></li>
+                        <li>Others: <span id="rph-tl-others">S$0</span></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PRIVATE RESALE PURCHASE ==================== -->
+        <div id="rp-private" hidden>
+          <div class="pt-grid">
+            <div class="panel">
+              <form id="rpp-form" autocomplete="off">
+                <div class="panel-section">
+                  <div class="panel-section-header">
+                    <h2>Calculation summary</h2>
+                  </div>
+                  <div class="field-grid">
+                    <div class="field">
+                      <label for="rpp-purchasePrice">Purchase price</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rpp-purchasePrice" inputmode="decimal" value="1000000" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rpp-propertyAddress">Property address <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+                      <input type="text" id="rpp-propertyAddress" placeholder="e.g. 12 Example Road, #10-01" />
+                    </div>
+                    <div class="field">
+                      <label for="rpp-buyerName">Your name <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+                      <input type="text" id="rpp-buyerName" placeholder="e.g. John Tan" />
+                      <div class="hint">Matches a seller on the Sale Proceeds tab — their CPF used + accrued interest carries over automatically</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-header">
+                    <h2>Loan</h2>
+                  </div>
+                  <div class="field-grid cols-3">
+                    <div class="field">
+                      <label>Loan type</label>
+                      <div class="segmented" id="rpp-loanType" role="group">
+                        <button type="button" data-value="bank" class="active">Bank Loan</button>
+                        <button type="button" data-value="none">No Loan</button>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Loan number</label>
+                      <div class="segmented" id="rpp-loanNumber" role="group">
+                        <button type="button" data-value="1" class="active">1st</button>
+                        <button type="button" data-value="2">2nd</button>
+                        <button type="button" data-value="3">3rd</button>
+                      </div>
+                      <div class="hint">Sets the default LTV and minimum cash %</div>
+                    </div>
+                  </div>
+                  <div class="field-grid cols-3" style="margin-top: 16px;">
+                    <div class="field">
+                      <label for="rpp-ltv">Loan-to-value</label>
+                      <div class="input-wrap has-suffix">
+                        <input type="text" id="rpp-ltv" inputmode="decimal" value="75" min="0" max="100" step="any" />
+                        <span class="suffix">%</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Loan amount</label>
+                      <div class="display-value" id="rpp-out-loanAmount">S$0</div>
+                    </div>
+                    <div class="field">
+                      <label for="rpp-interestRate">Interest rate</label>
+                      <div class="input-wrap has-suffix">
+                        <input type="text" id="rpp-interestRate" inputmode="decimal" value="2.6" min="0" step="any" />
+                        <span class="suffix">%/yr</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rpp-buyerAge">Buyer's age (IWAA)</label>
+                      <div class="input-wrap">
+                        <input type="text" id="rpp-buyerAge" inputmode="decimal" value="35" min="18" step="any" />
+                      </div>
+                      <div class="hint">Max loan tenure: <span id="rpp-out-maxTenure">—</span></div>
+                    </div>
+                    <div class="field">
+                      <label for="rpp-loanTenure">Loan tenure</label>
+                      <div class="input-wrap has-suffix">
+                        <input type="text" id="rpp-loanTenure" inputmode="decimal" value="30" min="1" step="any" />
+                        <span class="suffix">years</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Monthly instalment</label>
+                      <div class="display-value" id="rpp-out-monthlyInstalment">S$0</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="summary-bar tone-accent">
+                  <div class="summary-bar-row">
+                    <span class="label">Downpayment</span>
+                    <span class="value" id="rpp-out-downPayment">S$0</span>
+                  </div>
+                </div>
+                <div class="field-grid cols-3" style="margin-top: 16px;">
+                  <div class="field">
+                    <label id="rpp-cashLabel">5% cash</label>
+                    <div class="display-value" id="rpp-out-cashMin">S$0</div>
+                  </div>
+                  <div class="field">
+                    <label for="rpp-cpfFromSale">CPF available <span style="font-weight: 400; color: var(--text-muted);">(from sale + own)</span></label>
+                    <div class="input-wrap has-prefix">
+                      <span class="prefix">S$</span>
+                      <input type="text" id="rpp-cpfFromSale" inputmode="decimal" value="0" min="0" step="any" />
+                    </div>
+                    <div class="hint" id="rpp-cpfFromSaleNote" hidden></div>
+                  </div>
+                  <div class="field">
+                    <label>Remaining cash/CPF</label>
+                    <div class="display-value" id="rpp-out-remainingCashCpf">S$0</div>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="summary-bar tone-negative">
+                    <div class="summary-bar-row">
+                      <span class="label">Total expenses</span>
+                      <span class="value" id="rpp-out-totalExpenses">S$0</span>
+                    </div>
+                  </div>
+                  <div class="field-grid" style="margin-top: 16px;">
+                    <div class="field">
+                      <label>Buyer Stamp Duty</label>
+                      <div class="display-value" id="rpp-out-bsd">S$0</div>
+                    </div>
+                    <div class="field">
+                      <label>ABSD <span id="rpp-out-absdRate" style="font-weight: 400; color: var(--text-muted);">(0%)</span></label>
+                      <div class="display-value" id="rpp-out-absd">S$0</div>
+                    </div>
+                    <div class="field">
+                      <label for="rpp-legalFee">Legal fee</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rpp-legalFee" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="rpp-others">Others</label>
+                      <div class="input-wrap has-prefix">
+                        <span class="prefix">S$</span>
+                        <input type="text" id="rpp-others" inputmode="decimal" value="0" min="0" step="any" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="field-grid" style="margin-top: 16px;">
+                    <div class="field">
+                      <label>Residency status</label>
+                      <div class="segmented" id="rpp-residency" role="group">
+                        <button type="button" data-value="citizen" class="active">SG Citizen</button>
+                        <button type="button" data-value="pr">SG PR</button>
+                        <button type="button" data-value="foreigner">Foreigner</button>
+                        <button type="button" data-value="company">Company Entity</button>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label>Property count (including this one)</label>
+                      <div class="segmented" id="rpp-propertyCount" role="group">
+                        <button type="button" data-value="1" class="active">1st</button>
+                        <button type="button" data-value="2">2nd</button>
+                        <button type="button" data-value="3">3rd</button>
+                        <button type="button" data-value="4">4th+</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="summary-bar tone-accent">
+                  <div class="summary-bar-row">
+                    <div>
+                      <div class="label">Total outlay</div>
+                      <div class="formula">(Downpayment + Total Expenses)</div>
+                    </div>
+                    <div class="value" id="rpp-out-totalOutlay">S$0</div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <h2 class="pt-side-title" style="margin: 0;">Payment schedule</h2>
+              </div>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Option to Purchase</div>
+                    <div class="timeline-card-body">
+                      <div class="tl-fields">
+                        <div class="field">
+                          <label for="rpp-optionFeePct">Option fee</label>
+                          <div class="input-wrap has-suffix">
+                            <input type="text" id="rpp-optionFeePct" inputmode="decimal" value="1" min="0" step="any" />
+                            <span class="suffix">%</span>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label>Amount paid</label>
+                          <div class="display-value" id="rpp-out-optionAmount">S$0</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">2 WEEKS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Option to Purchase — Exercise</div>
+                    <div class="timeline-card-body">
+                      <div class="tl-fields">
+                        <div class="field">
+                          <label>Amount paid</label>
+                          <div class="display-value" id="rpp-out-exerciseAmount">S$0</div>
+                        </div>
+                        <div class="field">
+                          <label for="rpp-exerciseFeePct">Exercise fee</label>
+                          <div class="input-wrap has-suffix">
+                            <input type="text" id="rpp-exerciseFeePct" inputmode="decimal" value="4" min="0" step="any" />
+                            <span class="suffix">%</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div style="border-top: 1px solid var(--border); margin: 10px 0; padding-top: 10px;">
+                        <div style="font-weight: 700; margin-bottom: 6px;">Total expenses: <span style="color: var(--negative);" id="rpp-tl-totalExpenses">S$0</span></div>
+                        <ul>
+                          <li>Buyer Stamp Duty: <span id="rpp-tl-bsd">S$0</span></li>
+                          <li>ABSD: <span id="rpp-tl-absd">S$0</span></li>
+                          <li>Legal fee: <span id="rpp-tl-legalFee">S$0</span></li>
+                          <li>Others: <span id="rpp-tl-others">S$0</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-rail"><div class="timeline-gap">12 WEEKS</div></div>
+                  <div></div>
+                </div>
+
+                <div class="timeline-item done">
+                  <div class="timeline-rail"><div class="timeline-dot"></div></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-title">Sales Completion</div>
+                    <div class="timeline-card-body">
+                      <div class="tl-note">Balance payment: <span id="rpp-tl-balancePct">0%</span></div>
+                      <div style="margin-top: 4px;">Amount: <span id="rpp-tl-balanceAmount">S$0</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -77,6 +77,60 @@
     return num(selectEl, 0);
   }
 
+  // Buyer's Stamp Duty — progressive bands on the purchase price, current published rates.
+  function buyersStampDuty(price) {
+    const bands = [
+      [180000, 0.01],
+      [180000, 0.02],
+      [640000, 0.03],
+      [500000, 0.04],
+      [1500000, 0.05],
+    ];
+    let remaining = price;
+    let total = 0;
+    for (const [amt, rate] of bands) {
+      const take = Math.min(remaining, amt);
+      total += take * rate;
+      remaining -= take;
+      if (remaining <= 0) break;
+    }
+    if (remaining > 0) total += remaining * 0.06;
+    return total;
+  }
+
+  // Additional Buyer's Stamp Duty — flat % of purchase price by residency × property count.
+  function absdRate(residency, propertyCount) {
+    if (residency === "foreigner") return 60;
+    if (residency === "company") return 65;
+    const table = {
+      citizen: { 1: 0, 2: 20, 3: 30, 4: 30 },
+      pr: { 1: 5, 2: 30, 3: 35, 4: 35 },
+    };
+    const row = table[residency] || table.citizen;
+    return row[propertyCount] ?? row[4];
+  }
+
+  function monthlyPayment(principal, annualRatePct, termYears) {
+    const n = Math.round(termYears * 12);
+    if (n <= 0 || principal <= 0) return 0;
+    const r = annualRatePct / 100 / 12;
+    if (r === 0) return principal / n;
+    return (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+  }
+
+  // Matches a Resale Purchase buyer's name (case-insensitive, exact) against every seller
+  // recorded on the Sale Proceeds tab (HDB and Private both) and sums their CPF used + CPF
+  // accrued interest — that combined figure is what carries over automatically per the rule
+  // that CPF only follows the money when it's provably the same person.
+  function matchedCpfFromSale(name) {
+    const trimmed = (name || "").trim().toLowerCase();
+    if (!trimmed) return { amount: 0, matches: [] };
+    const all = [...window.PropertyTransactionResults.hdb.sellers, ...window.PropertyTransactionResults.private.sellers];
+    const matches = all.filter((s) => s.name.trim().toLowerCase() === trimmed);
+    const amount = matches.reduce((sum, s) => sum + s.cpfUsed + s.cpfAccruedInterest, 0);
+    return { amount, matches };
+  }
+
   // Agent commission rate select stores values like "2" or "2gst" — parseFloat naturally
   // stops at the first non-numeric character, so this reads the rate regardless of suffix.
   function agentRateInfo(selectEl) {
@@ -177,6 +231,7 @@
     hdb: { netCashProceeds: 0, cpfRefund: 0, sellers: [] },
     private: { netCashProceeds: 0, cpfRefund: 0, sellers: [] },
   };
+  window.PropertyTransactionCalc = {};
 
   // ==================== HDB Sale Proceeds ====================
   (function () {
@@ -265,6 +320,8 @@
       text("sph-tl-completionProceeds", fmtCurrency(completionProceeds));
 
       window.PropertyTransactionResults.hdb = { netCashProceeds, cpfRefund, sellers: sellers.sellers() };
+      if (window.PropertyTransactionCalc.hdbPurchase) window.PropertyTransactionCalc.hdbPurchase();
+      if (window.PropertyTransactionCalc.privatePurchase) window.PropertyTransactionCalc.privatePurchase();
     }
 
     Object.values(el).forEach((input) => input && input.addEventListener("input", calculate));
@@ -361,6 +418,8 @@
       text("spp-tl-lessOption", fmtCurrency(optionAmount));
 
       window.PropertyTransactionResults.private = { netCashProceeds, cpfRefund, sellers: sellers.sellers() };
+      if (window.PropertyTransactionCalc.hdbPurchase) window.PropertyTransactionCalc.hdbPurchase();
+      if (window.PropertyTransactionCalc.privatePurchase) window.PropertyTransactionCalc.privatePurchase();
     }
 
     Object.values(el).forEach((input) => input && input.addEventListener("input", calculate));
@@ -372,6 +431,288 @@
     window.PropertyTransactionCalc = window.PropertyTransactionCalc || {};
     window.PropertyTransactionCalc.privateSale = calculate;
   })();
+
+  // ==================== HDB Resale Purchase ====================
+  (function () {
+    const el = {
+      purchasePrice: document.getElementById("rph-purchasePrice"),
+      valuation: document.getElementById("rph-valuation"),
+      buyerName: document.getElementById("rph-buyerName"),
+      cpfAvailable: document.getElementById("rph-cpfAvailable"),
+      housingGrant: document.getElementById("rph-housingGrant"),
+      proximityGrant: document.getElementById("rph-proximityGrant"),
+      legalFee: document.getElementById("rph-legalFee"),
+      hpsPremium: document.getElementById("rph-hpsPremium"),
+      ltv: document.getElementById("rph-ltv"),
+      buyerAge: document.getElementById("rph-buyerAge"),
+      loanTenure: document.getElementById("rph-loanTenure"),
+      interestRate: document.getElementById("rph-interestRate"),
+      cpfGrantsUsed: document.getElementById("rph-cpfGrantsUsed"),
+      valuationFee: document.getElementById("rph-valuationFee"),
+      resaleApplication: document.getElementById("rph-resaleApplication"),
+      others: document.getElementById("rph-others"),
+      agentFee: document.getElementById("rph-agentFee"),
+      agentRate: document.getElementById("rph-agentRate"),
+      agentAuto: document.getElementById("rph-agentAuto"),
+      optionFee: document.getElementById("rph-optionFee"),
+      exerciseFee: document.getElementById("rph-exerciseFee"),
+    };
+
+    const getLoanType = initSegmented("rph-loanType", () => calculate());
+    const getBsdMethod = initSegmented("rph-bsdMethod", () => calculate());
+    const getLegalFeeMethod = initSegmented("rph-legalFeeMethod", () => calculate());
+    const getHpsPremiumMethod = initSegmented("rph-hpsPremiumMethod", () => calculate());
+    const getAbsdMethod = initSegmented("rph-absdMethod", () => calculate());
+    const getResidency = initSegmented("rph-residency", () => calculate());
+    const getPropertyCount = initSegmented("rph-propertyCount", () => calculate());
+
+    function calculate() {
+      const loanType = getLoanType();
+      const purchasePrice = num(el.purchasePrice);
+      const valuation = num(el.valuation);
+      const whicheverLower = Math.min(purchasePrice, valuation);
+
+      const matched = matchedCpfFromSale(el.buyerName.value);
+      const noteEl = document.getElementById("rph-cpfFromSaleNote");
+      if (matched.amount > 0) {
+        noteEl.hidden = false;
+        noteEl.textContent = `Matched ${matched.matches.map((m) => m.name).join(", ")} as seller — ${fmtCurrency(matched.amount)} CPF (used + accrued interest) carried over automatically.`;
+      } else {
+        noteEl.hidden = true;
+      }
+
+      const cpfAvailable = num(el.cpfAvailable);
+      const housingGrant = num(el.housingGrant);
+      const proximityGrant = num(el.proximityGrant);
+      const totalCpfGrants = cpfAvailable + housingGrant + proximityGrant + matched.amount;
+
+      const bsd = buyersStampDuty(purchasePrice);
+      const legalFee = num(el.legalFee);
+      const hpsPremium = num(el.hpsPremium);
+      const rate = absdRate(getResidency(), parseInt(getPropertyCount(), 10));
+      const absd = purchasePrice * (rate / 100);
+
+      const bsdMethod = getBsdMethod();
+      const legalFeeMethod = getLegalFeeMethod();
+      const hpsPremiumMethod = getHpsPremiumMethod();
+      const absdMethod = getAbsdMethod();
+
+      const cpfDeductibles =
+        (bsdMethod === "cpf" ? bsd : 0) +
+        (legalFeeMethod === "cpf" ? legalFee : 0) +
+        (hpsPremiumMethod === "cpf" ? hpsPremium : 0) +
+        (absdMethod === "cpf" ? absd : 0);
+      const balanceCpfGrants = totalCpfGrants - cpfDeductibles;
+
+      const ageCap = Math.max(0, 65 - num(el.buyerAge));
+      const loanTypeCap = loanType === "hdb" ? 25 : 30;
+      const maxTenure = Math.min(loanTypeCap, ageCap);
+
+      const ltv = num(el.ltv);
+      const loanAmount = loanType === "none" ? 0 : whicheverLower * (ltv / 100);
+      const monthlyInstalment = monthlyPayment(loanAmount, num(el.interestRate), num(el.loanTenure));
+      const downPayment = whicheverLower - loanAmount;
+
+      const optionFee = num(el.optionFee);
+      const exerciseFee = num(el.exerciseFee);
+      const fivePctCash = whicheverLower * 0.05;
+      const cpfGrantsUsed = num(el.cpfGrantsUsed);
+      const cashTopUp = downPayment - fivePctCash - cpfGrantsUsed;
+
+      el.agentFee.readOnly = el.agentAuto.checked;
+      if (el.agentAuto.checked) {
+        const computed = agentFeeAmount(purchasePrice, el.agentRate);
+        el.agentFee.value = computed.toFixed(0);
+        window.NumberFormat.attach(el.agentFee);
+      }
+      const agentFee = num(el.agentFee);
+
+      const valuationFee = num(el.valuationFee);
+      const resaleApplication = num(el.resaleApplication);
+      const others = num(el.others);
+      const totalExpenses =
+        valuationFee +
+        resaleApplication +
+        others +
+        agentFee +
+        (bsdMethod === "cash" ? bsd : 0) +
+        (legalFeeMethod === "cash" ? legalFee : 0) +
+        (hpsPremiumMethod === "cash" ? hpsPremium : 0) +
+        (absdMethod === "cash" ? absd : 0);
+
+      const totalOutlay = downPayment + totalExpenses;
+
+      const endorsementCash =
+        (bsdMethod === "cash" ? bsd : 0) +
+        (legalFeeMethod === "cash" ? legalFee : 0) +
+        (hpsPremiumMethod === "cash" ? hpsPremium : 0) +
+        (absdMethod === "cash" ? absd : 0) +
+        agentFee;
+      const endorsementCpf = cpfDeductibles;
+
+      const balance5pct = fivePctCash - optionFee - exerciseFee;
+      const cashAboveValuation = Math.max(purchasePrice - valuation, 0);
+      const completionCash = balance5pct + cashAboveValuation + cashTopUp + others;
+
+      text("rph-out-bsdInline", `— ${fmtCurrency(bsd)}`);
+      text("rph-out-totalCpfGrants", fmtCurrency(totalCpfGrants));
+      text("rph-out-cpfDeductibles", fmtCurrency(cpfDeductibles));
+      text("rph-out-absdRate", `(${rate}%)`);
+      text("rph-out-absd", fmtCurrency(absd));
+      text("rph-out-balanceCpfGrants", fmtCurrency(balanceCpfGrants));
+      text("rph-out-whicheverLower", fmtCurrency(whicheverLower));
+      text("rph-out-maxTenure", `${maxTenure} years`);
+      text("rph-out-loanAmount", fmtCurrency(loanAmount));
+      text("rph-out-monthlyInstalment", fmtCurrency(monthlyInstalment));
+      text("rph-out-downPayment", fmtCurrency(downPayment));
+      text("rph-out-fivePctCash", fmtCurrency(fivePctCash));
+      text("rph-out-cashTopUp", fmtCurrency(cashTopUp));
+      text("rph-out-totalExpenses", fmtCurrency(totalExpenses));
+      text("rph-out-totalOutlay", fmtCurrency(totalOutlay));
+
+      text("rph-tl-resaleApplication", fmtCurrency(resaleApplication));
+      text("rph-tl-endorsementCash", fmtCurrency(endorsementCash));
+      text("rph-tl-endorsementCpf", fmtCurrency(endorsementCpf));
+      text("rph-tl-bsd", fmtCurrency(bsd));
+      text("rph-tl-absd", fmtCurrency(absd));
+      text("rph-tl-legalFee", fmtCurrency(legalFee));
+      text("rph-tl-hpsPremium", fmtCurrency(hpsPremium));
+      text("rph-tl-agentFee", fmtCurrency(agentFee));
+      text("rph-tl-cpfGrantsUsed", fmtCurrency(cpfGrantsUsed));
+      text("rph-tl-completionCash", fmtCurrency(completionCash));
+      text("rph-tl-balance5pct", fmtCurrency(balance5pct));
+      text("rph-tl-cashAboveValuation", fmtCurrency(cashAboveValuation));
+      text("rph-tl-cashTopUp", fmtCurrency(cashTopUp));
+      text("rph-tl-others", fmtCurrency(others));
+
+      schedulePositionTimelineGaps();
+    }
+
+    Object.values(el).forEach((input) => input && input.addEventListener("input", calculate));
+    el.agentRate.addEventListener("change", calculate);
+    el.agentAuto.addEventListener("change", calculate);
+    document.getElementById("rph-form").addEventListener("submit", (e) => e.preventDefault());
+
+    calculate();
+    window.PropertyTransactionCalc.hdbPurchase = calculate;
+  })();
+
+  // ==================== Private Resale Purchase ====================
+  (function () {
+    const el = {
+      purchasePrice: document.getElementById("rpp-purchasePrice"),
+      buyerName: document.getElementById("rpp-buyerName"),
+      ltv: document.getElementById("rpp-ltv"),
+      interestRate: document.getElementById("rpp-interestRate"),
+      buyerAge: document.getElementById("rpp-buyerAge"),
+      loanTenure: document.getElementById("rpp-loanTenure"),
+      cpfFromSale: document.getElementById("rpp-cpfFromSale"),
+      legalFee: document.getElementById("rpp-legalFee"),
+      others: document.getElementById("rpp-others"),
+      optionFeePct: document.getElementById("rpp-optionFeePct"),
+      exerciseFeePct: document.getElementById("rpp-exerciseFeePct"),
+    };
+
+    // Loan number sets the standard MAS default LTV cap and minimum cash %.
+    const loanNumberConfig = {
+      1: { ltv: 75, cashPct: 5 },
+      2: { ltv: 45, cashPct: 25 },
+      3: { ltv: 35, cashPct: 25 },
+    };
+
+    const getLoanType = initSegmented("rpp-loanType", () => calculate());
+    const getLoanNumber = initSegmented("rpp-loanNumber", (value) => {
+      const cfg = loanNumberConfig[value];
+      if (cfg) {
+        el.ltv.value = cfg.ltv;
+        window.NumberFormat.attach(el.ltv);
+      }
+      calculate();
+    });
+    const getResidency = initSegmented("rpp-residency", () => calculate());
+    const getPropertyCount = initSegmented("rpp-propertyCount", () => calculate());
+
+    function calculate() {
+      const loanType = getLoanType();
+      const purchasePrice = num(el.purchasePrice);
+      const ltv = num(el.ltv);
+      const loanAmount = loanType === "none" ? 0 : purchasePrice * (ltv / 100);
+      const monthlyInstalment = monthlyPayment(loanAmount, num(el.interestRate), num(el.loanTenure));
+      const downPayment = purchasePrice - loanAmount;
+
+      const ageCap = Math.max(0, 65 - num(el.buyerAge));
+      const maxTenure = Math.min(30, ageCap);
+
+      const cfg = loanNumberConfig[getLoanNumber()] || loanNumberConfig[1];
+      const cashPct = cfg.cashPct;
+      const cashMin = purchasePrice * (cashPct / 100);
+
+      const matched = matchedCpfFromSale(el.buyerName.value);
+      const noteEl = document.getElementById("rpp-cpfFromSaleNote");
+      if (matched.amount > 0) {
+        noteEl.hidden = false;
+        noteEl.textContent = `Matched ${matched.matches.map((m) => m.name).join(", ")} as seller — ${fmtCurrency(matched.amount)} CPF (used + accrued interest) available to add to your own CPF savings above.`;
+      } else {
+        noteEl.hidden = true;
+      }
+
+      const cpfFromSale = num(el.cpfFromSale);
+      const remainingCashCpf = downPayment - cashMin - cpfFromSale;
+
+      const bsd = buyersStampDuty(purchasePrice);
+      const rate = absdRate(getResidency(), parseInt(getPropertyCount(), 10));
+      const absd = purchasePrice * (rate / 100);
+      const legalFee = num(el.legalFee);
+      const others = num(el.others);
+      const totalExpenses = bsd + absd + legalFee + others;
+      const totalOutlay = downPayment + totalExpenses;
+
+      const optionFeePct = num(el.optionFeePct);
+      const exerciseFeePct = num(el.exerciseFeePct);
+      const optionAmount = purchasePrice * (optionFeePct / 100);
+      const exerciseAmount = purchasePrice * (exerciseFeePct / 100);
+      const balancePct = 100 - ltv - (optionFeePct + exerciseFeePct);
+      const balanceAmount = purchasePrice * (balancePct / 100);
+
+      text("rpp-cashLabel", `${cashPct}% cash`);
+      text("rpp-out-loanAmount", fmtCurrency(loanAmount));
+      text("rpp-out-monthlyInstalment", fmtCurrency(monthlyInstalment));
+      text("rpp-out-maxTenure", `${maxTenure} years`);
+      text("rpp-out-downPayment", fmtCurrency(downPayment));
+      text("rpp-out-cashMin", fmtCurrency(cashMin));
+      text("rpp-out-remainingCashCpf", fmtCurrency(remainingCashCpf));
+      text("rpp-out-totalExpenses", fmtCurrency(totalExpenses));
+      text("rpp-out-bsd", fmtCurrency(bsd));
+      text("rpp-out-absdRate", `(${rate}%)`);
+      text("rpp-out-absd", fmtCurrency(absd));
+      text("rpp-out-totalOutlay", fmtCurrency(totalOutlay));
+
+      text("rpp-out-optionAmount", fmtCurrency(optionAmount));
+      text("rpp-out-exerciseAmount", fmtCurrency(exerciseAmount));
+      text("rpp-tl-totalExpenses", fmtCurrency(totalExpenses));
+      text("rpp-tl-bsd", fmtCurrency(bsd));
+      text("rpp-tl-absd", fmtCurrency(absd));
+      text("rpp-tl-legalFee", fmtCurrency(legalFee));
+      text("rpp-tl-others", fmtCurrency(others));
+      text("rpp-tl-balancePct", `${balancePct}%`);
+      text("rpp-tl-balanceAmount", fmtCurrency(balanceAmount));
+
+      schedulePositionTimelineGaps();
+    }
+
+    Object.values(el).forEach((input) => input && input.addEventListener("input", calculate));
+    document.getElementById("rpp-form").addEventListener("submit", (e) => e.preventDefault());
+
+    calculate();
+    window.PropertyTransactionCalc.privatePurchase = calculate;
+  })();
+
+  // ==================== Property type toggle (HDB / Private) within Resale Purchase tab ====================
+  initSegmented("rp-propertyType", (value) => {
+    document.getElementById("rp-hdb").hidden = value !== "hdb";
+    document.getElementById("rp-private").hidden = value !== "private";
+    schedulePositionTimelineGaps();
+  });
 
   // ==================== Property type toggle (HDB / Private) within Sale Proceeds tab ====================
   initSegmented("sp-propertyType", (value) => {
