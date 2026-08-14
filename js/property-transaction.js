@@ -17,6 +17,45 @@
     if (el) el.textContent = value;
   }
 
+  // Places every duration badge (".timeline-gap") at the exact vertical midpoint between
+  // the dot immediately before it and the dot immediately after it — the true middle of the
+  // line segment it sits on. Pure CSS can't do this: the true distance between two dots
+  // depends on how tall the card in between happens to be, which varies per stage and isn't
+  // knowable from the gap row's own box alone. Only measures elements that are actually
+  // visible/laid out, so it's safe to call on hidden panels (they're just skipped).
+  function positionTimelineGaps() {
+    document.querySelectorAll(".timeline").forEach((timeline) => {
+      const items = Array.from(timeline.children);
+      items.forEach((item, i) => {
+        const gap = item.querySelector(".timeline-gap");
+        if (!gap) return;
+        const prevDot = items[i - 1] && items[i - 1].querySelector(".timeline-dot");
+        const nextDot = items[i + 1] && items[i + 1].querySelector(".timeline-dot");
+        if (!prevDot || !nextDot) return;
+        const prevRect = prevDot.getBoundingClientRect();
+        const nextRect = nextDot.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+        if (itemRect.width === 0 && itemRect.height === 0) return; // item itself is hidden
+        const midY = (prevRect.top + prevRect.height / 2 + nextRect.top + nextRect.height / 2) / 2;
+        gap.style.top = midY - itemRect.top + "px";
+      });
+    });
+  }
+
+  let positionGapsScheduled = false;
+  function schedulePositionTimelineGaps() {
+    if (positionGapsScheduled) return;
+    positionGapsScheduled = true;
+    requestAnimationFrame(() => {
+      positionGapsScheduled = false;
+      positionTimelineGaps();
+    });
+  }
+
+  window.addEventListener("resize", schedulePositionTimelineGaps);
+  document.addEventListener("DOMContentLoaded", schedulePositionTimelineGaps);
+  window.addEventListener("load", schedulePositionTimelineGaps);
+
   // --- Segmented pill control: wires click handlers, returns a getter for the active value ---
   function initSegmented(containerId, onChange) {
     const container = document.getElementById(containerId);
@@ -338,6 +377,7 @@
   initSegmented("sp-propertyType", (value) => {
     document.getElementById("sp-hdb").hidden = value !== "hdb";
     document.getElementById("sp-private").hidden = value !== "private";
+    schedulePositionTimelineGaps();
   });
 
   // ==================== Page-level tabs (Sale Proceeds / Resale Purchase) ====================
@@ -352,6 +392,7 @@
     tabPurchase.setAttribute("aria-selected", "false");
     panelSale.hidden = false;
     panelPurchase.hidden = true;
+    schedulePositionTimelineGaps();
   });
   tabPurchase.addEventListener("click", () => {
     if (tabPurchase.disabled) return;
@@ -361,5 +402,8 @@
     tabPurchase.setAttribute("aria-selected", "true");
     panelSale.hidden = true;
     panelPurchase.hidden = false;
+    schedulePositionTimelineGaps();
   });
+
+  schedulePositionTimelineGaps();
 })();

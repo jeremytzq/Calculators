@@ -1276,14 +1276,11 @@ table.data-table {
   justify-content: center;
 }
 
-/* A gap row's height otherwise just matches its own badge's natural size — which varies
-   with the label's text length ("7 DAYS" vs "2-4 WEEKS") — leaving whatever line space is
-   left over unevenly split above/below it. Giving the rail a fixed minimum height and
-   vertically centering within it keeps every badge centered on its own line segment
-   regardless of label length. */
+/* Reserves vertical space between two cards for the gap row even though the badge itself
+   is positioned absolutely (see .timeline-gap below) and so no longer contributes height
+   to this row on its own. */
 .timeline-item .timeline-rail:has(.timeline-gap) {
   min-height: 90px;
-  align-items: center;
 }
 
 .timeline-item .timeline-dot {
@@ -1306,7 +1303,17 @@ table.data-table {
   background: var(--positive);
 }
 
+/* Positioned absolutely (relative to its own .timeline-item, the nearest positioned
+   ancestor) so JS can place it at the exact vertical midpoint between the dot above and
+   the dot below — the true middle of the line segment it sits on, not just the middle of
+   its own row's box, which vary independently since row heights depend on the neighboring
+   cards' (often very different) content lengths. See positionTimelineGaps() in
+   property-transaction.js. Centering itself on a single point via translate(-50%, -50%)
+   means its own size never has to be known in advance. */
 .timeline-item .timeline-gap {
+  position: absolute;
+  left: 17px;
+  transform: translate(-50%, -50%);
   font-size: 0.65rem;
   font-weight: 700;
   color: #fff;
@@ -1318,10 +1325,7 @@ table.data-table {
   text-align: center;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  margin: 6px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  white-space: nowrap;
 }
 
 .timeline-card {
