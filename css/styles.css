@@ -1283,6 +1283,12 @@ table.data-table {
   border: 2px solid var(--text-muted);
   background: var(--surface);
   flex: none;
+  /* .timeline-item top-aligns the rail against the whole card (title + body), so with no
+     offset the dot sits level with the card's top edge — visibly above the title text's own
+     vertical center. This nudges it down to align with the title bar specifically, whose
+     height is fixed (padding: 10px 14px, 0.88rem text) regardless of how tall the card's
+     body content underneath happens to be. */
+  margin-top: 12px;
 }
 
 .timeline-item.done .timeline-dot {
