@@ -15,7 +15,9 @@
     document.querySelectorAll(selector).forEach((section) => {
       const parent = section.parentElement;
       const index = byParent.get(parent) || 0;
-      section.style.setProperty("--section-hue", `var(--hue-${index % HUE_COUNT})`);
+      const n = index % HUE_COUNT;
+      section.style.setProperty("--section-hue", `var(--hue-${n})`);
+      section.style.setProperty("--section-hue-soft", `var(--hue-${n}-soft)`);
       byParent.set(parent, index + 1);
     });
   }

@@ -28,6 +28,14 @@
   --hue-3: #be185d;
   --hue-4: #16a34a;
   --hue-5: #7c3aed;
+  /* Soft tinted backgrounds for the same hues — colorful enough to read as a distinct
+     zone, light enough that dark body text stays comfortably readable on top. */
+  --hue-0-soft: #eeedfd;
+  --hue-1-soft: #e3f6fa;
+  --hue-2-soft: #fdf1e2;
+  --hue-3-soft: #fce8f1;
+  --hue-4-soft: #e7f7ec;
+  --hue-5-soft: #f2eafd;
 }
 
 :root[data-theme="dark"] {
@@ -56,6 +64,12 @@
   --hue-3: #f472b6;
   --hue-4: #4ade80;
   --hue-5: #a78bfa;
+  --hue-0-soft: #262a44;
+  --hue-1-soft: #1a2e35;
+  --hue-2-soft: #332a1a;
+  --hue-3-soft: #35222f;
+  --hue-4-soft: #1c3327;
+  --hue-5-soft: #2c2440;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -85,6 +99,12 @@
     --hue-3: #f472b6;
     --hue-4: #4ade80;
     --hue-5: #a78bfa;
+    --hue-0-soft: #262a44;
+    --hue-1-soft: #1a2e35;
+    --hue-2-soft: #332a1a;
+    --hue-3-soft: #35222f;
+    --hue-4-soft: #1c3327;
+    --hue-5-soft: #2c2440;
   }
 }
 
@@ -375,10 +395,22 @@ main {
   }
 }
 
+/* Each labeled part of a calculator (".panel-section") reads as its own colorful chip —
+   a soft tinted background, a bold matching left rail, and a heading colored to match —
+   rather than a plain block separated by a thin divider. The tint/rail color (--section-hue
+   / --section-hue-soft) is assigned by js/section-tone.js, which cycles --hue-0..5 based on
+   each section's position among same-class siblings; both variables are tuned per hue and
+   per light/dark theme so the heading text always has plenty of contrast against its own
+   background. Falls back to a plain neutral card if that script hasn't run for any reason. */
+.panel-section {
+  background: var(--section-hue-soft, var(--surface-hover));
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--section-hue, var(--border));
+  padding: 18px 20px;
+}
+
 .panel-section + .panel-section {
-  margin-top: 30px;
-  padding-top: 26px;
-  border-top: 2px solid var(--section-hue, var(--border));
+  margin-top: 16px;
 }
 
 .panel-section-header {
@@ -386,25 +418,10 @@ main {
 }
 
 .panel-section-header h2 {
-  font-size: 1rem;
+  font-size: 1.02rem;
+  font-weight: 800;
   margin: 0 0 3px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-/* Colored square marker in front of each section heading — cycles through --hue-0..5
-   (assigned as --section-hue by js/section-tone.js, which counts each element's position
-   among same-class siblings so the coloring works regardless of what else shares the
-   parent). Falls back to a plain accent dot if that script hasn't run for any reason. */
-.panel-section-header h2::before,
-.results-section-title h2::before {
-  content: "";
-  flex: none;
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  background: var(--section-hue, var(--accent));
+  color: var(--section-hue, var(--text));
 }
 
 .panel-section-header p {
@@ -462,13 +479,16 @@ main {
   align-items: center;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--surface);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+/* Focusing a field inside a colored section glows with that section's own hue instead of
+   always the same accent color — a small touch that ties the input back to the colored
+   card it lives in. Falls back to the standard accent glow outside any colored section. */
 .input-wrap:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-color: var(--section-hue, var(--accent));
+  box-shadow: 0 0 0 3px var(--section-hue-soft, var(--accent-soft));
 }
 
 .input-wrap .prefix,
@@ -494,7 +514,7 @@ select {
   padding: 11px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text);
   font-size: 1rem;
   font-family: inherit;
@@ -514,8 +534,8 @@ input[type="number"]:focus,
 input[type="text"]:focus,
 select:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-color: var(--section-hue, var(--accent));
+  box-shadow: 0 0 0 3px var(--section-hue-soft, var(--accent-soft));
 }
 
 input[type="number"]::-webkit-outer-spin-button,
@@ -550,7 +570,7 @@ input[type="number"]::-webkit-inner-spin-button {
   padding: 11px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text-muted);
   font-size: 1rem;
 }
@@ -563,10 +583,23 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .result-tile {
-  background: var(--bg);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 16px;
+  border-bottom: 3px solid var(--border);
+}
+
+/* A colored bottom edge that matches whatever the tile's own value reads as — green for a
+   gain, red for a cost, accent for the headline figure — reinforcing the number's color
+   without needing a fourth color cue. Degrades gracefully to the plain border above in any
+   browser without :has() support. */
+.result-tile:has(.value.positive) {
+  border-bottom-color: var(--positive);
+}
+
+.result-tile:has(.value.negative) {
+  border-bottom-color: var(--negative);
 }
 
 .result-tile .label {
@@ -595,6 +628,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .result-tile.primary {
   background: var(--accent-soft);
   border-color: transparent;
+  border-bottom-color: var(--accent);
 }
 
 .result-tile.primary .value {
@@ -612,14 +646,15 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .results-section {
-  margin-top: 30px;
-  padding-top: 24px;
-  border-top: 2px solid var(--section-hue, var(--border));
+  background: var(--section-hue-soft, var(--surface-hover));
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--section-hue, var(--border));
+  padding: 18px 20px;
+  margin-top: 16px;
 }
 
 .results-section:first-of-type {
   margin-top: 26px;
-  padding-top: 24px;
 }
 
 .results-section-title {
@@ -631,11 +666,10 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .results-section-title h2 {
-  font-size: 1rem;
+  font-size: 1.02rem;
+  font-weight: 800;
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 9px;
+  color: var(--section-hue, var(--text));
 }
 
 .results-section-title .note {
@@ -1249,7 +1283,7 @@ table.data-table {
 }
 
 .seller-card {
-  background: var(--bg);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 14px;
