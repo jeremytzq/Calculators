@@ -921,8 +921,24 @@
 
     function rowsHtml(rows) {
       return rows
-        .map(([label, value, emphasize]) => `<div class="print-row${emphasize ? " emphasize" : ""}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`)
+        .map(([label, value]) => `<div class="print-row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`)
         .join("");
+    }
+
+    function columnHtml(tone, title, propertyType, address, rows, total) {
+      return `
+        <div class="print-col tone-${tone}">
+          <div class="print-col-head">
+            <h2>${escapeHtml(title)}</h2>
+            <div class="sub">${escapeHtml(propertyType)}${address ? " · " + escapeHtml(address) : ""}</div>
+          </div>
+          <div class="print-rows">${rowsHtml(rows)}</div>
+          <div class="print-total">
+            <div class="label">${escapeHtml(total[0])}</div>
+            <div class="value">${escapeHtml(total[1])}</div>
+          </div>
+        </div>
+      `;
     }
 
     function buildPrintSummary() {
@@ -936,22 +952,18 @@
       const rp = purchaseType === "hdb" ? "rph" : "rpp";
 
       const saleRows = [
-        ["Property type", saleType === "hdb" ? "HDB" : "Private Residential"],
-        ["Property address", inputText(`${sp}-propertyAddress`) || "—"],
         ["Selling price", fmtCurrency(num(document.getElementById(`${sp}-sellingPrice`)))],
         ["Total CPF used", outText(`${sp}-out-totalCpf`)],
         ["Gross sales proceeds", outText(`${sp}-out-grossSalesProceeds`)],
         ["CPF refund", outText(`${sp}-out-cpfRefund`)],
         ["Gross cash proceeds", outText(`${sp}-out-grossCashProceeds`)],
         ["Total expenses", outText(`${sp}-out-totalExpenses`)],
-        ["Net cash proceeds", outText(`${sp}-out-netCashProceeds`), true],
       ];
+      const saleTotal = ["Net cash proceeds", outText(`${sp}-out-netCashProceeds`)];
 
       const purchaseRows =
         purchaseType === "hdb"
           ? [
-              ["Property type", "HDB"],
-              ["Property address", inputText("rph-propertyAddress") || "—"],
               ["Purchase price", fmtCurrency(num(document.getElementById("rph-purchasePrice")))],
               ["Valuation", fmtCurrency(num(document.getElementById("rph-valuation")))],
               ["Loan amount", outText("rph-out-loanAmount")],
@@ -959,19 +971,17 @@
               ["Downpayment", outText("rph-out-downPayment")],
               ["Total CPF & grants", outText("rph-out-totalCpfGrants")],
               ["Total expenses", outText("rph-out-totalExpenses")],
-              ["Total purchase outlay", outText("rph-out-totalOutlay"), true],
             ]
           : [
-              ["Property type", "Private Residential"],
-              ["Property address", inputText("rpp-propertyAddress") || "—"],
               ["Purchase price", fmtCurrency(num(document.getElementById("rpp-purchasePrice")))],
               ["Loan amount", outText("rpp-out-loanAmount")],
               ["Monthly instalment", outText("rpp-out-monthlyInstalment")],
               ["Downpayment", outText("rpp-out-downPayment")],
               ["CPF available (from sale + own)", fmtCurrency(num(document.getElementById("rpp-cpfFromSale")))],
               ["Total expenses", outText("rpp-out-totalExpenses")],
-              ["Total outlay", outText("rpp-out-totalOutlay"), true],
             ];
+      const purchaseTotal =
+        purchaseType === "hdb" ? ["Total purchase outlay", outText("rph-out-totalOutlay")] : ["Total outlay", outText("rpp-out-totalOutlay")];
 
       const dateStr = new Date().toLocaleDateString("en-SG", { year: "numeric", month: "long", day: "numeric" });
 
@@ -984,14 +994,8 @@
           </div>
         </div>
         <div class="print-columns">
-          <div class="print-col">
-            <h2>Sale Proceeds</h2>
-            ${rowsHtml(saleRows)}
-          </div>
-          <div class="print-col">
-            <h2>Resale Purchase</h2>
-            ${rowsHtml(purchaseRows)}
-          </div>
+          ${columnHtml("sale", "Sale Proceeds", saleType === "hdb" ? "HDB" : "Private Residential", inputText(`${sp}-propertyAddress`), saleRows, saleTotal)}
+          ${columnHtml("purchase", "Resale Purchase", purchaseType === "hdb" ? "HDB" : "Private Residential", inputText(`${rp}-propertyAddress`), purchaseRows, purchaseTotal)}
         </div>
         <div class="print-footer">Figures are estimates only — ABSD, grants, and CPF accrued-interest depend on your specific eligibility. Verify against your CPF/HDB statements and lawyer/agent quotes before relying on this for a real transaction.</div>
       `;

@@ -1525,9 +1525,14 @@ table.data-table {
 }
 
 /* Single-page PDF export — a purpose-built printable summary, hidden on screen and
-   swapped in for everything else only when printing. Browsers usually strip backgrounds
-   and force black-on-white for print regardless of dark mode, so this uses fixed ink-
-   friendly colors instead of the theme's CSS variables. */
+   swapped in for everything else only when printing. Browsers usually strip background
+   colors for print unless the user opts in ("background graphics"), so every color here
+   is carried by text and borders — which always print — with backgrounds layered on only
+   as a bonus via print-color-adjust, never load-bearing for legibility on their own.
+   min-width: 0 on every grid/flex track and overflow-wrap: anywhere on every text node is
+   deliberate belt-and-suspenders against content (a long address, a large client name)
+   ever forcing the layout past the page edge — 1fr grid tracks and flex items both default
+   to a content-based minimum width that ignores the 1fr/flex-basis share unless overridden. */
 
 .print-only {
   display: none;
@@ -1547,60 +1552,163 @@ table.data-table {
     padding: 0;
     max-width: none;
   }
+  @page {
+    margin: 14mm 12mm;
+  }
+}
+
+.print-only,
+.print-only * {
+  box-sizing: border-box;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.print-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-bottom: 3px solid #4f46e5;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
 }
 
 .print-header h1 {
-  font-size: 1.35rem;
-  margin: 0 0 6px;
+  font-size: 1.3rem;
+  margin: 0;
   color: #000;
+}
+
+.print-header h1::before {
+  content: "🧮 ";
 }
 
 .print-meta {
   display: flex;
-  gap: 24px;
-  font-size: 0.85rem;
-  color: #333;
-  margin-bottom: 18px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #000;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: #444;
+}
+
+.print-meta strong {
+  color: #000;
 }
 
 .print-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 28px;
+  gap: 22px;
+  min-width: 0;
 }
 
-.print-col h2 {
-  font-size: 1rem;
-  color: #000;
-  border-bottom: 1.5px solid #000;
-  padding-bottom: 5px;
-  margin: 0 0 10px;
+.print-col {
+  min-width: 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.print-col-head {
+  padding: 10px 14px;
+  border-bottom: 1px solid #ddd;
+  background: #f7f7fb;
+}
+
+.print-col-head h2 {
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.print-col.tone-sale .print-col-head h2 {
+  color: #4f46e5;
+}
+
+.print-col.tone-purchase .print-col-head h2 {
+  color: #0891b2;
+}
+
+.print-col-head .sub {
+  font-size: 0.72rem;
+  color: #555;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+
+.print-rows {
+  padding: 4px 14px;
 }
 
 .print-row {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  padding: 4px 0;
-  border-bottom: 1px solid #ddd;
-  font-size: 0.82rem;
-  color: #111;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.78rem;
+  color: #222;
+  min-width: 0;
 }
 
-.print-row.emphasize {
-  font-weight: 700;
-  border-bottom: 1.5px solid #000;
+.print-row:last-child {
+  border-bottom: none;
+}
+
+.print-row:nth-child(even) {
+  background: #fafafa;
+  margin: 0 -14px;
+  padding: 6px 14px;
+}
+
+.print-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #555;
 }
 
 .print-row strong {
+  flex: none;
   font-weight: 700;
   text-align: right;
+  color: #111;
+  overflow-wrap: anywhere;
+}
+
+.print-total {
+  margin: 4px 14px 14px;
+  padding: 10px 14px;
+  border: 1.5px solid #4f46e5;
+  border-radius: 6px;
+  background: #f4f4fe;
+  min-width: 0;
+}
+
+.print-col.tone-purchase .print-total {
+  border-color: #0891b2;
+  background: #eefaf9;
+}
+
+.print-total .label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #444;
+}
+
+.print-total .value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #000;
+  overflow-wrap: anywhere;
 }
 
 .print-footer {
-  margin-top: 22px;
-  font-size: 0.7rem;
-  color: #555;
+  margin-top: 16px;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: #666;
 }
