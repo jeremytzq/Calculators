@@ -165,7 +165,7 @@
         <div class="seller-card-title">Seller #${count}</div>
         <div class="field" style="margin-bottom: 10px;">
           <label for="${nameId}">Name <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
-          <input type="text" id="${nameId}" placeholder="e.g. John Tan" />
+          <input type="text" id="${nameId}" data-format="name" placeholder="e.g. John Tan" />
         </div>
         <div class="field" style="margin-bottom: 10px;">
           <label for="${usedId}">CPF used</label>
@@ -184,6 +184,7 @@
       `;
       container.appendChild(card);
       card.querySelectorAll('input[inputmode="decimal"]').forEach((input) => window.NumberFormat.attach(input));
+      card.querySelectorAll('input[data-format="name"]').forEach((input) => window.NumberFormat.attachName(input));
       card.querySelectorAll("input").forEach((input) => input.addEventListener("input", onInput));
       addBtn.disabled = count >= maxSellers;
     }

@@ -20,6 +20,14 @@
   --series-crypto: #eda100;
   --stack-principal: #c7cbe0;
   --stack-interest: #4f46e5;
+  /* Section hues — cycle through these to color-code the parts of a single calculator
+     (inputs, loan terms, expenses, totals…) so the eye can tell them apart at a glance. */
+  --hue-0: #4f46e5;
+  --hue-1: #0891b2;
+  --hue-2: #b45309;
+  --hue-3: #be185d;
+  --hue-4: #16a34a;
+  --hue-5: #7c3aed;
 }
 
 :root[data-theme="dark"] {
@@ -42,6 +50,12 @@
   --series-crypto: #c98500;
   --stack-principal: #383c4a;
   --stack-interest: #818cf8;
+  --hue-0: #818cf8;
+  --hue-1: #22d3ee;
+  --hue-2: #fbbf24;
+  --hue-3: #f472b6;
+  --hue-4: #4ade80;
+  --hue-5: #a78bfa;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -65,6 +79,12 @@
     --series-crypto: #c98500;
     --stack-principal: #383c4a;
     --stack-interest: #818cf8;
+    --hue-0: #818cf8;
+    --hue-1: #22d3ee;
+    --hue-2: #fbbf24;
+    --hue-3: #f472b6;
+    --hue-4: #4ade80;
+    --hue-5: #a78bfa;
   }
 }
 
@@ -358,7 +378,7 @@ main {
 .panel-section + .panel-section {
   margin-top: 30px;
   padding-top: 26px;
-  border-top: 1px solid var(--border);
+  border-top: 2px solid var(--section-hue, var(--border));
 }
 
 .panel-section-header {
@@ -366,8 +386,25 @@ main {
 }
 
 .panel-section-header h2 {
-  font-size: 0.95rem;
+  font-size: 1rem;
   margin: 0 0 3px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* Colored square marker in front of each section heading — cycles through --hue-0..5
+   (assigned as --section-hue by js/section-tone.js, which counts each element's position
+   among same-class siblings so the coloring works regardless of what else shares the
+   parent). Falls back to a plain accent dot if that script hasn't run for any reason. */
+.panel-section-header h2::before,
+.results-section-title h2::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--section-hue, var(--accent));
 }
 
 .panel-section-header p {
@@ -577,7 +614,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .results-section {
   margin-top: 30px;
   padding-top: 24px;
-  border-top: 1px solid var(--border);
+  border-top: 2px solid var(--section-hue, var(--border));
 }
 
 .results-section:first-of-type {
@@ -594,8 +631,11 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .results-section-title h2 {
-  font-size: 0.95rem;
+  font-size: 1rem;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 
 .results-section-title .note {

@@ -6,6 +6,9 @@
   <title>Sale Proceeds &amp; Purchase Calculator (Singapore) — Calculators</title>
   <meta name="description" content="Calculate the net cash proceeds from selling an HDB flat or private property in Singapore — CPF refund, stamp duty, agent fees, and a stage-by-stage payment schedule." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/styles.css" />
 </head>
 <body>
@@ -640,11 +643,11 @@
                     </div>
                     <div class="field">
                       <label for="rph-buyerName1">Buyer #1 name <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
-                      <input type="text" id="rph-buyerName1" placeholder="e.g. John Tan" />
+                      <input type="text" id="rph-buyerName1" data-format="name" placeholder="e.g. John Tan" />
                     </div>
                     <div class="field">
                       <label for="rph-buyerName2">Buyer #2 name <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
-                      <input type="text" id="rph-buyerName2" placeholder="e.g. Mary Tan" />
+                      <input type="text" id="rph-buyerName2" data-format="name" placeholder="e.g. Mary Tan" />
                     </div>
                   </div>
                   <div class="hint" style="margin-top: 10px;">Matches sellers on the Sale Proceeds tab by name — their CPF used + accrued interest carries over automatically</div>
@@ -1054,11 +1057,11 @@
                     </div>
                     <div class="field">
                       <label for="rpp-buyerName1">Buyer #1 name <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
-                      <input type="text" id="rpp-buyerName1" placeholder="e.g. John Tan" />
+                      <input type="text" id="rpp-buyerName1" data-format="name" placeholder="e.g. John Tan" />
                     </div>
                     <div class="field">
                       <label for="rpp-buyerName2">Buyer #2 name <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
-                      <input type="text" id="rpp-buyerName2" placeholder="e.g. Mary Tan" />
+                      <input type="text" id="rpp-buyerName2" data-format="name" placeholder="e.g. Mary Tan" />
                     </div>
                   </div>
                   <div class="hint" style="margin-top: 10px;">Matches sellers on the Sale Proceeds tab by name — their CPF used + accrued interest carries over automatically</div>
@@ -1335,6 +1338,7 @@
   </footer>
 
   <script src="../js/number-format.js"></script>
+  <script src="../js/section-tone.js"></script>
   <script src="../js/theme.js"></script>
   <script src="../js/property-transaction.js"></script>
 </body>

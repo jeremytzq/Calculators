@@ -125,8 +125,32 @@
     }
   }
 
+  // Title-cases a person's name — "john tan" / "MARY LIM" -> "John Tan" / "Mary Lim" —
+  // capitalizing after the start of the string, any run of whitespace, a hyphen, or an
+  // apostrophe, so compound and prefixed names still come out right ("mary-jane d'cruz"
+  // -> "Mary-Jane D'Cruz"). Collapses repeated whitespace along the way.
+  function properCase(str) {
+    return str
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase()
+      .replace(/(^|[\s'-])([a-z])/g, (match, sep, letter) => sep + letter.toUpperCase());
+  }
+
+  // Reformats on blur rather than every keystroke, so it doesn't fight the cursor position
+  // while someone is still mid-word.
+  const attachedNameInputs = new WeakSet();
+  function attachName(input) {
+    if (attachedNameInputs.has(input)) return;
+    attachedNameInputs.add(input);
+    input.addEventListener("blur", () => {
+      if (input.value.trim()) input.value = properCase(input.value);
+    });
+  }
+
   function init() {
     document.querySelectorAll('input[inputmode="decimal"]').forEach(attach);
+    document.querySelectorAll('input[data-format="name"]').forEach(attachName);
   }
 
   if (document.readyState === "loading") {
@@ -137,5 +161,5 @@
 
   // For inputs created after the initial page load (e.g. a dynamically added row) —
   // init() only ever sees what existed at DOMContentLoaded.
-  window.NumberFormat = { attach };
+  window.NumberFormat = { attach, attachName, properCase };
 })();
