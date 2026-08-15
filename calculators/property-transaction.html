@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../css/styles.css" />
 </head>
 <body>
-  <header class="site-header">
+  <header class="site-header no-print">
     <div class="inner">
       <a class="brand" href="../index.html">
         <span class="brand-mark">C</span>
@@ -20,18 +20,51 @@
   </header>
 
   <main>
-    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+    <div class="breadcrumb no-print"><a href="../index.html">← All calculators</a></div>
 
     <div class="calc-page">
-      <h1>Sale Proceeds &amp; Purchase Calculator</h1>
-      <p class="subtitle">Model a Singapore property sale — CPF refund, stamp duty, agent fees, and a stage-by-stage payment schedule — for either an HDB flat or private residential property.</p>
+      <h1 class="no-print">Sale Proceeds &amp; Purchase Calculator</h1>
+      <p class="subtitle no-print">Model a Singapore property sale — CPF refund, stamp duty, agent fees, and a stage-by-stage payment schedule — for either an HDB flat or private residential property.</p>
 
-      <div class="page-tabs" role="tablist">
+      <div class="panel client-toolbar no-print" style="margin-bottom: 22px;">
+        <div class="panel-section-header">
+          <h2>Save for a client</h2>
+        </div>
+        <div class="field-grid cols-3">
+          <div class="field">
+            <label for="pt-clientName">Client name</label>
+            <input type="text" id="pt-clientName" placeholder="e.g. John &amp; Mary Tan" />
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button type="button" class="toolbar-btn primary" id="pt-saveClient">Save client</button>
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button type="button" class="toolbar-btn" id="pt-exportPdf">Export PDF</button>
+          </div>
+        </div>
+        <div class="field-grid" style="margin-top: 14px;">
+          <div class="field full">
+            <label for="pt-clientSelect">Saved clients <span style="font-weight: 400; color: var(--text-muted);">(saved in this browser only)</span></label>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <select id="pt-clientSelect" style="flex: 1; min-width: 220px;">
+                <option value="">— Select a saved client —</option>
+              </select>
+              <button type="button" class="toolbar-btn" id="pt-loadClient">Load</button>
+              <button type="button" class="toolbar-btn danger" id="pt-deleteClient">Delete</button>
+            </div>
+          </div>
+        </div>
+        <div class="hint" id="pt-clientStatus" style="margin-top: 10px;"></div>
+      </div>
+
+      <div class="page-tabs no-print" role="tablist">
         <button type="button" class="page-tab active" id="pt-tab-sale" role="tab" aria-selected="true">Sale Proceeds</button>
         <button type="button" class="page-tab" id="pt-tab-purchase" role="tab" aria-selected="false">Resale Purchase</button>
       </div>
 
-      <div id="pt-panel-sale">
+      <div id="pt-panel-sale" class="no-print">
         <div class="field full" style="margin-bottom: 22px;">
           <div class="segmented" id="sp-propertyType" role="group" aria-label="Property type">
             <button type="button" data-value="hdb" class="active">HDB</button>
@@ -568,7 +601,7 @@
         </div>
       </div>
 
-      <div id="pt-panel-purchase" hidden>
+      <div id="pt-panel-purchase" class="no-print" hidden>
         <div class="field full" style="margin-bottom: 22px;">
           <div class="segmented" id="rp-propertyType" role="group" aria-label="Property type">
             <button type="button" data-value="hdb" class="active">HDB</button>
@@ -1265,11 +1298,13 @@
         </div>
       </div>
 
-      <div class="callout">
+      <div class="callout no-print">
         <strong>Read this before trusting the numbers:</strong> Buyer's/Seller's Stamp Duty use current published rates, but ABSD, grants, and exact CPF accrued-interest refunds depend on your specific eligibility and CPF statement — always verify against your CPF/HDB statements before relying on this for a real transaction. Agent commission, legal fees, and other costs are negotiable and vary by firm.
       </div>
 
-      <div class="explainer">
+      <div id="pt-print-summary" class="print-only"></div>
+
+      <div class="explainer no-print">
         <h2>How it's calculated</h2>
 
         <div class="formula-block">
@@ -1295,8 +1330,8 @@
     </div>
   </main>
 
-  <footer class="site-footer">
-    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  <footer class="site-footer no-print">
+    Built for quick, accurate math. Nothing you enter is sent anywhere — "Save for a client" keeps data only in this browser's local storage.
   </footer>
 
   <script src="../js/number-format.js"></script>

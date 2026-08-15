@@ -753,5 +753,255 @@
     schedulePositionTimelineGaps();
   });
 
+  // ==================== Save / load per-client data (localStorage) ====================
+  (function () {
+    const STORAGE_KEY = "propertyTransactionClients_v1";
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function loadClientsMap() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveClientsMap(map) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+    }
+
+    // Every plain input/select inside either page tab, plus which button is active in
+    // every segmented control, plus how many seller cards exist on each side (the only
+    // structural thing that varies — everything else is a fixed set of fields).
+    function serializeState() {
+      const inputs = {};
+      document.querySelectorAll("#pt-panel-sale input, #pt-panel-sale select, #pt-panel-purchase input, #pt-panel-purchase select").forEach((el) => {
+        if (!el.id) return;
+        inputs[el.id] = el.type === "checkbox" ? el.checked : el.value;
+      });
+      const segmented = {};
+      document.querySelectorAll("#pt-panel-sale .segmented[id], #pt-panel-purchase .segmented[id]").forEach((seg) => {
+        const active = seg.querySelector("button.active");
+        if (active) segmented[seg.id] = active.dataset.value;
+      });
+      const sellerCounts = {
+        sph: document.querySelectorAll("#sph-sellers .seller-card").length,
+        spp: document.querySelectorAll("#spp-sellers .seller-card").length,
+      };
+      return { inputs, segmented, sellerCounts, savedAt: new Date().toISOString() };
+    }
+
+    function ensureSellerCount(cardSelector, addBtnId, target) {
+      const addBtn = document.getElementById(addBtnId);
+      let guard = 0;
+      while (document.querySelectorAll(cardSelector).length < target && guard < 10) {
+        addBtn.click();
+        guard += 1;
+      }
+    }
+
+    function restoreState(state) {
+      if (!state) return;
+
+      // 1. Seller cards first — later steps set values into cards that must already exist.
+      ensureSellerCount("#sph-sellers .seller-card", "sph-addSeller", Math.min(4, (state.sellerCounts && state.sellerCounts.sph) || 2));
+      ensureSellerCount("#spp-sellers .seller-card", "spp-addSeller", Math.min(4, (state.sellerCounts && state.sellerCounts.spp) || 2));
+
+      // 2. Segmented controls — clicking (not just toggling the class) re-runs their
+      // onChange side effects (loan-field visibility, LTV defaults, property-type panel
+      // swaps). Any default value that side effect sets gets overwritten by step 3 below.
+      Object.entries(state.segmented || {}).forEach(([containerId, value]) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const target = Array.from(container.querySelectorAll("button")).find((b) => b.dataset.value === value);
+        if (target && !target.classList.contains("active")) target.click();
+      });
+
+      // 3. Every plain field value, verbatim.
+      Object.entries(state.inputs || {}).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.type === "checkbox") el.checked = value;
+        else el.value = value;
+        if (el.matches('input[inputmode="decimal"]')) window.NumberFormat.attach(el);
+      });
+
+      // 4. Recompute everything from the restored inputs.
+      Object.values(window.PropertyTransactionCalc).forEach((fn) => fn());
+      schedulePositionTimelineGaps();
+    }
+
+    function refreshClientSelect() {
+      const select = document.getElementById("pt-clientSelect");
+      const map = loadClientsMap();
+      const names = Object.keys(map).sort((a, b) => a.localeCompare(b));
+      const current = select.value;
+      select.innerHTML =
+        '<option value="">— Select a saved client —</option>' +
+        names.map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");
+      if (names.includes(current)) select.value = current;
+    }
+
+    const nameInput = document.getElementById("pt-clientName");
+    const select = document.getElementById("pt-clientSelect");
+    const status = document.getElementById("pt-clientStatus");
+
+    document.getElementById("pt-saveClient").addEventListener("click", () => {
+      const name = nameInput.value.trim();
+      if (!name) {
+        status.textContent = "Enter a client name before saving.";
+        return;
+      }
+      const map = loadClientsMap();
+      map[name] = serializeState();
+      saveClientsMap(map);
+      refreshClientSelect();
+      select.value = name;
+      status.textContent = `Saved "${name}" — data is stored in this browser only.`;
+    });
+
+    document.getElementById("pt-loadClient").addEventListener("click", () => {
+      const name = select.value;
+      if (!name) {
+        status.textContent = "Select a saved client to load.";
+        return;
+      }
+      const map = loadClientsMap();
+      if (!map[name]) {
+        status.textContent = `No saved data found for "${name}".`;
+        return;
+      }
+      restoreState(map[name]);
+      nameInput.value = name;
+      status.textContent = `Loaded "${name}".`;
+    });
+
+    document.getElementById("pt-deleteClient").addEventListener("click", () => {
+      const name = select.value;
+      if (!name) {
+        status.textContent = "Select a saved client to delete.";
+        return;
+      }
+      const map = loadClientsMap();
+      delete map[name];
+      saveClientsMap(map);
+      refreshClientSelect();
+      status.textContent = `Deleted "${name}".`;
+    });
+
+    refreshClientSelect();
+    window.PropertyTransactionClients = { loadClientsMap, serializeState, restoreState };
+  })();
+
+  // ==================== Single-page PDF export (browser print) ====================
+  (function () {
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function outText(id) {
+      const el = document.getElementById(id);
+      return el ? el.textContent : "—";
+    }
+
+    function inputText(id) {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : "";
+    }
+
+    function activeSegValue(containerId) {
+      const container = document.getElementById(containerId);
+      const active = container && container.querySelector("button.active");
+      return active ? active.dataset.value : "";
+    }
+
+    function rowsHtml(rows) {
+      return rows
+        .map(([label, value, emphasize]) => `<div class="print-row${emphasize ? " emphasize" : ""}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`)
+        .join("");
+    }
+
+    function buildPrintSummary() {
+      const container = document.getElementById("pt-print-summary");
+      if (!container) return;
+
+      const clientName = inputText("pt-clientName");
+      const saleType = activeSegValue("sp-propertyType") || "hdb";
+      const purchaseType = activeSegValue("rp-propertyType") || "hdb";
+      const sp = saleType === "hdb" ? "sph" : "spp";
+      const rp = purchaseType === "hdb" ? "rph" : "rpp";
+
+      const saleRows = [
+        ["Property type", saleType === "hdb" ? "HDB" : "Private Residential"],
+        ["Property address", inputText(`${sp}-propertyAddress`) || "—"],
+        ["Selling price", fmtCurrency(num(document.getElementById(`${sp}-sellingPrice`)))],
+        ["Total CPF used", outText(`${sp}-out-totalCpf`)],
+        ["Gross sales proceeds", outText(`${sp}-out-grossSalesProceeds`)],
+        ["CPF refund", outText(`${sp}-out-cpfRefund`)],
+        ["Gross cash proceeds", outText(`${sp}-out-grossCashProceeds`)],
+        ["Total expenses", outText(`${sp}-out-totalExpenses`)],
+        ["Net cash proceeds", outText(`${sp}-out-netCashProceeds`), true],
+      ];
+
+      const purchaseRows =
+        purchaseType === "hdb"
+          ? [
+              ["Property type", "HDB"],
+              ["Property address", inputText("rph-propertyAddress") || "—"],
+              ["Purchase price", fmtCurrency(num(document.getElementById("rph-purchasePrice")))],
+              ["Valuation", fmtCurrency(num(document.getElementById("rph-valuation")))],
+              ["Loan amount", outText("rph-out-loanAmount")],
+              ["Monthly instalment", outText("rph-out-monthlyInstalment")],
+              ["Downpayment", outText("rph-out-downPayment")],
+              ["Total CPF & grants", outText("rph-out-totalCpfGrants")],
+              ["Total expenses", outText("rph-out-totalExpenses")],
+              ["Total purchase outlay", outText("rph-out-totalOutlay"), true],
+            ]
+          : [
+              ["Property type", "Private Residential"],
+              ["Property address", inputText("rpp-propertyAddress") || "—"],
+              ["Purchase price", fmtCurrency(num(document.getElementById("rpp-purchasePrice")))],
+              ["Loan amount", outText("rpp-out-loanAmount")],
+              ["Monthly instalment", outText("rpp-out-monthlyInstalment")],
+              ["Downpayment", outText("rpp-out-downPayment")],
+              ["CPF available (from sale + own)", fmtCurrency(num(document.getElementById("rpp-cpfFromSale")))],
+              ["Total expenses", outText("rpp-out-totalExpenses")],
+              ["Total outlay", outText("rpp-out-totalOutlay"), true],
+            ];
+
+      const dateStr = new Date().toLocaleDateString("en-SG", { year: "numeric", month: "long", day: "numeric" });
+
+      container.innerHTML = `
+        <div class="print-header">
+          <h1>Property Transaction Summary</h1>
+          <div class="print-meta">
+            ${clientName ? `<div><strong>Client:</strong> ${escapeHtml(clientName)}</div>` : ""}
+            <div><strong>Generated:</strong> ${escapeHtml(dateStr)}</div>
+          </div>
+        </div>
+        <div class="print-columns">
+          <div class="print-col">
+            <h2>Sale Proceeds</h2>
+            ${rowsHtml(saleRows)}
+          </div>
+          <div class="print-col">
+            <h2>Resale Purchase</h2>
+            ${rowsHtml(purchaseRows)}
+          </div>
+        </div>
+        <div class="print-footer">Figures are estimates only — ABSD, grants, and CPF accrued-interest depend on your specific eligibility. Verify against your CPF/HDB statements and lawyer/agent quotes before relying on this for a real transaction.</div>
+      `;
+    }
+
+    document.getElementById("pt-exportPdf").addEventListener("click", () => {
+      buildPrintSummary();
+      window.print();
+    });
+    window.addEventListener("beforeprint", buildPrintSummary);
+  })();
+
   schedulePositionTimelineGaps();
 })();

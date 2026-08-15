@@ -1407,3 +1407,126 @@ table.data-table {
   color: var(--accent);
   margin: 0 0 16px;
 }
+
+/* Save-for-client toolbar buttons */
+
+.toolbar-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 9px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.toolbar-btn:hover {
+  background: var(--surface-hover);
+}
+
+.toolbar-btn.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.toolbar-btn.primary:hover {
+  opacity: 0.9;
+}
+
+.toolbar-btn.danger {
+  color: var(--negative);
+  border-color: var(--negative);
+  width: auto;
+}
+
+.toolbar-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Single-page PDF export — a purpose-built printable summary, hidden on screen and
+   swapped in for everything else only when printing. Browsers usually strip backgrounds
+   and force black-on-white for print regardless of dark mode, so this uses fixed ink-
+   friendly colors instead of the theme's CSS variables. */
+
+.print-only {
+  display: none;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: #fff;
+  }
+  .calc-page {
+    padding: 0;
+    max-width: none;
+  }
+}
+
+.print-header h1 {
+  font-size: 1.35rem;
+  margin: 0 0 6px;
+  color: #000;
+}
+
+.print-meta {
+  display: flex;
+  gap: 24px;
+  font-size: 0.85rem;
+  color: #333;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #000;
+}
+
+.print-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.print-col h2 {
+  font-size: 1rem;
+  color: #000;
+  border-bottom: 1.5px solid #000;
+  padding-bottom: 5px;
+  margin: 0 0 10px;
+}
+
+.print-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.82rem;
+  color: #111;
+}
+
+.print-row.emphasize {
+  font-weight: 700;
+  border-bottom: 1.5px solid #000;
+}
+
+.print-row strong {
+  font-weight: 700;
+  text-align: right;
+}
+
+.print-footer {
+  margin-top: 22px;
+  font-size: 0.7rem;
+  color: #555;
+}
