@@ -191,9 +191,17 @@
   ids.forEach((id) => el[id].addEventListener("input", calculate));
   el.compoundFrequency.addEventListener("change", calculate);
   el.contributionTiming.addEventListener("change", calculate);
-  document.getElementById("ci-form").addEventListener("submit", (e) => e.preventDefault());
+  const form = document.getElementById("ci-form");
+  form.addEventListener("submit", (e) => e.preventDefault());
   window.addEventListener("resize", () => {
     if (!results.hidden) updateScrollHints();
   });
   calculate();
+
+  document.getElementById("clear-btn").addEventListener("click", () => {
+    form.reset();
+    form.querySelectorAll('input[inputmode="decimal"]').forEach((input) => window.NumberFormat.attach(input));
+    form.querySelectorAll("input, select").forEach((input) => input.dispatchEvent(new Event("change", { bubbles: true })));
+    calculate();
+  });
 })();

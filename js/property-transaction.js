@@ -56,10 +56,17 @@
   document.addEventListener("DOMContentLoaded", schedulePositionTimelineGaps);
   window.addEventListener("load", schedulePositionTimelineGaps);
 
+  // Every segmented control's HTML-authored default (the button marked class="active"
+  // before any user interaction) — recorded once at init so "Clear all fields" can put
+  // every toggle back exactly where the page started, not just wherever the buttons
+  // themselves happen to reset to.
+  const segmentedDefaults = {};
+
   // --- Segmented pill control: wires click handlers, returns a getter for the active value ---
   function initSegmented(containerId, onChange) {
     const container = document.getElementById(containerId);
     const buttons = Array.from(container.querySelectorAll("button"));
+    segmentedDefaults[containerId] = container.querySelector("button.active").dataset.value;
     buttons.forEach((btn) => {
       btn.addEventListener("click", () => {
         if (btn.classList.contains("active")) return;
@@ -69,6 +76,19 @@
       });
     });
     return () => container.querySelector("button.active").dataset.value;
+  }
+
+  // Restores every segmented control to its recorded default by clicking the matching
+  // button — reusing the real click path (not just toggling classes) so any onChange side
+  // effect it drives (loan-field visibility, LTV auto-fill, property-type panel swaps)
+  // re-runs exactly as it would from a real click.
+  function resetAllSegmented() {
+    Object.entries(segmentedDefaults).forEach(([containerId, value]) => {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const target = Array.from(container.querySelectorAll("button")).find((b) => b.dataset.value === value);
+      if (target && !target.classList.contains("active")) target.click();
+    });
   }
 
   // Seller Stamp Duty — flat % of selling price based on holding period before resale.
@@ -216,9 +236,34 @@
       onInput();
     });
 
+    // Removes any card added beyond the original two, then blanks out what's left —
+    // "Clear all fields" should return to the exact starting shape, not just empty values
+    // inside however many cards happen to exist.
+    function reset() {
+      while (count > 2) {
+        container.lastElementChild.remove();
+        count -= 1;
+      }
+      addBtn.disabled = count >= maxSellers;
+      for (let i = 1; i <= count; i++) {
+        const nameEl = document.getElementById(`${containerId}-name-${i}`);
+        const usedEl = document.getElementById(`${containerId}-cpfused-${i}`);
+        const interestEl = document.getElementById(`${containerId}-cpfinterest-${i}`);
+        if (nameEl) nameEl.value = "";
+        if (usedEl) {
+          usedEl.value = "0";
+          window.NumberFormat.attach(usedEl);
+        }
+        if (interestEl) {
+          interestEl.value = "0";
+          window.NumberFormat.attach(interestEl);
+        }
+      }
+    }
+
     addCard();
     addCard();
-    return { totalCpf, sellers: sellerRows };
+    return { totalCpf, sellers: sellerRows, reset };
   }
 
   // Results exposed for the (future) Resale Purchase tab: Net Cash Proceeds / CPF Refund
@@ -330,6 +375,7 @@
     calculate();
     window.PropertyTransactionCalc = window.PropertyTransactionCalc || {};
     window.PropertyTransactionCalc.hdbSale = calculate;
+    window.PropertyTransactionCalc.hdbSaleSellersReset = sellers.reset;
   })();
 
   // ==================== Private Sale Proceeds ====================
@@ -428,6 +474,7 @@
     calculate();
     window.PropertyTransactionCalc = window.PropertyTransactionCalc || {};
     window.PropertyTransactionCalc.privateSale = calculate;
+    window.PropertyTransactionCalc.privateSaleSellersReset = sellers.reset;
   })();
 
   // ==================== HDB Resale Purchase ====================
@@ -751,6 +798,33 @@
     tabPurchase.setAttribute("aria-selected", "true");
     panelSale.hidden = true;
     panelPurchase.hidden = false;
+    schedulePositionTimelineGaps();
+  });
+
+  // ==================== Clear all fields ====================
+  // Puts the whole page back to its just-loaded state for a fresh entry: every plain
+  // field, every segmented toggle (including the property-type/tab-affecting ones), and
+  // the seller cards back down to their starting count of two — everything except the
+  // "Save for a client" name/dropdown, which isn't calculator data.
+  document.getElementById("clear-btn").addEventListener("click", () => {
+    resetAllSegmented();
+
+    if (window.PropertyTransactionCalc.hdbSaleSellersReset) window.PropertyTransactionCalc.hdbSaleSellersReset();
+    if (window.PropertyTransactionCalc.privateSaleSellersReset) window.PropertyTransactionCalc.privateSaleSellersReset();
+
+    ["sph-form", "spp-form", "rph-form", "rpp-form"].forEach((formId) => {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      form.reset();
+      form.querySelectorAll('input[inputmode="decimal"]').forEach((input) => window.NumberFormat.attach(input));
+      form.querySelectorAll("input, select").forEach((input) => input.dispatchEvent(new Event("change", { bubbles: true })));
+    });
+
+    if (window.PropertyTransactionCalc.hdbSale) window.PropertyTransactionCalc.hdbSale();
+    if (window.PropertyTransactionCalc.privateSale) window.PropertyTransactionCalc.privateSale();
+    if (window.PropertyTransactionCalc.hdbPurchase) window.PropertyTransactionCalc.hdbPurchase();
+    if (window.PropertyTransactionCalc.privatePurchase) window.PropertyTransactionCalc.privatePurchase();
+
     schedulePositionTimelineGaps();
   });
 

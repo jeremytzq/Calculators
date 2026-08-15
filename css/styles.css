@@ -364,6 +364,14 @@ main {
   }
 }
 
+.page-head-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .calc-page h1 {
   font-size: clamp(1.5rem, 3.5vw, 2rem);
   margin: 8px 0 4px;
@@ -373,6 +381,22 @@ main {
 .calc-page .subtitle {
   color: var(--text-muted);
   margin: 0 0 28px;
+}
+
+/* Secondary/neutral action button — used standalone (outside a .field, where
+   .toolbar-btn's 100% width doesn't apply) for things like "Clear fields" that
+   shouldn't visually compete with a page's primary call-to-action. */
+.toolbar-btn.inline {
+  width: auto;
+  flex: none;
+}
+
+.toolbar-btn.ghost {
+  background: transparent;
+}
+
+.toolbar-btn.ghost:hover {
+  background: var(--surface-hover);
 }
 
 .panel {

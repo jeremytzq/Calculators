@@ -159,5 +159,13 @@
   }
 
   ids.forEach((id) => el[id].addEventListener("input", calculate));
-  document.getElementById("roe-form").addEventListener("submit", (e) => e.preventDefault());
+  const form = document.getElementById("roe-form");
+  form.addEventListener("submit", (e) => e.preventDefault());
+
+  document.getElementById("clear-btn").addEventListener("click", () => {
+    form.reset();
+    form.querySelectorAll('input[inputmode="decimal"]').forEach((input) => window.NumberFormat.attach(input));
+    form.querySelectorAll("input, select").forEach((input) => input.dispatchEvent(new Event("change", { bubbles: true })));
+    calculate();
+  });
 })();

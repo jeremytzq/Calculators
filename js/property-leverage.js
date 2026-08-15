@@ -610,10 +610,18 @@
 
   ids.forEach((id) => el[id].addEventListener("input", calculate));
   el.purchaseType.addEventListener("change", calculate);
-  document.getElementById("pl-form").addEventListener("submit", (e) => e.preventDefault());
+  const form = document.getElementById("pl-form");
+  form.addEventListener("submit", (e) => e.preventDefault());
   window.addEventListener("resize", () => {
     if (!results.hidden) updateScrollHints();
   });
   applyUrlParams();
   calculate();
+
+  document.getElementById("clear-btn").addEventListener("click", () => {
+    form.reset();
+    form.querySelectorAll('input[inputmode="decimal"]').forEach((input) => window.NumberFormat.attach(input));
+    form.querySelectorAll("input, select").forEach((input) => input.dispatchEvent(new Event("change", { bubbles: true })));
+    calculate();
+  });
 })();

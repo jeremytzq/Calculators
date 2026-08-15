@@ -257,5 +257,16 @@
   }
 
   ids.forEach((id) => el[id].addEventListener("input", calculate));
-  document.getElementById("roi-form").addEventListener("submit", (e) => e.preventDefault());
+  const form = document.getElementById("roi-form");
+  form.addEventListener("submit", (e) => e.preventDefault());
+
+  // Resets every field back to its original HTML default (form.reset() doesn't fire
+  // input/change events per spec, so those are dispatched manually to re-run any
+  // visibility logic tied to them before the final calculate() re-syncs everything).
+  document.getElementById("clear-btn").addEventListener("click", () => {
+    form.reset();
+    form.querySelectorAll('input[inputmode="decimal"]').forEach((input) => window.NumberFormat.attach(input));
+    form.querySelectorAll("input, select").forEach((input) => input.dispatchEvent(new Event("change", { bubbles: true })));
+    calculate();
+  });
 })();
