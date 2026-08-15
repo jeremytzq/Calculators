@@ -159,8 +159,7 @@
                       <select id="sph-agentRate" style="width: auto; flex: none;">
                         <option value="1">1%</option>
                         <option value="1.5">1.5%</option>
-                        <option value="2">2%</option>
-                        <option value="2gst" selected>2% + GST</option>
+                        <option value="2" selected>2%</option>
                       </select>
                       <label class="switch" title="Auto-calculate from rate">
                         <input type="checkbox" id="sph-agentAuto" checked />
@@ -457,8 +456,7 @@
                       <select id="spp-agentRate" style="width: auto; flex: none;">
                         <option value="1">1%</option>
                         <option value="1.5">1.5%</option>
-                        <option value="2">2%</option>
-                        <option value="2gst" selected>2% + GST</option>
+                        <option value="2" selected>2%</option>
                       </select>
                       <label class="switch" title="Auto-calculate from rate">
                         <input type="checkbox" id="spp-agentAuto" checked />
@@ -764,13 +762,13 @@
                       <div class="input-wrap">
                         <input type="text" id="rph-buyerAge" inputmode="decimal" value="35" min="18" step="any" />
                       </div>
-                      <div class="hint">Max loan tenure: <span id="rph-out-maxTenure">—</span></div>
                     </div>
                     <div class="field">
-                      <label for="rph-loanTenure">Loan tenure</label>
-                      <div class="input-wrap has-suffix">
-                        <input type="text" id="rph-loanTenure" inputmode="decimal" value="25" min="1" step="any" />
-                        <span class="suffix">years</span>
+                      <label>Loan tenure <span style="font-weight: 400; color: var(--text-muted);">(auto)</span></label>
+                      <div class="display-value" id="rph-out-loanTenure">— years</div>
+                      <div class="segmented" id="rph-tenureBasis" role="group" style="margin-top: 8px;">
+                        <button type="button" data-value="standard" class="active">Up to 65</button>
+                        <button type="button" data-value="extended">Up to 75</button>
                       </div>
                     </div>
                     <div class="field">
@@ -799,7 +797,7 @@
 
                   <div class="field-grid cols-3" style="margin-top: 16px;">
                     <div class="field">
-                      <label>5% cash <span style="font-weight: 400; color: var(--text-muted);">(incl. option + exercise fee)</span></label>
+                      <label><span id="rph-fivePctLabel">5% cash</span> <span style="font-weight: 400; color: var(--text-muted);">(incl. option + exercise fee)</span></label>
                       <div class="display-value" id="rph-out-fivePctCash">S$0</div>
                     </div>
                     <div class="field">
@@ -857,14 +855,13 @@
                         <option value="1" selected>1%</option>
                         <option value="1.5">1.5%</option>
                         <option value="2">2%</option>
-                        <option value="2gst">2% + GST</option>
                       </select>
                       <label class="switch" title="Auto-calculate from rate">
                         <input type="checkbox" id="rph-agentAuto" checked />
                         <span class="track"></span>
                       </label>
                     </div>
-                    <div class="hint">Buyer's agent commission, if any — many resale purchases have none</div>
+                    <div class="hint">Buyer's agent commission, if any — many resale purchases have none. Rate includes 9% GST when auto-calculated.</div>
                   </div>
                 </div>
 
@@ -988,7 +985,7 @@
                     <div class="timeline-card-body">
                       <div class="tl-cash-payment">Cash payment: <span id="rph-tl-completionCash">S$0</span></div>
                       <ul>
-                        <li>Balance of 5% cash: <span id="rph-tl-balance5pct">S$0</span> <span class="tl-note-sub">(5% cash − option fee − exercise fee)</span></li>
+                        <li>Balance of <span id="rph-fivePctLabel2">5% cash</span>: <span id="rph-tl-balance5pct">S$0</span> <span class="tl-note-sub">(min. cash − option fee − exercise fee)</span></li>
                         <li>Cash above valuation: <span id="rph-tl-cashAboveValuation">S$0</span></li>
                         <li>Cash top-up: <span id="rph-tl-cashTopUp">S$0</span></li>
                         <li>Others: <span id="rph-tl-others">S$0</span></li>
@@ -1080,13 +1077,13 @@
                       <div class="input-wrap">
                         <input type="text" id="rpp-buyerAge" inputmode="decimal" value="35" min="18" step="any" />
                       </div>
-                      <div class="hint">Max loan tenure: <span id="rpp-out-maxTenure">—</span></div>
                     </div>
                     <div class="field">
-                      <label for="rpp-loanTenure">Loan tenure</label>
-                      <div class="input-wrap has-suffix">
-                        <input type="text" id="rpp-loanTenure" inputmode="decimal" value="30" min="1" step="any" />
-                        <span class="suffix">years</span>
+                      <label>Loan tenure <span style="font-weight: 400; color: var(--text-muted);">(auto)</span></label>
+                      <div class="display-value" id="rpp-out-loanTenure">— years</div>
+                      <div class="segmented" id="rpp-tenureBasis" role="group" style="margin-top: 8px;">
+                        <button type="button" data-value="standard" class="active">Up to 65</button>
+                        <button type="button" data-value="extended">Up to 75</button>
                       </div>
                     </div>
                     <div class="field">
@@ -1287,7 +1284,7 @@
 
         <div class="formula-block">
           <h3>Agent fee</h3>
-          <p><code>Agent Fee = Selling Price × Rate</code>, optionally plus 9% GST on the commission. Turn off auto-calculate to enter a negotiated flat fee instead.</p>
+          <p><code>Agent Fee = Selling Price × Rate × 1.09</code> — commission always attracts 9% GST. Turn off auto-calculate to enter a negotiated flat fee instead.</p>
         </div>
 
         <div class="formula-block">

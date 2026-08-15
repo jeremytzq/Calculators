@@ -137,19 +137,10 @@
     return { amount: cpfUsed + cpfAccruedInterest, cpfUsed, cpfAccruedInterest, matches };
   }
 
-  // Agent commission rate select stores values like "2" or "2gst" — parseFloat naturally
-  // stops at the first non-numeric character, so this reads the rate regardless of suffix.
-  function agentRateInfo(selectEl) {
-    const raw = selectEl.value;
-    const rate = parseFloat(raw) / 100;
-    const withGst = raw.endsWith("gst");
-    return { rate, withGst };
-  }
-
+  // Agent commission always attracts 9% GST on top, regardless of the negotiated rate.
   function agentFeeAmount(sellingPrice, selectEl) {
-    const { rate, withGst } = agentRateInfo(selectEl);
-    const base = sellingPrice * rate;
-    return withGst ? base * 1.09 : base;
+    const rate = parseFloat(selectEl.value) / 100;
+    return sellingPrice * rate * 1.09;
   }
 
   // --- Dynamic seller cards ---
@@ -452,7 +443,6 @@
       hpsPremium: document.getElementById("rph-hpsPremium"),
       ltv: document.getElementById("rph-ltv"),
       buyerAge: document.getElementById("rph-buyerAge"),
-      loanTenure: document.getElementById("rph-loanTenure"),
       interestRate: document.getElementById("rph-interestRate"),
       cpfGrantsUsed: document.getElementById("rph-cpfGrantsUsed"),
       valuationFee: document.getElementById("rph-valuationFee"),
@@ -472,6 +462,7 @@
     const getAbsdMethod = initSegmented("rph-absdMethod", () => calculate());
     const getResidency = initSegmented("rph-residency", () => calculate());
     const getPropertyCount = initSegmented("rph-propertyCount", () => calculate());
+    const getTenureBasis = initSegmented("rph-tenureBasis", () => calculate());
 
     function calculate() {
       const loanType = getLoanType();
@@ -511,18 +502,22 @@
         (absdMethod === "cpf" ? absd : 0);
       const balanceCpfGrants = totalCpfGrants - cpfDeductibles;
 
-      const ageCap = Math.max(0, 65 - num(el.buyerAge));
+      const tenureBasis = getTenureBasis();
+      const ageCeiling = tenureBasis === "extended" ? 75 : 65;
+      const ageCap = Math.max(0, ageCeiling - num(el.buyerAge));
       const loanTypeCap = loanType === "hdb" ? 25 : 30;
-      const maxTenure = Math.min(loanTypeCap, ageCap);
+      const loanTenure = Math.min(loanTypeCap, ageCap);
 
       const ltv = num(el.ltv);
       const loanAmount = loanType === "none" ? 0 : whicheverLower * (ltv / 100);
-      const monthlyInstalment = monthlyPayment(loanAmount, num(el.interestRate), num(el.loanTenure));
+      const monthlyInstalment = monthlyPayment(loanAmount, num(el.interestRate), loanTenure);
       const downPayment = whicheverLower - loanAmount;
 
       const optionFee = num(el.optionFee);
       const exerciseFee = num(el.exerciseFee);
-      const fivePctCash = whicheverLower * 0.05;
+      // HDB loan: minimum cash is a flat S$5,000. Bank loan: minimum cash is 5% of price.
+      const fivePctCashLabel = loanType === "hdb" ? "Min. cash" : "5% cash";
+      const fivePctCash = loanType === "hdb" ? 5000 : whicheverLower * 0.05;
       const cpfGrantsUsed = num(el.cpfGrantsUsed);
       const cashTopUp = downPayment - fivePctCash - cpfGrantsUsed;
 
@@ -568,10 +563,12 @@
       text("rph-out-absd", fmtCurrency(absd));
       text("rph-out-balanceCpfGrants", fmtCurrency(balanceCpfGrants));
       text("rph-out-whicheverLower", fmtCurrency(whicheverLower));
-      text("rph-out-maxTenure", `${maxTenure} years`);
+      text("rph-out-loanTenure", `${loanTenure} years`);
       text("rph-out-loanAmount", fmtCurrency(loanAmount));
       text("rph-out-monthlyInstalment", fmtCurrency(monthlyInstalment));
       text("rph-out-downPayment", fmtCurrency(downPayment));
+      text("rph-fivePctLabel", fivePctCashLabel);
+      text("rph-fivePctLabel2", fivePctCashLabel);
       text("rph-out-fivePctCash", fmtCurrency(fivePctCash));
       text("rph-out-cashTopUp", fmtCurrency(cashTopUp));
       text("rph-out-totalExpenses", fmtCurrency(totalExpenses));
@@ -613,7 +610,6 @@
       ltv: document.getElementById("rpp-ltv"),
       interestRate: document.getElementById("rpp-interestRate"),
       buyerAge: document.getElementById("rpp-buyerAge"),
-      loanTenure: document.getElementById("rpp-loanTenure"),
       cpfFromSale: document.getElementById("rpp-cpfFromSale"),
       legalFee: document.getElementById("rpp-legalFee"),
       others: document.getElementById("rpp-others"),
@@ -639,17 +635,20 @@
     });
     const getResidency = initSegmented("rpp-residency", () => calculate());
     const getPropertyCount = initSegmented("rpp-propertyCount", () => calculate());
+    const getTenureBasis = initSegmented("rpp-tenureBasis", () => calculate());
 
     function calculate() {
       const loanType = getLoanType();
       const purchasePrice = num(el.purchasePrice);
       const ltv = num(el.ltv);
-      const loanAmount = loanType === "none" ? 0 : purchasePrice * (ltv / 100);
-      const monthlyInstalment = monthlyPayment(loanAmount, num(el.interestRate), num(el.loanTenure));
-      const downPayment = purchasePrice - loanAmount;
 
-      const ageCap = Math.max(0, 65 - num(el.buyerAge));
-      const maxTenure = Math.min(30, ageCap);
+      const ageCeiling = getTenureBasis() === "extended" ? 75 : 65;
+      const ageCap = Math.max(0, ageCeiling - num(el.buyerAge));
+      const loanTenure = Math.min(30, ageCap);
+
+      const loanAmount = loanType === "none" ? 0 : purchasePrice * (ltv / 100);
+      const monthlyInstalment = monthlyPayment(loanAmount, num(el.interestRate), loanTenure);
+      const downPayment = purchasePrice - loanAmount;
 
       const cfg = loanNumberConfig[getLoanNumber()] || loanNumberConfig[1];
       const cashPct = cfg.cashPct;
@@ -685,7 +684,7 @@
       text("rpp-cashLabel", `${cashPct}% cash`);
       text("rpp-out-loanAmount", fmtCurrency(loanAmount));
       text("rpp-out-monthlyInstalment", fmtCurrency(monthlyInstalment));
-      text("rpp-out-maxTenure", `${maxTenure} years`);
+      text("rpp-out-loanTenure", `${loanTenure} years`);
       text("rpp-out-downPayment", fmtCurrency(downPayment));
       text("rpp-out-cashMin", fmtCurrency(cashMin));
       text("rpp-out-remainingCashCpf", fmtCurrency(remainingCashCpf));
