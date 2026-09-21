@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Industrial Property: New vs Resale Comparison — Calculators</title>
+  <meta name="description" content="Compare buying a brand new industrial property against a resale unit in Singapore — GST, stamp duty, financing, and total cash required, side by side by category." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">C</span>
+        Calculators
+      </a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+
+    <div class="calc-page">
+      <div class="page-head-row">
+        <h1>Industrial Property: New vs Resale</h1>
+        <button type="button" class="toolbar-btn inline ghost" id="clear-btn">Clear fields</button>
+      </div>
+      <p class="subtitle">Compare a brand new industrial unit against a resale one in Singapore — GST, stamp duty, financing, and total cash required — with every category placed side by side so the differences are obvious.</p>
+
+      <div class="callout">
+        <strong>Two rules unique to industrial/commercial property:</strong> CPF cannot be used for the purchase — it's cash and bank loan only — and ABSD doesn't apply (that's a residential-only duty). Buyer's Stamp Duty still applies, at the non-residential rates (capped at 4%, lower than residential's top tiers).
+      </div>
+
+      <div class="compare-grid">
+        <div class="panel compare-col">
+          <div class="compare-col-title tone-new">🏗️ Brand New</div>
+          <form id="in-form" autocomplete="off">
+            <div class="panel-section">
+              <div class="panel-section-header">
+                <h2>Property details</h2>
+              </div>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="in-name">Property name <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+                  <input type="text" id="in-name" placeholder="e.g. Tampines North Ind. Park" />
+                </div>
+                <div class="field">
+                  <label for="in-price">Purchase price</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="in-price" inputmode="decimal" value="1200000" min="0" step="any" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="in-size">Size</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="in-size" inputmode="decimal" value="2000" min="0" step="any" />
+                    <span class="suffix">sqft</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="in-lease">Remaining lease</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="in-lease" inputmode="decimal" value="30" min="1" step="any" />
+                    <span class="suffix">years</span>
+                  </div>
+                  <div class="hint">A new unit typically comes with a fresh 30 or 60-year JTC/private lease</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <div class="panel-section-header">
+                <h2>Upfront costs</h2>
+              </div>
+              <div class="field full" style="margin-bottom: 16px;">
+                <label>GST applicable</label>
+                <div class="segmented" id="in-gst" role="group">
+                  <button type="button" data-value="yes" class="active">Yes</button>
+                  <button type="button" data-value="no">No</button>
+                </div>
+                <div class="hint">Charged when the seller is GST-registered — almost always true buying new from a developer</div>
+              </div>
+              <div class="field-grid cols-3">
+                <div class="field">
+                  <label for="in-gstRate">GST rate</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="in-gstRate" inputmode="decimal" value="9" min="0" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                  <div class="hint">Computed: <span id="in-out-gst">S$0</span></div>
+                </div>
+                <div class="field">
+                  <label>Buyer's Stamp Duty</label>
+                  <div class="display-value" id="in-out-bsd">S$0</div>
+                  <div class="hint">Non-residential rates — 1/2/3/4%</div>
+                </div>
+                <div class="field">
+                  <label for="in-legalFee">Legal fee</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="in-legalFee" inputmode="decimal" value="3000" min="0" step="any" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="in-agentFee">Agent fee</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="in-agentFee" inputmode="decimal" value="0" min="0" step="any" />
+                  </div>
+                  <div class="hint">Usually none buying direct from a developer</div>
+                </div>
+                <div class="field">
+                  <label for="in-renovation">Renovation / fit-out</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="in-renovation" inputmode="decimal" value="80000" min="0" step="any" />
+                  </div>
+                  <div class="hint">New units are usually bare shell</div>
+                </div>
+              </div>
+
+              <div class="summary-bar tone-negative">
+                <div class="summary-bar-row">
+                  <span class="label">Total upfront costs</span>
+                  <span class="value" id="in-out-upfrontCosts">S$0</span>
+                </div>
+                <div class="formula" style="margin-top: 4px;">(GST + BSD + Legal Fee + Agent Fee + Renovation)</div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <div class="panel-section-header">
+                <h2>Financing</h2>
+              </div>
+              <div class="hint" style="margin-bottom: 12px;">CPF can't be used here — downpayment and upfront costs are cash only</div>
+              <div class="field-grid cols-3">
+                <div class="field">
+                  <label for="in-ltv">Loan-to-value</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="in-ltv" inputmode="decimal" value="80" min="0" max="100" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="in-interestRate">Interest rate</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="in-interestRate" inputmode="decimal" value="3.5" min="0" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="in-loanTenure">Loan tenure</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="in-loanTenure" inputmode="decimal" value="20" min="1" step="any" />
+                    <span class="suffix">years</span>
+                  </div>
+                  <div class="hint">Capped at: <span id="in-out-maxTenure">—</span></div>
+                </div>
+              </div>
+
+              <div class="field-grid cols-3" style="margin-top: 16px;">
+                <div class="field">
+                  <label>Loan amount</label>
+                  <div class="display-value" id="in-out-loanAmount">S$0</div>
+                </div>
+                <div class="field">
+                  <label>Downpayment (cash)</label>
+                  <div class="display-value" id="in-out-downpayment">S$0</div>
+                </div>
+                <div class="field">
+                  <label>Monthly instalment</label>
+                  <div class="display-value" id="in-out-monthlyInstalment">S$0</div>
+                </div>
+              </div>
+
+              <div class="summary-bar tone-accent">
+                <div class="summary-bar-row">
+                  <span class="label">Total cash required</span>
+                  <span class="value" id="in-out-totalCash">S$0</span>
+                </div>
+                <div class="formula" style="margin-top: 4px;">(Downpayment + Total Upfront Costs)</div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <div class="panel-section-header">
+                <h2>Rental income <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></h2>
+              </div>
+              <div class="field-grid cols-3">
+                <div class="field">
+                  <label for="in-rental">Monthly rental income</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="in-rental" inputmode="decimal" value="0" min="0" step="any" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="in-maintenance">Monthly maintenance &amp; tax</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="in-maintenance" inputmode="decimal" value="0" min="0" step="any" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Net monthly cash flow</label>
+                  <div class="display-value" id="in-out-netCashFlow">S$0</div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel compare-col">
+          <div class="compare-col-title tone-resale">🔁 Resale</div>
+          <form id="rs-form" autocomplete="off">
+            <div class="panel-section">
+              <div class="panel-section-header">
+                <h2>Property details</h2>
+              </div>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="rs-name">Property name <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+                  <input type="text" id="rs-name" placeholder="e.g. Ubi TechPark" />
+                </div>
+                <div class="field">
+                  <label for="rs-price">Purchase price</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="rs-price" inputmode="decimal" value="950000" min="0" step="any" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="rs-size">Size</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="rs-size" inputmode="decimal" value="2000" min="0" step="any" />
+                    <span class="suffix">sqft</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="rs-lease">Remaining lease</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="rs-lease" inputmode="decimal" value="22" min="1" step="any" />
+                    <span class="suffix">years</span>
+                  </div>
+                  <div class="hint">Whatever's left on the original lease — shorter lease usually means a lower price</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <div class="panel-section-header">
+                <h2>Upfront costs</h2>
+              </div>
+              <div class="field full" style="margin-bottom: 16px;">
+                <label>GST applicable</label>
+                <div class="segmented" id="rs-gst" role="group">
+                  <button type="button" data-value="yes">Yes</button>
+                  <button type="button" data-value="no" class="active">No</button>
+                </div>
+                <div class="hint">Only if the seller is GST-registered (e.g. a company) — most individual resale sellers aren't</div>
+              </div>
+              <div class="field-grid cols-3">
+                <div class="field">
+                  <label for="rs-gstRate">GST rate</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="rs-gstRate" inputmode="decimal" value="9" min="0" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                  <div class="hint">Computed: <span id="rs-out-gst">S$0</span></div>
+                </div>
+                <div class="field">
+                  <label>Buyer's Stamp Duty</label>
+                  <div class="display-value" id="rs-out-bsd">S$0</div>
+                  <div class="hint">Non-residential rates — 1/2/3/4%</div>
+                </div>
+                <div class="field">
+                  <label for="rs-legalFee">Legal fee</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="rs-legalFee" inputmode="decimal" value="3000" min="0" step="any" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="rs-agentFee">Agent fee</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="rs-agentFee" inputmode="decimal" value="9500" min="0" step="any" />
+                  </div>
+                  <div class="hint">Typically ~1% of price on the resale market</div>
+                </div>
+                <div class="field">
+                  <label for="rs-renovation">Renovation / fit-out</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="rs-renovation" inputmode="decimal" value="20000" min="0" step="any" />
+                  </div>
+                  <div class="hint">Often has existing fit-out already — usually less than a bare shell</div>
+                </div>
+              </div>
+
+              <div class="summary-bar tone-negative">
+                <div class="summary-bar-row">
+                  <span class="label">Total upfront costs</span>
+                  <span class="value" id="rs-out-upfrontCosts">S$0</span>
+                </div>
+                <div class="formula" style="margin-top: 4px;">(GST + BSD + Legal Fee + Agent Fee + Renovation)</div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <div class="panel-section-header">
+                <h2>Financing</h2>
+              </div>
+              <div class="hint" style="margin-bottom: 12px;">CPF can't be used here — downpayment and upfront costs are cash only</div>
+              <div class="field-grid cols-3">
+                <div class="field">
+                  <label for="rs-ltv">Loan-to-value</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="rs-ltv" inputmode="decimal" value="80" min="0" max="100" step="any" />
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="rs-interestRate">Interest rate</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="rs-interestRate" inputmode="decimal" value="3.5" min="0" step="any" />
+                    <span class="suffix">%/yr</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="rs-loanTenure">Loan tenure</label>
+                  <div class="input-wrap has-suffix">
+                    <input type="text" id="rs-loanTenure" inputmode="decimal" value="20" min="1" step="any" />
+                    <span class="suffix">years</span>
+                  </div>
+                  <div class="hint">Capped at: <span id="rs-out-maxTenure">—</span></div>
+                </div>
+              </div>
+
+              <div class="field-grid cols-3" style="margin-top: 16px;">
+                <div class="field">
+                  <label>Loan amount</label>
+                  <div class="display-value" id="rs-out-loanAmount">S$0</div>
+                </div>
+                <div class="field">
+                  <label>Downpayment (cash)</label>
+                  <div class="display-value" id="rs-out-downpayment">S$0</div>
+                </div>
+                <div class="field">
+                  <label>Monthly instalment</label>
+                  <div class="display-value" id="rs-out-monthlyInstalment">S$0</div>
+                </div>
+              </div>
+
+              <div class="summary-bar tone-accent">
+                <div class="summary-bar-row">
+                  <span class="label">Total cash required</span>
+                  <span class="value" id="rs-out-totalCash">S$0</span>
+                </div>
+                <div class="formula" style="margin-top: 4px;">(Downpayment + Total Upfront Costs)</div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <div class="panel-section-header">
+                <h2>Rental income <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></h2>
+              </div>
+              <div class="field-grid cols-3">
+                <div class="field">
+                  <label for="rs-rental">Monthly rental income</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="rs-rental" inputmode="decimal" value="0" min="0" step="any" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="rs-maintenance">Monthly maintenance &amp; tax</label>
+                  <div class="input-wrap has-prefix">
+                    <span class="prefix">S$</span>
+                    <input type="text" id="rs-maintenance" inputmode="decimal" value="0" min="0" step="any" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Net monthly cash flow</label>
+                  <div class="display-value" id="rs-out-netCashFlow">S$0</div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 24px;">
+        <div class="panel-section-header">
+          <h2>Side-by-side comparison</h2>
+          <p>Every category, lined up — green marks whichever side comes out ahead on that line.</p>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table comparison-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Brand New</th>
+                <th>Resale</th>
+                <th>Difference</th>
+              </tr>
+            </thead>
+            <tbody id="cmp-tbody"></tbody>
+          </table>
+        </div>
+        <div class="hint" id="cmp-verdict" style="margin-top: 14px; font-size: 0.95rem;"></div>
+      </div>
+
+      <div class="explainer">
+        <h2>How it's calculated</h2>
+
+        <div class="formula-block">
+          <h3>Buyer's Stamp Duty (non-residential)</h3>
+          <p>Industrial and other non-residential property uses a flatter schedule than residential: 1% on the first S$180,000, 2% on the next S$180,000, 3% on the next S$640,000, and 4% on the remainder — with no further escalation, unlike residential property's higher tiers above S$1.5m/S$3m. ABSD does not apply to industrial property at all.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>GST</h3>
+          <p>GST is charged when the <em>seller</em> is GST-registered — almost always true for a developer selling new units, and only sometimes true on the resale market (e.g. a company-owned unit). It's computed on the purchase price and is a cash cost — it can't be financed into the mortgage.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Financing</h3>
+          <p>CPF cannot be used for industrial or other non-residential property — the downpayment and every upfront cost (GST, stamp duty, legal, agent, renovation) must be paid in cash. Loan tenure is also capped at the property's remaining lease, since a bank won't lend past the point the lease runs out.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Total cash required</h3>
+          <p><code>Total Cash Required = Downpayment + Total Upfront Costs</code> — the headline number for "how much money do I actually need to complete this purchase," which is what the comparison table's differences are built around.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  </footer>
+
+  <script src="../js/number-format.js"></script>
+  <script src="../js/section-tone.js"></script>
+  <script src="../js/theme.js"></script>
+  <script src="../js/industrial-comparison.js"></script>
+</body>
+</html>
