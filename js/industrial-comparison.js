@@ -146,7 +146,6 @@
     }
 
     Object.values(el).forEach((input) => input && input.addEventListener("input", calculate));
-    document.getElementById(`${prefix}-form`).addEventListener("submit", (e) => e.preventDefault());
 
     return {
       calculate,
@@ -156,6 +155,8 @@
 
   const newSide = makeSide("in", "in-gst");
   const resaleSide = makeSide("rs", "rs-gst");
+
+  document.getElementById("industrial-form").addEventListener("submit", (e) => e.preventDefault());
 
   const ROWS = [
     { label: "Purchase price", key: "price", fmt: "currency" },
@@ -238,12 +239,10 @@
   // ==================== Clear all fields ====================
   document.getElementById("clear-btn").addEventListener("click", () => {
     resetAllSegmented();
-    ["in-form", "rs-form"].forEach((formId) => {
-      const form = document.getElementById(formId);
-      form.reset();
-      form.querySelectorAll('input[inputmode="decimal"]').forEach((input) => window.NumberFormat.attach(input));
-      form.querySelectorAll("input, select").forEach((input) => input.dispatchEvent(new Event("change", { bubbles: true })));
-    });
+    const form = document.getElementById("industrial-form");
+    form.reset();
+    form.querySelectorAll('input[inputmode="decimal"]').forEach((input) => window.NumberFormat.attach(input));
+    form.querySelectorAll("input, select").forEach((input) => input.dispatchEvent(new Event("change", { bubbles: true })));
     newSide.calculate();
     resaleSide.calculate();
   });

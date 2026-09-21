@@ -1513,54 +1513,114 @@ table.data-table {
   color: #666;
 }
 
-/* Industrial New-vs-Resale comparison: two equal panels side by side (stacking on
-   narrow screens) rather than the tabbed one-at-a-time layout used elsewhere, since the
-   whole point here is seeing both options at once. */
-.compare-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-  align-items: start;
+/* Industrial New-vs-Resale comparison: every category is a table row, with the New and
+   Resale columns tinted in their own color all the way down — not just in the header —
+   so the two sides stay visually distinct at a glance, and every row's cells share the
+   same height automatically since they're genuine table cells rather than two
+   independently-flowing columns. */
+.data-table.input-table,
+.data-table.comparison-table {
+  table-layout: fixed;
+  white-space: normal;
 }
 
-@media (min-width: 900px) {
-  .compare-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+.input-table th,
+.input-table td,
+.comparison-table th,
+.comparison-table td {
+  vertical-align: middle;
 }
 
-.compare-col-title {
-  font-size: 1.1rem;
-  font-weight: 800;
-  margin: 0 0 18px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--border);
+.input-table th:first-child,
+.input-table td:first-child {
+  width: 30%;
 }
 
-.compare-col-title.tone-new {
-  color: var(--hue-0);
-  border-bottom-color: var(--hue-0);
+.comparison-table th:first-child,
+.comparison-table td:first-child {
+  width: 34%;
 }
 
-.compare-col-title.tone-resale {
-  color: var(--hue-1);
-  border-bottom-color: var(--hue-1);
+.input-table th.col-new,
+.input-table td.col-new,
+.comparison-table th.col-new,
+.comparison-table td.col-new {
+  text-align: left;
+  background: var(--hue-0-soft);
 }
 
-.comparison-table th:nth-child(2),
-.comparison-table th:nth-child(3),
-.comparison-table th:nth-child(4),
-.comparison-table td:nth-child(2),
-.comparison-table td:nth-child(3),
-.comparison-table td:nth-child(4) {
+.input-table th.col-resale,
+.input-table td.col-resale,
+.comparison-table th.col-resale,
+.comparison-table td.col-resale {
+  text-align: left;
+  background: var(--hue-1-soft);
+}
+
+.comparison-table th.col-new,
+.comparison-table td.col-new,
+.comparison-table th.col-resale,
+.comparison-table td.col-resale {
   text-align: right;
 }
 
-.comparison-table tbody tr.emphasize td {
+.input-table thead th.col-new,
+.comparison-table thead th.col-new {
+  color: var(--hue-0);
+  border-bottom: 3px solid var(--hue-0);
+}
+
+.input-table thead th.col-resale,
+.comparison-table thead th.col-resale {
+  color: var(--hue-1);
+  border-bottom: 3px solid var(--hue-1);
+}
+
+.input-table td .hint {
+  white-space: normal;
+}
+
+.row-hint {
+  display: block;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: normal;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.display-value.strong {
   font-weight: 800;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+/* A visibly smaller segmented control for a single yes/no toggle sitting inside a table
+   cell, where the full-size pill used for multi-option toggles elsewhere would dominate
+   the row. */
+.segmented.compact {
+  padding: 2px;
+  gap: 2px;
+}
+
+.segmented.compact button {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+}
+
+.data-table tbody tr.emphasize td {
+  font-weight: 800;
   border-top: 2px solid var(--border);
   border-bottom: 2px solid var(--border);
+}
+
+.comparison-table tbody tr.emphasize td {
+  font-size: 0.95rem;
 }
 
 .comparison-table td.diff-better {
@@ -1571,3 +1631,8 @@ table.data-table {
 .comparison-table td.diff-worse {
   color: var(--negative);
 }
+
+.comparison-table td:last-child {
+  text-align: right;
+}
+
