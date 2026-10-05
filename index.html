@@ -25,52 +25,90 @@
   <main>
     <section class="hero">
       <h1>Simple calculators, straight answers</h1>
-      <p>No sign-up, no clutter — just clean, accurate tools for investing and everyday math.</p>
+      <p>Grouped by the decision you’re making — a rental’s return, a Singapore purchase or sale, or how capital grows.</p>
     </section>
 
-    <div class="section-label">Investing &amp; Finance</div>
-    <div class="calc-grid">
-      <a class="calc-card" href="calculators/roi.html">
-        <span class="icon">🏠</span>
-        <h3>Real Estate ROI Calculator</h3>
-        <p>Cap rate, cash-on-cash return, DSCR, and annualized IRR for a rental property purchase.</p>
-      </a>
+    <nav class="catalog-nav" aria-label="Calculator categories">
+      <a class="tone-returns" href="#property-returns"><span class="dot" aria-hidden="true"></span>Property returns</a>
+      <a class="tone-singapore" href="#singapore-property"><span class="dot" aria-hidden="true"></span>Singapore property</a>
+      <a class="tone-investing" href="#savings-investing"><span class="dot" aria-hidden="true"></span>Savings &amp; comparison</a>
+    </nav>
 
-      <a class="calc-card" href="calculators/roe.html">
-        <span class="icon">📊</span>
-        <h3>Real Estate ROE Calculator</h3>
-        <p>Return on equity today, and how it trends over time as appreciation and paydown build your equity.</p>
-      </a>
+    <div class="catalog">
+      <section class="catalog-group tone-returns" id="property-returns">
+        <header>
+          <div>
+            <h2>Property returns</h2>
+            <p>How a rental purchase performs today, and how equity changes as the loan pays down.</p>
+          </div>
+          <span class="catalog-count">2 tools</span>
+        </header>
+        <div class="calc-grid">
+          <a class="calc-card" href="calculators/roi.html">
+            <span class="icon">🏠</span>
+            <h3>Real Estate ROI Calculator</h3>
+            <p>Cap rate, cash-on-cash return, DSCR, and annualized IRR for a rental property purchase.</p>
+          </a>
 
-      <a class="calc-card" href="calculators/comparison.html">
-        <span class="icon">💹</span>
-        <h3>Investment Comparison Calculator</h3>
-        <p>Compare the same capital across residential property, industrial property, financial vehicles, and crypto.</p>
-      </a>
+          <a class="calc-card" href="calculators/roe.html">
+            <span class="icon">📊</span>
+            <h3>Real Estate ROE Calculator</h3>
+            <p>Return on equity today, and how it trends over time as appreciation and paydown build your equity.</p>
+          </a>
+        </div>
+      </section>
 
-      <a class="calc-card" href="calculators/compound-interest.html">
-        <span class="icon">🏦</span>
-        <h3>Compound Interest Calculator</h3>
-        <p>See how principal, rate, time, and contributions compound over time.</p>
-      </a>
+      <section class="catalog-group tone-singapore" id="singapore-property">
+        <header>
+          <div>
+            <h2>Singapore property</h2>
+            <p>Stamp duty, CPF, sale proceeds, and the cash left to buy the next home or industrial unit.</p>
+          </div>
+          <span class="catalog-count">3 tools</span>
+        </header>
+        <div class="calc-grid">
+          <a class="calc-card" href="calculators/property-leverage.html">
+            <span class="icon">🇸🇬</span>
+            <h3>Property Leverage Calculator</h3>
+            <p>Singapore property costs, stamp duty, and rental income — then how much equity you could leverage into your next property.</p>
+          </a>
 
-      <a class="calc-card" href="calculators/property-leverage.html">
-        <span class="icon">🇸🇬</span>
-        <h3>Property Leverage Calculator</h3>
-        <p>Singapore property costs, stamp duty, and rental income — then how much equity you could leverage into your next property.</p>
-      </a>
+          <a class="calc-card" href="calculators/property-transaction.html">
+            <span class="icon">🧾</span>
+            <h3>Sale Proceeds &amp; Purchase Calculator</h3>
+            <p>Singapore HDB or private property sale — CPF refund, stamp duty, agent fees, and a stage-by-stage payment schedule.</p>
+          </a>
 
-      <a class="calc-card" href="calculators/property-transaction.html">
-        <span class="icon">🧾</span>
-        <h3>Sale Proceeds &amp; Purchase Calculator</h3>
-        <p>Singapore HDB or private property sale — CPF refund, stamp duty, agent fees, and a stage-by-stage payment schedule.</p>
-      </a>
+          <a class="calc-card" href="calculators/industrial-comparison.html">
+            <span class="icon">🏭</span>
+            <h3>Industrial Property: New vs Resale</h3>
+            <p>Compare a brand new industrial unit against a resale one — GST, stamp duty, financing, and total cash required, side by side.</p>
+          </a>
+        </div>
+      </section>
 
-      <a class="calc-card" href="calculators/industrial-comparison.html">
-        <span class="icon">🏭</span>
-        <h3>Industrial Property: New vs Resale</h3>
-        <p>Compare a brand new industrial unit against a resale one — GST, stamp duty, financing, and total cash required, side by side.</p>
-      </a>
+      <section class="catalog-group tone-investing" id="savings-investing">
+        <header>
+          <div>
+            <h2>Savings &amp; comparison</h2>
+            <p>Compound growth on its own, or the same capital split across property, markets, and crypto.</p>
+          </div>
+          <span class="catalog-count">2 tools</span>
+        </header>
+        <div class="calc-grid">
+          <a class="calc-card" href="calculators/compound-interest.html">
+            <span class="icon">🏦</span>
+            <h3>Compound Interest Calculator</h3>
+            <p>See how principal, rate, time, and contributions compound over time.</p>
+          </a>
+
+          <a class="calc-card" href="calculators/comparison.html">
+            <span class="icon">💹</span>
+            <h3>Investment Comparison Calculator</h3>
+            <p>Compare the same capital across residential property, industrial property, financial vehicles, and crypto.</p>
+          </a>
+        </div>
+      </section>
     </div>
   </main>
 

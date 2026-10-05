@@ -238,13 +238,125 @@ main {
   margin: 0 auto;
 }
 
+.catalog-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 24px);
+}
+
+.catalog-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+
+.catalog-nav a:hover {
+  border-color: var(--group-accent, var(--accent));
+  color: var(--group-accent, var(--accent));
+}
+
+.catalog-nav .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--group-accent, var(--accent));
+}
+
+.catalog {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px clamp(16px, 4vw, 24px) 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.tone-returns {
+  --group-accent: var(--hue-0);
+  --group-soft: var(--hue-0-soft);
+}
+
+.tone-singapore {
+  --group-accent: var(--hue-1);
+  --group-soft: var(--hue-1-soft);
+}
+
+.tone-investing {
+  --group-accent: var(--hue-2);
+  --group-soft: var(--hue-2-soft);
+}
+
+.catalog-group {
+  scroll-margin-top: 84px;
+}
+
+.catalog-group header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: var(--group-soft);
+  border: 1px solid color-mix(in srgb, var(--group-accent) 30%, var(--border));
+}
+
+.catalog-group h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+
+.catalog-group header p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.catalog-count {
+  flex: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--group-accent);
+}
+
 .calc-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
   gap: 16px;
-  padding: 24px clamp(16px, 4vw, 24px) 64px;
-  max-width: 1280px;
-  margin: 0 auto;
+}
+
+.catalog-group .calc-grid {
+  padding-top: 16px;
+}
+
+.catalog-group .calc-card .icon {
+  background: var(--group-soft);
+  color: var(--group-accent);
+}
+
+.catalog-group .calc-card:hover {
+  border-color: var(--group-accent);
+}
+
+@media (max-width: 640px) {
+  .catalog-group header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .calc-card {
