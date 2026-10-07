@@ -25,8 +25,17 @@
   <main>
     <section class="hero">
       <h1>Simple calculators, straight answers</h1>
-      <p>Grouped by the decision you’re making — a rental’s return, a Singapore purchase or sale, or how capital grows.</p>
+      <p>Grouped by the decision you’re making. Narrow the property tools to residential, or to commercial and industrial.</p>
     </section>
+
+    <div class="sector-bar">
+      <div class="sector-filter" role="group" aria-label="Property type">
+        <button type="button" data-sector="all" class="active" aria-pressed="true">All</button>
+        <button type="button" class="tone-returns" data-sector="residential" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Residential</button>
+        <button type="button" class="tone-singapore" data-sector="commercial" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Commercial &amp; Industrial</button>
+      </div>
+      <p class="sector-note">Property tools narrow to one sector. Savings tools stay either way.</p>
+    </div>
 
     <nav class="catalog-nav" aria-label="Calculator categories">
       <a class="tone-returns" href="#property-returns"><span class="dot" aria-hidden="true"></span>Property returns</a>
@@ -41,19 +50,28 @@
             <h2>Property returns</h2>
             <p>How a rental purchase performs today, and how equity changes as the loan pays down.</p>
           </div>
-          <span class="catalog-count">2 tools</span>
+          <span class="catalog-count">3 tools</span>
         </header>
         <div class="calc-grid">
-          <a class="calc-card" href="calculators/roi.html">
+          <a class="calc-card" href="calculators/roi.html" data-sector="residential">
             <span class="icon">🏠</span>
+            <span class="badge residential">Residential</span>
             <h3>Real Estate ROI Calculator</h3>
             <p>Cap rate, cash-on-cash return, DSCR, and annualized IRR for a rental property purchase.</p>
           </a>
 
-          <a class="calc-card" href="calculators/roe.html">
+          <a class="calc-card" href="calculators/roe.html" data-sector="residential">
             <span class="icon">📊</span>
+            <span class="badge residential">Residential</span>
             <h3>Real Estate ROE Calculator</h3>
             <p>Return on equity today, and how it trends over time as appreciation and paydown build your equity.</p>
+          </a>
+
+          <a class="calc-card" href="calculators/residential-mortgage.html" data-sector="residential">
+            <span class="icon">🏦</span>
+            <span class="badge residential">Residential</span>
+            <h3>Residential Mortgage Calculator</h3>
+            <p>Monthly instalment, total interest, and whether the payment fits a 55% total debt servicing ratio.</p>
           </a>
         </div>
       </section>
@@ -64,23 +82,33 @@
             <h2>Singapore property</h2>
             <p>Stamp duty, CPF, sale proceeds, and the cash left to buy the next home or industrial unit.</p>
           </div>
-          <span class="catalog-count">3 tools</span>
+          <span class="catalog-count">4 tools</span>
         </header>
         <div class="calc-grid">
-          <a class="calc-card" href="calculators/property-leverage.html">
+          <a class="calc-card" href="calculators/property-leverage.html" data-sector="residential">
             <span class="icon">🇸🇬</span>
+            <span class="badge residential">Residential</span>
             <h3>Property Leverage Calculator</h3>
             <p>Singapore property costs, stamp duty, and rental income — then how much equity you could leverage into your next property.</p>
           </a>
 
-          <a class="calc-card" href="calculators/property-transaction.html">
+          <a class="calc-card" href="calculators/property-transaction.html" data-sector="residential">
             <span class="icon">🧾</span>
+            <span class="badge residential">Residential</span>
             <h3>Sale Proceeds &amp; Purchase Calculator</h3>
             <p>Singapore HDB or private property sale — CPF refund, stamp duty, agent fees, and a stage-by-stage payment schedule.</p>
           </a>
 
-          <a class="calc-card" href="calculators/industrial-comparison.html">
+          <a class="calc-card" href="calculators/commercial-purchase.html" data-sector="commercial">
+            <span class="icon">🏢</span>
+            <span class="badge commercial">Commercial &amp; industrial</span>
+            <h3>Commercial &amp; Industrial Purchase</h3>
+            <p>Cash to buy one unit — GST, non-residential stamp duty, a lease-capped loan, yield, and cash-on-cash. No CPF.</p>
+          </a>
+
+          <a class="calc-card" href="calculators/industrial-comparison.html" data-sector="commercial">
             <span class="icon">🏭</span>
+            <span class="badge commercial">Commercial &amp; industrial</span>
             <h3>Industrial Property: New vs Resale</h3>
             <p>Compare a brand new industrial unit against a resale one — GST, stamp duty, financing, and total cash required, side by side.</p>
           </a>
@@ -96,14 +124,15 @@
           <span class="catalog-count">2 tools</span>
         </header>
         <div class="calc-grid">
-          <a class="calc-card" href="calculators/compound-interest.html">
-            <span class="icon">🏦</span>
+          <a class="calc-card" href="calculators/compound-interest.html" data-sector="general">
+            <span class="icon">📈</span>
             <h3>Compound Interest Calculator</h3>
             <p>See how principal, rate, time, and contributions compound over time.</p>
           </a>
 
-          <a class="calc-card" href="calculators/comparison.html">
+          <a class="calc-card" href="calculators/comparison.html" data-sector="both">
             <span class="icon">💹</span>
+            <span class="badge both">Both sectors</span>
             <h3>Investment Comparison Calculator</h3>
             <p>Compare the same capital across residential property, industrial property, financial vehicles, and crypto.</p>
           </a>
@@ -117,5 +146,6 @@
   </footer>
 
   <script src="js/theme.js"></script>
+  <script src="js/catalog.js"></script>
 </body>
 </html>
