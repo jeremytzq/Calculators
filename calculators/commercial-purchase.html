@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commercial &amp; Industrial Purchase — Calculators</title>
+  <meta name="description" content="Cash to buy a Singapore commercial or industrial unit: GST, non-residential stamp duty, a lease-capped loan, yield, and cash-on-cash return." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">C</span>
+        Calculators
+      </a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+
+    <div class="calc-page">
+      <div class="page-head-row">
+        <h1>Commercial &amp; Industrial Purchase</h1>
+        <button type="button" class="toolbar-btn inline ghost" id="clear-btn">Clear fields</button>
+      </div>
+      <p class="subtitle">Cash to buy one Singapore commercial or industrial unit — GST, non-residential stamp duty, and a loan that cannot outlast the lease — then the yield and monthly cash flow once it is rented. CPF cannot be used.</p>
+
+      <div class="panel">
+        <form id="commercial-form" autocomplete="off">
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Purchase</h2>
+              <p>Price, GST, and the cash costs that sit on top of the loan.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="purchasePrice">Purchase price</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="text" id="purchasePrice" inputmode="decimal" value="2000000" min="0" step="any" required />
+                </div>
+              </div>
+              <div class="field">
+                <label>GST</label>
+                <div class="segmented" id="gst-applicable" role="group" aria-label="GST applicable">
+                  <button type="button" data-value="yes" class="active">Yes</button>
+                  <button type="button" data-value="no">No</button>
+                </div>
+                <div class="hint">Charged when the seller is GST-registered. Paid in cash, not financed.</div>
+              </div>
+              <div class="field">
+                <label for="gstRate">GST rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="gstRate" inputmode="decimal" value="9" min="0" step="any" />
+                  <span class="suffix">%</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="leaseYears">Remaining lease</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="leaseYears" inputmode="decimal" value="30" min="1" step="any" required />
+                  <span class="suffix">years</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="legalFee">Legal fee</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="text" id="legalFee" inputmode="decimal" value="4000" min="0" step="any" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="agentFee">Agent fee</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="text" id="agentFee" inputmode="decimal" value="0" min="0" step="any" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="renovation">Renovation</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="text" id="renovation" inputmode="decimal" value="0" min="0" step="any" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Financing</h2>
+              <p>The bank will not lend past the end of the lease.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="ltv">Loan-to-value</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="ltv" inputmode="decimal" value="70" min="0" max="100" step="any" required />
+                  <span class="suffix">%</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="interestRate">Interest rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="interestRate" inputmode="decimal" value="4" min="0" step="any" required />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">Annual rate</div>
+              </div>
+              <div class="field">
+                <label for="loanTenure">Loan tenure</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="loanTenure" inputmode="decimal" value="25" min="1" step="any" required />
+                  <span class="suffix">years</span>
+                </div>
+                <div class="computed-note" id="note-tenure">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Income</h2>
+              <p>Rent and the monthly costs of holding the unit.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="monthlyRent">Monthly rent</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="text" id="monthlyRent" inputmode="decimal" value="10000" min="0" step="any" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="monthlyOpex">Monthly operating costs</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="text" id="monthlyOpex" inputmode="decimal" value="1200" min="0" step="any" />
+                </div>
+                <div class="hint">Maintenance, property tax, insurance, and similar</div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div id="results" hidden>
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Cash and loan</h2>
+            </div>
+            <div class="results dense">
+              <div class="result-tile primary">
+                <div class="label">Cash required</div>
+                <div class="value small" id="out-cash">—</div>
+                <div class="sub">Down payment, GST, stamp duty, and fees</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Buyer's stamp duty</div>
+                <div class="value small" id="out-bsd">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">GST</div>
+                <div class="value small" id="out-gst">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Loan amount</div>
+                <div class="value small" id="out-loan">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Monthly instalment</div>
+                <div class="value small" id="out-monthly">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Return once rented</h2>
+            </div>
+            <div class="results dense">
+              <div class="result-tile">
+                <div class="label">Gross yield</div>
+                <div class="value small" id="out-grossYield">—</div>
+                <div class="sub">Annual rent ÷ price</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Net yield</div>
+                <div class="value small" id="out-netYield">—</div>
+                <div class="sub">Rent minus operating costs, ÷ price</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Monthly cash flow</div>
+                <div class="value small" id="out-cashFlow">—</div>
+                <div class="sub">Rent − costs − instalment</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Cash-on-cash</div>
+                <div class="value small" id="out-cashOnCash">—</div>
+                <div class="sub">Annual cash flow ÷ cash required</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <strong>Commercial rules, not residential ones.</strong> ABSD does not apply, and CPF cannot fund the purchase. Stamp duty uses the non-residential schedule, capped at 4%. GST is cash on top when the seller is GST-registered.
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer">
+        <h2>How it's calculated</h2>
+        <div class="formula-block">
+          <h3>Buyer's stamp duty</h3>
+          <p>Non-residential rates: 1% on the first S$180,000, 2% on the next S$180,000, 3% on the next S$640,000, and 4% on the rest. There is no further step-up, and no ABSD.</p>
+        </div>
+        <div class="formula-block">
+          <h3>Cash required</h3>
+          <p><code>Down Payment + GST + Stamp Duty + Legal + Agent + Renovation</code>. GST is <code>Price × GST %</code> when you mark it applicable, and it is not added to the loan. The loan itself is <code>Price × Loan-to-Value</code>.</p>
+        </div>
+        <div class="formula-block">
+          <h3>Tenure and instalment</h3>
+          <p>The tenure used is the shorter of the tenure you enter and the remaining lease. The instalment is the standard amortizing payment on that shorter term.</p>
+        </div>
+        <div class="formula-block">
+          <h3>Yield and cash-on-cash</h3>
+          <p><code>Gross Yield = Annual Rent / Price</code>. <code>Net Yield = (Annual Rent − Annual Operating Costs) / Price</code>. <code>Cash-on-Cash = (Net Operating Income − Annual Instalments) / Cash Required</code>.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  </footer>
+
+  <script src="../js/number-format.js"></script>
+  <script src="../js/section-tone.js"></script>
+  <script src="../js/theme.js"></script>
+  <script src="../js/commercial-purchase.js"></script>
+</body>
+</html>

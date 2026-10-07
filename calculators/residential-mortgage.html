@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Residential Mortgage Calculator — Calculators</title>
+  <meta name="description" content="Singapore residential mortgage: monthly instalment, total interest, and a 55% total debt servicing check against your income." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">C</span>
+        Calculators
+      </a>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../index.html">← All calculators</a></div>
+
+    <div class="calc-page">
+      <div class="page-head-row">
+        <h1>Residential Mortgage Calculator</h1>
+        <button type="button" class="toolbar-btn inline ghost" id="clear-btn">Clear fields</button>
+      </div>
+      <p class="subtitle">Monthly instalment on a Singapore home loan, how much of it is interest, and whether the payment still fits inside a 55% total debt servicing ratio.</p>
+
+      <div class="panel">
+        <form id="mortgage-form" autocomplete="off">
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Loan</h2>
+              <p>Purchase price, cash down, and the bank’s rate and tenure.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="purchasePrice">Purchase price</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="text" id="purchasePrice" inputmode="decimal" value="1500000" min="0" step="any" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="downPaymentPct">Down payment</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="downPaymentPct" inputmode="decimal" value="25" min="0" max="100" step="any" required />
+                  <span class="suffix">%</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="interestRate">Interest rate</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="interestRate" inputmode="decimal" value="3.5" min="0" step="any" required />
+                  <span class="suffix">%</span>
+                </div>
+                <div class="hint">Annual rate</div>
+              </div>
+              <div class="field">
+                <label for="loanTerm">Loan tenure</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="loanTerm" inputmode="decimal" value="30" min="1" step="1" required />
+                  <span class="suffix">years</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Borrowing power</h2>
+              <p>Optional. Leave income blank to skip the debt-servicing check.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="monthlyIncome">Gross monthly income</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="text" id="monthlyIncome" inputmode="decimal" value="12000" min="0" step="any" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="otherDebt">Other monthly debt</label>
+                <div class="input-wrap has-prefix">
+                  <span class="prefix">S$</span>
+                  <input type="text" id="otherDebt" inputmode="decimal" value="0" min="0" step="any" />
+                </div>
+                <div class="hint">Car loans, existing mortgages, and other committed instalments</div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div id="results" hidden>
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>The loan</h2>
+            </div>
+            <div class="results dense">
+              <div class="result-tile primary">
+                <div class="label">Monthly instalment</div>
+                <div class="value small" id="out-monthly">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Loan amount</div>
+                <div class="value small" id="out-loanAmount">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Down payment</div>
+                <div class="value small" id="out-downPayment">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Total interest</div>
+                <div class="value small" id="out-totalInterest">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Total paid</div>
+                <div class="value small" id="out-totalPaid">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Share that is interest</div>
+                <div class="value small" id="out-interestShare">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Interest in year 1</div>
+                <div class="value small" id="out-year1Interest">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Principal in year 1</div>
+                <div class="value small" id="out-year1Principal">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-section" id="tdsr-section" hidden>
+            <div class="results-section-title">
+              <h2>Debt servicing</h2>
+            </div>
+            <div class="results dense">
+              <div class="result-tile primary">
+                <div class="label">TDSR used</div>
+                <div class="value small" id="out-tdsr">—</div>
+                <div class="sub">Instalment + other debt, ÷ income</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">55% instalment ceiling</div>
+                <div class="value small" id="out-maxInstalment">—</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Room under 55%</div>
+                <div class="value small" id="out-headroom">—</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Loan that fits 55%</div>
+                <div class="value small" id="out-maxLoan">—</div>
+                <div class="sub">At this rate and tenure</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <h2>Year by year</h2>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Interest</th>
+                    <th>Principal</th>
+                    <th>Balance at year end</th>
+                  </tr>
+                </thead>
+                <tbody id="yearly-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="callout">
+            <strong>Planning check, not an approval.</strong> The 55% line is the total debt servicing ratio used here as a ceiling. Banks also weigh income type, age, and the loan-to-value they will actually offer.
+          </div>
+        </div>
+      </div>
+
+      <div class="explainer">
+        <h2>How it's calculated</h2>
+        <div class="formula-block">
+          <h3>Monthly instalment</h3>
+          <p><code>Loan = Purchase Price × (1 − Down Payment %)</code>. The instalment is the standard fully amortizing payment: <code>P × r × (1 + r)^n / ((1 + r)^n − 1)</code>, where <code>r</code> is the monthly interest rate and <code>n</code> is the number of months. A 0% rate is just the loan divided by the number of months.</p>
+        </div>
+        <div class="formula-block">
+          <h3>Interest and principal</h3>
+          <p>Each month, interest is the outstanding balance times the monthly rate. The rest of the instalment reduces principal. The last month pays off whatever balance remains, so the schedule ends at zero.</p>
+        </div>
+        <div class="formula-block">
+          <h3>Debt servicing</h3>
+          <p><code>TDSR = (This Instalment + Other Monthly Debt) / Gross Monthly Income</code>. The ceiling used here is 55% of gross income. The loan that fits is the principal whose instalment, at the same rate and tenure, equals <code>Income × 55% − Other Debt</code>.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Built for quick, accurate math. Nothing you enter is stored or sent anywhere.
+  </footer>
+
+  <script src="../js/number-format.js"></script>
+  <script src="../js/section-tone.js"></script>
+  <script src="../js/theme.js"></script>
+  <script src="../js/residential-mortgage.js"></script>
+</body>
+</html>
