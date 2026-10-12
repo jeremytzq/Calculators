@@ -235,7 +235,22 @@
 
           <div class="results-section">
             <div class="results-section-title">
-              <h2>Key metrics</h2>
+              <div class="title-with-info">
+                <h2>Key metrics</h2>
+                <button type="button" class="info-btn" aria-expanded="false" aria-controls="info-key-metrics" aria-label="How Key metrics is calculated" title="How this is calculated">i</button>
+              </div>
+            </div>
+            <div class="info-panel" id="info-key-metrics" hidden>
+              <div class="info-panel-title">How this is calculated</div>
+              <ul>
+                  <li><strong>Price PSF</strong> — <code>Purchase Price ÷ Size (sqft)</code></li>
+                  <li><strong>Loan amount</strong> — <code>Purchase Price × (1 − Down Payment %)</code></li>
+                  <li><strong>GST (BUC only)</strong> — <code>Purchase Price × GST %</code>, paid in cash and never financed by the loan.</li>
+                  <li><strong>Corporate tax</strong> — Added up year by year over the holding period: <code>max(0, Net Rental − Maintenance − Property Tax − Mortgage Interest) × Corporate Tax %</code>.</li>
+                  <li><strong>Monthly instalment</strong> — Standard amortizing payment on the loan amount over the loan term. For BUC this is the steady-state figure once the loan is fully disbursed.</li>
+                  <li><strong>Cash needed at purchase</strong> — <code>Down Payment + BSD + ABSD + Conveyancing + GST</code>. Agent commission isn't included — it's only paid at exit.</li>
+                  <li><strong>Break-even</strong> — The first year “Net position vs. cash invested” (year-by-year table) turns positive.</li>
+              </ul>
             </div>
             <div class="results dense">
               <div class="result-tile">
@@ -276,8 +291,21 @@
 
           <div class="results-section" id="pl-buc-schedule-section" hidden>
             <div class="results-section-title">
-              <h2>Progressive payment schedule</h2>
+              <div class="title-with-info">
+                <h2>Progressive payment schedule</h2>
+                <button type="button" class="info-btn" aria-expanded="false" aria-controls="info-buc-schedule" aria-label="How Progressive payment schedule is calculated" title="How this is calculated">i</button>
+              </div>
               <span class="note">Standard Singapore BUC stages, scaled to your TOP year</span>
+            </div>
+            <div class="info-panel" id="info-buc-schedule" hidden>
+              <div class="info-panel-title">How this is calculated</div>
+              <ul>
+                  <li><strong>Amount paid</strong> — The first row is your down payment. Each later stage is the increase in cumulative loan disbursed: <code>Loan × Stage Cumulative % − Previous Cumulative</code>.</li>
+                  <li><strong>GST</strong> — <code>Amount Paid × GST %</code> at every stage, including the down payment — paid in cash.</li>
+                  <li><strong>Cumulative loan disbursed</strong> — <code>Loan Amount × Stage Cumulative %</code>, using the standard Singapore BUC stages scaled so TOP lands on your “rental starts in year”.</li>
+                  <li><strong>Est. monthly interest</strong> — <code>Cumulative Loan Disbursed × Interest Rate ÷ 12</code>.</li>
+                  <li><strong>Est. monthly instalment</strong> — What a fresh loan of the cumulative disbursed amount would cost per month over your full loan term. Est. monthly principal is that instalment minus the interest.</li>
+              </ul>
             </div>
             <p class="hint" style="margin: 0 0 10px;">Your down payment is paid upfront at booking/S&amp;P; every stage after that is disbursed entirely by the bank loan. GST (<span id="buc-schedule-gstpct">—</span>) applies to the amount paid at every stage, including the down payment, and is paid in cash — it's not financed by the loan. The estimated instalment is what a fresh loan of that disbursed size, over your full loan term, would cost per month.</p>
             <div class="table-wrap">
@@ -302,8 +330,24 @@
 
           <div class="results-section">
             <div class="results-section-title">
-              <h2>Costs &amp; rental income</h2>
+              <div class="title-with-info">
+                <h2>Costs &amp; rental income</h2>
+                <button type="button" class="info-btn" aria-expanded="false" aria-controls="info-costs" aria-label="How Costs and rental income is calculated" title="How this is calculated">i</button>
+              </div>
               <span class="note" id="costs-note">Over the holding period</span>
+            </div>
+            <div class="info-panel" id="info-costs" hidden>
+              <div class="info-panel-title">How this is calculated</div>
+              <ul>
+                  <li><strong>Per month / Per year</strong> — Steady state once the unit is rented and the loan is fully disbursed.</li>
+                  <li><strong>Over the holding period</strong> — Summed from the year-by-year simulation, so it reflects the BUC rental gap and the ramping loan.</li>
+                  <li><strong>Maintenance, Property tax</strong> — Your monthly inputs, × 12 for the yearly figure.</li>
+                  <li><strong>Loan instalment</strong> — Standard amortizing payment on the loan amount over the loan term.</li>
+                  <li><strong>Corporate tax</strong> — <code>max(0, Net Rental − Maintenance − Property Tax − Interest) × Tax %</code>. The steady-state columns use first-year interest on the full loan.</li>
+                  <li><strong>Sub-total costs</strong> — Maintenance + Property tax + Loan instalment + Corporate tax.</li>
+                  <li><strong>Gross rental</strong> — <code>Rental psf × Size × 12</code>.</li>
+                  <li><strong>Net cashflow</strong> — <code>Gross Rental × (1 − Vacancy %) − Sub-total Costs</code>.</li>
+              </ul>
             </div>
             <div class="table-wrap">
               <table class="data-table" id="costs-table">
@@ -324,7 +368,21 @@
 
           <div class="results-section">
             <div class="results-section-title">
-              <h2>Cash outlay at purchase</h2>
+              <div class="title-with-info">
+                <h2>Cash outlay at purchase</h2>
+                <button type="button" class="info-btn" aria-expanded="false" aria-controls="info-cash-outlay" aria-label="How Cash outlay at purchase is calculated" title="How this is calculated">i</button>
+              </div>
+            </div>
+            <div class="info-panel" id="info-cash-outlay" hidden>
+              <div class="info-panel-title">How this is calculated</div>
+              <ul>
+                  <li><strong>Down payment</strong> — <code>Purchase Price × Down Payment %</code>.</li>
+                  <li><strong>Buyer's stamp duty</strong> — Progressive: 1% on the first S$180,000, 2% on the next S$180,000, 3% on the next S$640,000, 4% on the next S$500,000, 5% on the next S$1,500,000, and 6% above S$3,000,000.</li>
+                  <li><strong>ABSD</strong> — <code>Purchase Price × ABSD %</code> — shown only when above zero.</li>
+                  <li><strong>Conveyancing</strong> — Your input.</li>
+                  <li><strong>Outstanding mortgage at exit</strong> — The loan balance still owed at the end of the holding period.</li>
+                  <li><strong>Vacancy loss</strong> — <code>Gross Rental × Vacancy %</code>, summed over every year rent is collected.</li>
+              </ul>
             </div>
             <div class="results dense">
               <div class="result-tile">
@@ -357,8 +415,26 @@
 
           <div class="results-section">
             <div class="results-section-title">
-              <h2>Year-by-year: equity, appreciation &amp; mortgage</h2>
+              <div class="title-with-info">
+                <h2>Year-by-year: equity, appreciation &amp; mortgage</h2>
+                <button type="button" class="info-btn" aria-expanded="false" aria-controls="info-yearly" aria-label="How Year-by-year equity, appreciation and mortgage is calculated" title="How this is calculated">i</button>
+              </div>
               <span class="note">At your assumed capital appreciation rate</span>
+            </div>
+            <div class="info-panel" id="info-yearly" hidden>
+              <div class="info-panel-title">How this is calculated</div>
+              <ul>
+                  <li><strong>Property value</strong> — <code>Purchase Price × (1 + Appreciation %) ^ Year</code>.</li>
+                  <li><strong>Appreciation</strong> — This year's property value minus last year's.</li>
+                  <li><strong>Principal paid / Interest paid</strong> — How that year's instalments split between loan principal and interest.</li>
+                  <li><strong>Loan balance</strong> — What's still owed at the end of the year.</li>
+                  <li><strong>Equity</strong> — <code>Property Value − Loan Balance</code>.</li>
+                  <li><strong>Equity gain</strong> — Change in equity from the previous year (year 1 compares against your down payment).</li>
+                  <li><strong>Rental income</strong> — <code>Gross Rental × (1 − Vacancy %)</code>, from the rental start year onward.</li>
+                  <li><strong>Net cash flow</strong> — <code>Rental Income − Maintenance − Property Tax − Instalments − Corporate Tax</code>.</li>
+                  <li><strong>Cumulative cash flow</strong> — Running total of net cash flow.</li>
+                  <li><strong>Net position vs. cash invested</strong> — <code>Equity + Cumulative Cash Flow − Selling Costs − Cash Invested at Purchase</code>, where selling costs are the agent commission on that year's property value. The first positive year is your break-even.</li>
+              </ul>
             </div>
             <div class="table-wrap">
               <table class="data-table" id="yearly-table">
@@ -386,8 +462,22 @@
 
           <div class="results-section">
             <div class="results-section-title">
-              <h2>Bonus: leverage into your next property</h2>
+              <div class="title-with-info">
+                <h2>Bonus: leverage into your next property</h2>
+                <button type="button" class="info-btn" aria-expanded="false" aria-controls="info-leverage" aria-label="How Leverage into your next property is calculated" title="How this is calculated">i</button>
+              </div>
               <span class="note">At the end of the holding period</span>
+            </div>
+            <div class="info-panel" id="info-leverage" hidden>
+              <div class="info-panel-title">How this is calculated</div>
+              <ul>
+                  <li><strong>Sale price</strong> — <code>Purchase Price × (1 + Growth %) ^ Holding Years</code> — one row at your appreciation rate, one at 0% growth.</li>
+                  <li><strong>Selling costs</strong> — <code>Sale Price × Agent Commission %</code>.</li>
+                  <li><strong>Capital profit</strong> — <code>Sale Price − Purchase Price</code>.</li>
+                  <li><strong>Equity available</strong> — <code>Sale Price − Selling Costs − Outstanding Mortgage + Cumulative Cash Flow − BSD − ABSD − Conveyancing − GST</code>.</li>
+                  <li><strong>Next property value</strong> — <code>Equity Available ÷ Next Property Down Payment %</code>.</li>
+                  <li><strong>Leverage</strong> — Next property value as a percentage of your original purchase price.</li>
+              </ul>
             </div>
             <div class="table-wrap">
               <table class="data-table" id="leverage-table">
@@ -478,6 +568,7 @@
   <script src="../js/number-format.js"></script>
   <script src="../js/section-tone.js"></script>
   <script src="../js/theme.js"></script>
+  <script src="../js/info-toggle.js"></script>
   <script src="../js/property-leverage.js"></script>
 </body>
 </html>
