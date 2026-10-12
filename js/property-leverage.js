@@ -53,7 +53,14 @@
     outstandingMortgage: document.getElementById("out-outstandingMortgage"),
     vacancyLoss: document.getElementById("out-vacancyLoss"),
     vacancyRateNote: document.getElementById("out-vacancyRateNote"),
+    grossYield: document.getElementById("out-grossYield"),
+    netYield: document.getElementById("out-netYield"),
+    yieldOnCost: document.getElementById("out-yieldOnCost"),
+    cashOnCash: document.getElementById("out-cashOnCash"),
+    yieldSpread: document.getElementById("out-yieldSpread"),
   };
+  const yieldBucNote = document.getElementById("yield-buc-note");
+  const yieldBucYear = document.getElementById("yield-buc-year");
 
   const numberFmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 
@@ -559,6 +566,31 @@
         emphasize: true,
       },
     ]);
+
+    // --- Rental yield (steady state, once rented) ---
+    // Net yield is before financing (no mortgage, no corporate tax) so it describes the
+    // property itself; cash-on-cash brings both back in.
+    const netOperatingIncomeAnnual = netRentalAnnualSteadyState - opexAnnual;
+    const totalAcquisitionCost = purchasePrice + stampDuty + absdAmount + conveyancing + gstAmount;
+    const netYieldPct = (netOperatingIncomeAnnual / purchasePrice) * 100;
+    const yieldOnCostPct = (netOperatingIncomeAnnual / totalAcquisitionCost) * 100;
+    const cashOnCashPct = totalCashOutlay > 0 ? (netCashflowAnnualSteadyState / totalCashOutlay) * 100 : 0;
+    const yieldSpreadPts = netYieldPct - interestRate;
+
+    function setSign(node, value) {
+      node.classList.toggle("positive", value > 0);
+      node.classList.toggle("negative", value < 0);
+    }
+
+    out.grossYield.textContent = fmtPercent(grossRentalYieldPct);
+    out.netYield.textContent = fmtPercent(netYieldPct);
+    out.yieldOnCost.textContent = fmtPercent(yieldOnCostPct);
+    out.cashOnCash.textContent = fmtPercent(cashOnCashPct);
+    out.cashOnCash.classList.toggle("negative", cashOnCashPct < 0);
+    out.yieldSpread.textContent = `${yieldSpreadPts > 0 ? "+" : yieldSpreadPts < 0 ? "-" : ""}${Math.abs(yieldSpreadPts).toFixed(2)} pts`;
+    setSign(out.yieldSpread, yieldSpreadPts);
+    yieldBucNote.hidden = !useProgressiveSchedule;
+    yieldBucYear.textContent = rentalStartYear;
 
     buildYearlyTable(yearlyRows);
 

@@ -369,6 +369,55 @@
           <div class="results-section">
             <div class="results-section-title">
               <div class="title-with-info">
+                <h2>Rental yield</h2>
+                <button type="button" class="info-btn" aria-expanded="false" aria-controls="info-yield" aria-label="How Rental yield is calculated" title="How this is calculated">i</button>
+              </div>
+              <span class="note">Steady state, once rented</span>
+            </div>
+            <div class="info-panel" id="info-yield" hidden>
+              <div class="info-panel-title">How this is calculated</div>
+              <ul>
+                <li><strong>Gross rental yield</strong> — <code>Gross Rental ÷ Purchase Price</code>, where gross rental is <code>Rental psf × Size × 12</code>.</li>
+                <li><strong>Net rental yield</strong> — <code>(Gross Rental × (1 − Vacancy %) − Maintenance − Property Tax) ÷ Purchase Price</code>. Mortgage and corporate tax are left out, so it measures the property itself rather than your financing.</li>
+                <li><strong>Net yield on total cost</strong> — the same net rent, divided by what the property actually cost to acquire: <code>Purchase Price + BSD + ABSD + Conveyancing + GST</code>.</li>
+                <li><strong>Cash-on-cash return</strong> — <code>Net Cash Flow ÷ Cash Needed at Purchase</code>, using the yearly net cash flow after instalments and corporate tax from the Costs table.</li>
+                <li><strong>Yield vs. mortgage rate</strong> — <code>Net Rental Yield − Interest Rate</code>, in percentage points. Positive means the property earns more than the loan costs it; negative means the rent doesn't cover the interest, so the debt is a drag on cash flow.</li>
+                <li>Every figure is for a year once rent is flowing, on your original purchase price with rent held flat (no rent growth).</li>
+              </ul>
+            </div>
+            <div class="results dense">
+              <div class="result-tile">
+                <div class="label">Gross rental yield</div>
+                <div class="value small" id="out-grossYield">—</div>
+                <div class="sub">Before vacancy and any costs</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Net rental yield</div>
+                <div class="value small" id="out-netYield">—</div>
+                <div class="sub">After vacancy, maintenance &amp; property tax — before the mortgage</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Net yield on total cost</div>
+                <div class="value small" id="out-yieldOnCost">—</div>
+                <div class="sub">Counts stamp duty and other purchase costs</div>
+              </div>
+              <div class="result-tile primary">
+                <div class="label">Cash-on-cash return</div>
+                <div class="value small" id="out-cashOnCash">—</div>
+                <div class="sub">Yearly net cash flow ÷ cash needed at purchase</div>
+              </div>
+              <div class="result-tile">
+                <div class="label">Yield vs. mortgage rate</div>
+                <div class="value small" id="out-yieldSpread">—</div>
+                <div class="sub" id="out-yieldSpreadNote">Net rental yield minus your interest rate</div>
+              </div>
+            </div>
+            <div class="hint" id="yield-buc-note" style="margin-top: 10px;" hidden>BUC earns no rent until year <span id="yield-buc-year">—</span>, so there's no yield before then — these are the figures once the unit is rented and the loan is fully disbursed.</div>
+          </div>
+
+          <div class="results-section">
+            <div class="results-section-title">
+              <div class="title-with-info">
                 <h2>Cash outlay at purchase</h2>
                 <button type="button" class="info-btn" aria-expanded="false" aria-controls="info-cash-outlay" aria-label="How Cash outlay at purchase is calculated" title="How this is calculated">i</button>
               </div>
@@ -541,6 +590,11 @@
         <div class="formula-block">
           <h3>Corporate tax</h3>
           <p>Applied to net rental <em>profit</em> each year, not gross rent — <code>Taxable Profit = max(0, Net Rental − Maintenance − Property Tax − Mortgage Interest)</code>, then <code>Corporate Tax = Taxable Profit × Corporate Tax %</code>. Only the interest portion of your mortgage payment is deductible, not principal (which builds equity, not an expense) — consistent with how it's actually assessed. This reduces net cash flow every year, so it pushes out break-even and reduces the equity available to leverage into your next property. Capital profit from selling isn't taxed (Singapore has no capital gains tax), so it's unaffected.</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>Rental yield</h3>
+          <p><code>Gross Yield = Gross Rental ÷ Purchase Price</code> and <code>Net Yield = (Net Rental − Maintenance − Property Tax) ÷ Purchase Price</code>, both before any mortgage cost, so they describe the property rather than how it's financed. <code>Cash-on-Cash = Net Cash Flow ÷ Cash Needed at Purchase</code> brings the loan and corporate tax back in. Comparing the net yield with your mortgage rate shows whether borrowing is helping or hurting: when yield is above the rate, each borrowed dollar earns more than it costs.</p>
         </div>
 
         <div class="formula-block">
